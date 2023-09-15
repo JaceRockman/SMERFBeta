@@ -1,0 +1,6 @@
+{:deps true
+
+ :builds       {:app {:target           :react-native
+                      :init-fn          interface.app/init
+                      :output-dir       "app"
+                      :devtools         {:autoload true}}}}
