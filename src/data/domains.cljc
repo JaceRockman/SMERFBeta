@@ -1,6 +1,6 @@
 (ns data.domains)
 
-(def default-domains [{:domain/id #?(:cljs random-uuid :clj (java.util.UUID/randomUUID))
+(def default-domains [{:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
                        :domain/name "Physical"
                        :domain/resource-type-title "Equipment"
                        :domain/initiation-title "Coordination"
@@ -16,7 +16,7 @@
                        :domain/resilience-title "Fortitude"
                        :domain/resilience-value 6}
 
-                      {:domain/id #?(:cljs random-uuid :clj (java.util.UUID/randomUUID))
+                      {:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
                        :domain/name "Spiritual"
                        :domain/resource-type-title "Trait"
                        :domain/initiation-title "Exertion"
@@ -32,7 +32,7 @@
                        :domain/resilience-title "Tenacity"
                        :domain/resilience-value 6}
 
-                      {:domain/id #?(:cljs random-uuid :clj (java.util.UUID/randomUUID))
+                      {:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
                        :domain/name "Mental"
                        :domain/resource-type-title "Expertise"
                        :domain/initiation-title "Concentration"
@@ -48,7 +48,7 @@
                        :domain/resilience-title "Stability"
                        :domain/resilience-value 6}
 
-                      {:domain/id #?(:cljs random-uuid :clj (java.util.UUID/randomUUID))
+                      {:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
                        :domain/name "Social"
                        :domain/resource-type-title "Affiliation"
                        :domain/initiation-title "Persuasion"

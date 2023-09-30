@@ -29,6 +29,10 @@
       [button {:on-press (fn []
                            (-> props .-navigation (.navigate "About")))}
        "Tap me, I'll navigate"]]
+     [:> rn/View {:style {:align-items :center}}
+      [button {:on-press (fn []
+                           (-> props .-navigation (.navigate "Character")))}
+       "Tap me, I'll navigate to the character"]] 
      [:> rn/View
       [:> rn/View {:style {:flex-direction :row
                            :align-items :center

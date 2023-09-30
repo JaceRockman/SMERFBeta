@@ -2,6 +2,7 @@
   (:require
    [interface.views.home :refer [home]]
    [interface.views.about :refer [about]]
+   [interface.views.character :refer [character]]
    [expo.root :as expo-root]
    [data.app-state :as app]
    [datascript.core :as ds]
@@ -16,7 +17,7 @@
 (defn root [db]
   ;; The save and restore of the navigation root state is for development time bliss
   (r/with-let [!root-state (ffirst (ds/q '[:find ?navigation-root
-                                           :where [1 :navigator/val ?navigation-root]]
+                                           :where [?eid :navigator/val ?navigation-root]]
                                          db))
                save-root-state! (fn [^js state]
                                   (ds/transact! app/conn [[:db/add 1 :navigator/val state]]))
@@ -31,7 +32,10 @@
                         :options {:title "Example App"}}]
       [:> Stack.Screen {:name "About"
                         :component (fn [props] (r/as-element [about db props]))
-                        :options {:title "About"}}]]]))
+                        :options {:title "About"}}]
+      [:> Stack.Screen {:name "Character"
+                        :component (fn [props] (r/as-element [character db props]))
+                        :options {:title "Character"}}]]]))
 
 ;; This would be a simpler way to do routing for the app
 (defn my-root [db]
@@ -45,6 +49,7 @@
   {:dev/after-load true}
   ([] (render @app/conn))
   ([db]
+   (println db)
    (profile "render"
             (expo-root/render-root (r/as-element [root db])))))
 
