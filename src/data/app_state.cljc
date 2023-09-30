@@ -16,3 +16,11 @@
                                               @conn))
         _ (ds/transact! conn (creatures/example-creatures init-domain-entities))] 
     :success))
+
+(defn navigation-state [db]
+  (ffirst (ds/q '[:find ?navigator
+                  :where [?eid :navigator/val ?navigator]]
+                db)))
+
+(defn navigate-fn [navigation-key]
+  (fn [] (ds/transact! conn [[:db/add 1 :navigator/val navigation-key]])))

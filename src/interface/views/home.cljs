@@ -1,6 +1,8 @@
 (ns interface.views.home
   (:require
    [data.counter :refer [get-counter-val get-counter-enabled inc-counter]]
+   [data.app-state :as app-state]
+   [datascript.core :as ds]
    [interface.widgets.buttons :refer [button]]
    ["react-native" :as rn]
    ["expo-status-bar" :refer [StatusBar]]))
@@ -26,13 +28,11 @@
                :style {:background-color :blue}}
        "Tap me, I'll count"]]
      [:> rn/View {:style {:align-items :center}}
-      [button {:on-press (fn []
-                           (-> props .-navigation (.navigate "About")))}
+      [button {:on-press (app-state/navigate-fn :about)}
        "Tap me, I'll navigate"]]
      [:> rn/View {:style {:align-items :center}}
-      [button {:on-press (fn []
-                           (-> props .-navigation (.navigate "Character")))}
-       "Tap me, I'll navigate to the character"]] 
+      [button {:on-press (app-state/navigate-fn :creature)}
+       "Tap me, I'll navigate to the creature"]] 
      [:> rn/View
       [:> rn/View {:style {:flex-direction :row
                            :align-items :center
