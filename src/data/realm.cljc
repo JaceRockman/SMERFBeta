@@ -1,6 +1,14 @@
-(ns data.realm
+(ns data.realms
   (:require [datascript.core :as ds]
             [data.app-state :as app-state]))
+
+(def init-realms
+  [{:realm/id #?(:clj (java.util.UUID/randomUUID) :cljs random-uuid)
+    :realm/title "Fantasy"}
+   {:realm/id #?(:clj (java.util.UUID/randomUUID) :cljs random-uuid)
+    :realm/title "Science Fiction"}
+   {:realm/id #?(:clj (java.util.UUID/randomUUID) :cljs random-uuid)
+    :realm/title "Lovecraftian Horror"}])
 
 (defn get-all-realms [db]
   (map first (ds/q '[:find ?realm

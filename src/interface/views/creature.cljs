@@ -1,6 +1,5 @@
 (ns interface.views.creature
   (:require
-   [data.app-state :as app-state]
    [datascript.core :as ds]
    ["react-native" :as rn]
    [interface.components.organization :refer [card]]))

@@ -1,5 +1,8 @@
 (ns data.domains)
 
+(def domains-schema
+  [])
+
 (def default-domains [{:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
                        :domain/name "Physical"
                        :domain/resource-type-title "Equipment"

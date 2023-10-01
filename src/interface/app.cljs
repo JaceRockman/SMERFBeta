@@ -1,18 +1,18 @@
 (ns interface.app
   (:require
-   [interface.views.home :refer [home]]
-   [interface.views.realm :refer [realm]]
-   [interface.views.creature :refer [creature]]
    [expo.root :as expo-root]
+   [data.conn :refer [conn]]
    [data.app-state :as app-state]
    [datascript.core :as ds]
+   [interface.views.home :refer [home]]
+   [interface.views.realm :refer [realm]]
+   [interface.views.creature :refer [creature]] 
    [reagent.core :as r]
    ["@react-navigation/native" :as rnn]
    ["@react-navigation/native-stack" :as rnn-stack])
   (:require-macros
    [interface.app :refer [profile]]))
 
-;; This would be a simpler way to do routing for the app
 (defn root [db]
   (case (app-state/navigation-state db)
     :realm (r/as-element [realm db {}])
@@ -21,18 +21,18 @@
 
 (defn render
   {:dev/after-load true}
-  ([] (render @app-state/conn))
+  ([] (render @conn))
   ([db]
    (profile "render"
             (expo-root/render-root (r/as-element [root db])))))
 
 ;; re-render on every DB change
-(ds/listen! app-state/conn :render
+(ds/listen! conn :render
             (fn [tx-report]
               (render (:db-after tx-report))))
 
 (defn ^:export init []
-  (app-state/init-dev-db)
+  (app-state/initialize-db conn)
   (render))
 
 ;; More complex root component with navigation libraries

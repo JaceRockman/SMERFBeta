@@ -9,15 +9,15 @@
 
 (defn example-creatures
   [default-domain-entities]
-  [{:creature/id #?(:clj (java.util.UUID/randomUUID) :cljs random-uuid)
+  [{:creature/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
     :creature/domains default-domain-entities
     :creature/name "aleksander"
     :creature/race [:race/elf :race/human]}
-   {:creature/id #?(:clj (java.util.UUID/randomUUID) :cljs random-uuid)
+   {:creature/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
     :creature/domains default-domain-entities
     :creature/name "eilonwey"
     :creature/race :race/elf}
-   {:creature/id #?(:clj (java.util.UUID/randomUUID) :cljs random-uuid)
+   {:creature/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
     :creature/domains default-domain-entities
     :creature/name "durflag"
     :creature/race :race/dwarf}])
@@ -25,7 +25,7 @@
 (defn new-creature-defaults
   "A transaction schema for a new creature"
   []
-  {:creature/id #?(:clj (java.util.UUID/randomUUID) :cljs random-uuid)
+  {:creature/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
    :creature/domains domains/default-domains})
 
 
