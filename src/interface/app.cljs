@@ -1,7 +1,7 @@
 (ns interface.app
   (:require
    [interface.views.home :refer [home]]
-   [interface.views.about :refer [about]]
+   [interface.views.realm :refer [realm]]
    [interface.views.creature :refer [creature]]
    [expo.root :as expo-root]
    [data.app-state :as app-state]
@@ -15,7 +15,7 @@
 ;; This would be a simpler way to do routing for the app
 (defn root [db]
   (case (app-state/navigation-state db)
-    :about (r/as-element [about db {}])
+    :realm (r/as-element [realm db {}])
     :creature (r/as-element [creature db 8 {}])
     (r/as-element [home db {}])))
 

@@ -9,8 +9,7 @@
   []
   (let [_ (ds/transact! conn creatures/creature-races)
         _ (ds/transact! conn domains/default-domains)
-        _ (ds/transact! conn [[:db/add 2 :counter/val 0]
-                              [:db/add 2 :counter/enabled true]])
+        _ (ds/transact! conn [{:db/ident :active}])
         init-domain-entities (map first (ds/q '[:find ?e
                                                 :where [?e :domain/id]]
                                               @conn))
