@@ -53,8 +53,6 @@
 (defn ns-keys->strings [m]
   (reduce (fn [r [k v]] (into r {(str (symbol k)) v})) {} m))
 
-(defn section-header [])
-
 (defn section [items on-press])
 
 (defn section-header
@@ -80,7 +78,7 @@
                                     :flex-direction :row}
                             :on-press on-press}
     (map (fn [[k v]]
-           [:> rn/Text {:style {:padding 5 :color :white }} v])
+           [:> rn/Text {:style {:padding 5 :color :white :font-size 18}} v])
          (dissoc (:item data) :id))]))
 
 (defn list-select [items on-press]

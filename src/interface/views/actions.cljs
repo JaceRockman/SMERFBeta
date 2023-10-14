@@ -1,5 +1,6 @@
 (ns interface.views.actions
-  (:require ["react-native" :as rn]
+  (:require [reagent.core :as r]
+            ["react-native" :as rn]
             [data.realms :as realms]
             [interface.styles.text :refer [view-header-style]]
             [interface.components.navigation :as navigation]
@@ -11,4 +12,3 @@
 
 (defn actions [db ^js props]
   (organization/view-frame db actions-details))
-
