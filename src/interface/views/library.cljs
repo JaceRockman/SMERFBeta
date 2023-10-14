@@ -11,6 +11,10 @@
   [:> rn/View
    [:> rn/Text "Page not Found"]])
 
+(defn account [db ^js props]
+  [:> rn/View
+   [:> rn/Text "Account Stuff"]])
+
 (defn realm [db ^js props]
   (realm/realm db props))
 

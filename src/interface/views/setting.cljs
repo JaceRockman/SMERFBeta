@@ -6,7 +6,8 @@
             [interface.components.organization :as organization]))
 
 (defn setting-details [db]
-  [:> rn/Text "Setting Details"])
+  [:> rn/View {:style {:flex :1}}
+   [:> rn/Text "Setting Details"]])
 
 (defn setting [db ^js props]
   (organization/view-frame db setting-details))

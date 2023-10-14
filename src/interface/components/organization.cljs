@@ -16,7 +16,7 @@
                        :width "100%" 
                        :flex-direction :row
                        :justify-content :space-between}}
-   (navigation/realm-select-view)
+   (navigation/realm-management-nav-button)
    [:> rn/View
     (map view-header-text headers)]
    (navigation/menu)])
@@ -27,13 +27,13 @@
 
 (defn view-frame
   [db content]
-  (let [active-realm (realms/get-active-realm db)
-        realm-data (when (not-empty active-realm) (realms/get-realm-details db (first active-realm)))
+  (let [active-realm (first (realms/get-active-realm db))
+        realm-data (when active-realm (realms/get-realm-details db active-realm))
         view-title (str/capitalize (name (app-state/navigation-state db)))]
     [:> rn/View {:style {:flex 1
-                         :justify-content :space-between
                          :align-items :center
-                         :background-color :white}}
+                         :background-color :white
+                         :height "100%"}}
      (view-header [(:realm/title realm-data) view-title])
      (content db)
      (navigation/tab-bar)]))

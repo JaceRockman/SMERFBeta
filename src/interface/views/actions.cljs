@@ -6,7 +6,8 @@
             [interface.components.organization :as organization]))
 
 (defn actions-details [db]
-  [:> rn/Text "Actions Details"])
+  [:> rn/View {:style {:flex :1}}
+   [:> rn/Text "Actions Details"]])
 
 (defn actions [db ^js props]
   (organization/view-frame db actions-details))

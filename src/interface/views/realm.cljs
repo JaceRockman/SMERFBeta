@@ -7,6 +7,7 @@
    [data.app-state :as app-state]
    [data.realms :as realms]
    [interface.styles.text :refer [view-header-style]] 
+   [interface.components.organization :as organization]
    [interface.components.navigation :as navigation]
    [interface.widgets.buttons :refer [button]]))
 
@@ -34,7 +35,7 @@
 
 (defn realm-select-list
   [realms-data]
-  (navigation/list-select realms-data (fn [item] (fn [] (realms/set-active-realm (-> item :item :db/id))))))
+  (navigation/list-select realms-data (fn [item] (fn [] (realms/set-active-realm (-> item :item :id))))))
 
 (defn realm-select
   [realms-data]
@@ -50,22 +51,16 @@
       (:realm/title realm-data)]
    [:> rn/Text (str realm-data)]])
 
+(defn realm-content
+  [db]
+  (let [active-realm (realms/get-active-realm db)
+        realm-title-id (realms/get-details-for-all-realms db realms/simple-keys-pull-pattern)
+        realm-data (when (not-empty active-realm) (realms/get-realm-details db (first active-realm) realms/simple-keys-pull-pattern))]
+    [:> rn/View {:style {:flex 1}}
+     (if (empty? active-realm)
+       (realm-select realm-title-id)
+       (realm-summary realm-data))]))
+
 (defn realm 
   [db ^js props]
-  (let [active-realm (realms/get-active-realm db)
-        all-realms (realms/get-details-for-all-realms db)
-        realm-data (when (not-empty active-realm) (realms/get-realm-details db (first active-realm)))] 
-    [:> rn/View {:style {:flex 1
-                         :justify-content :space-between
-                         :align-items :center
-                         :background-color :white}}
-     (if (empty? active-realm)
-       (realm-select all-realms)
-       (realm-summary realm-data))
-     [navigation/tab-bar [[:> FontAwesome5 {:key 1 :name "globe-europe" :size 24 :color :black}]
-               [:> FontAwesome5 {:key 2 :name "book" :size 24 :color :black}]
-               [:> FontAwesome5 {:key 3 :name "users" :size 24 :color :black}]
-               [:> FontAwesome5 {:key 4 :name "coins" :size 24 :color :black}]
-               [:> FontAwesome5 {:key 5 :name "running" :size 24 :color :black}]]
-      [:setting :rules :creatures :resources :actions]]
-     [:> StatusBar {:style "auto"}]]))
+  (organization/view-frame db realm-content))

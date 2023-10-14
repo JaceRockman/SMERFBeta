@@ -6,7 +6,8 @@
             [interface.components.organization :as organization]))
 
 (defn resources-details [db]
-  [:> rn/Text "Resources Details"])
+  [:> rn/View {:style {:flex :1}}
+   [:> rn/Text "Resources Details"]])
 
 (defn resources [db ^js props]
   (organization/view-frame db resources-details))

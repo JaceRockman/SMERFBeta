@@ -37,7 +37,8 @@
    (details db creature-id )])
 
 (defn creatures-details [db]
-  [:> rn/Text "Creatures Details"])
+  [:> rn/View {:style {:flex :1}}
+   [:> rn/Text "Creatures Details"]])
 
 (defn creatures [db ^js props]
   (organization/view-frame db creatures-details))
