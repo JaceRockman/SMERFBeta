@@ -2,7 +2,7 @@
   (:require
    [datascript.core :as ds]
    ["react-native" :as rn]
-   [interface.components.organization :refer [card]]))
+   [interface.components.organization :as organization]))
 
 (defn details-query [creature-eid db]
   (ds/q '[:find ?name ?race
@@ -35,3 +35,9 @@
   [:> rn/View
    (details db creature-id)
    (details db creature-id )])
+
+(defn creatures-details [db]
+  [:> rn/Text "Creatures Details"])
+
+(defn creatures [db ^js props]
+  (organization/view-frame db creatures-details))

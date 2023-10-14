@@ -3,16 +3,15 @@
             ["react-native" :as rn]
             ["@expo/vector-icons" :refer [FontAwesome5 Ionicons]]
             [data.app-state :as app-state]
-            [interface.widgets.buttons :refer [button]]
-            [data.realms :as realms]))
+            [data.realms :as realms]
+            [interface.widgets.buttons :refer [button]]))
 
 (def menu-expanded? (r/atom false))
 
 (defn menu []
   (let [background-color (when @menu-expanded? :black)
         text-color (if @menu-expanded? :white :black)]
-    [:> rn/View {:style {:position :absolute
-                         :align-self :flex-end
+    [:> rn/View {:style {:align-self :flex-end
                          :align-items :flex-end
                          :background-color background-color}}
      (button {:style {:background-color :inherit}
@@ -24,6 +23,12 @@
                                   (reset! menu-expanded? false)
                                   (app-state/navigate :home)))}
                "Home"))]))
+
+(defn realm-select-view
+  []
+  (button {:style {:background-color :inherit}
+           :on-press #(app-state/navigate :realm)}
+          [:> FontAwesome5 {:name :home :color :black :size 24}]))
 
 (defn tab-bar-button [icon destination]
   (button {:key destination

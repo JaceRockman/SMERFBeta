@@ -5,10 +5,10 @@
    ["expo-status-bar" :refer [StatusBar]]
    ["@expo/vector-icons" :refer [FontAwesome5]]
    [data.app-state :as app-state]
-   [interface.components.navigation :as navigation]
    [data.realms :as realms]
-   [interface.widgets.buttons :refer [button]]
-   [interface.components.navigation :refer [tab-bar]]))
+   [interface.styles.text :refer [view-header-style]] 
+   [interface.components.navigation :as navigation]
+   [interface.widgets.buttons :refer [button]]))
 
 (def active-section (r/atom :setting))
 
@@ -39,14 +39,14 @@
 (defn realm-select
   [realms-data]
   [:> rn/View
-   [:> rn/Text {:style {:width "100%" :text-align :center :font-size 24 :font-weight :bold :padding 10}}
+   [:> rn/Text {:style view-header-style}
       "Select a Realm"]
    (realm-select-list realms-data)])
 
 (defn realm-summary
   [realm-data]
   [:> rn/View
-   [:> rn/Text {:style {:width "100%" :text-align :center :font-size 24 :font-weight :bold :padding 10}}
+   [:> rn/Text {:style view-header-style}
       (:realm/title realm-data)]
    [:> rn/Text (str realm-data)]])
 
@@ -59,11 +59,10 @@
                          :justify-content :space-between
                          :align-items :center
                          :background-color :white}}
-     
      (if (empty? active-realm)
        (realm-select all-realms)
        (realm-summary realm-data))
-     [tab-bar [[:> FontAwesome5 {:key 1 :name "globe-europe" :size 24 :color :black}]
+     [navigation/tab-bar [[:> FontAwesome5 {:key 1 :name "globe-europe" :size 24 :color :black}]
                [:> FontAwesome5 {:key 2 :name "book" :size 24 :color :black}]
                [:> FontAwesome5 {:key 3 :name "users" :size 24 :color :black}]
                [:> FontAwesome5 {:key 4 :name "coins" :size 24 :color :black}]

@@ -1,9 +1,11 @@
 (ns interface.views.library
   (:require ["react-native" :as rn]
-            [interface.views.creatures :as creatures]
-            [interface.views.home :as home]
+            [interface.views.realm :as realm]
             [interface.views.setting :as setting]
-            [interface.views.realm :as realm]))
+            [interface.views.rules :as rules] 
+            [interface.views.creatures :as creatures]
+            [interface.views.resources :as resources]
+            [interface.views.actions :as actions]))
 
 (defn no-page [db ^js props]
   [:> rn/View
@@ -16,17 +18,13 @@
   (setting/setting db props))
 
 (defn rules [db ^js props]
-  [:> rn/View
-   [:> rn/Text "Rules"]])
+  (rules/rules db props))
 
 (defn creatures [db ^js props]
-  [:> rn/View
-   [:> rn/Text "Creatures"]])
+  (creatures/creatures db props))
 
 (defn resources [db ^js props]
-  [:> rn/View
-   [:> rn/Text "Resources"]])
+  (resources/resources db props))
 
 (defn actions [db ^js props]
-  [:> rn/View
-   [:> rn/Text "Actions"]])
+  (actions/actions db props))
