@@ -7,14 +7,15 @@
 
 (defn initialize-db
   [conn]
-  (let [_ (ds/transact! conn creatures/creature-races)
+  (let [_ (ds/transact! conn [[:db/add 1 :navigator/val :realm]])
+        _ (ds/transact! conn creatures/creature-races)
         _ (ds/transact! conn domains/default-domains)
         _ (ds/transact! conn realms/init-realms)
         _ (ds/transact! conn [{:db/ident :active}])
         init-domain-entities (map first (ds/q '[:find ?e
                                                 :where [?e :domain/id]]
                                               @conn))
-        _ (ds/transact! conn (creatures/example-creatures init-domain-entities))] 
+        _ (ds/transact! conn (creatures/example-creatures init-domain-entities))]
     :success))
 
 (defn navigation-state [db]

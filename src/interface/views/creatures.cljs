@@ -1,4 +1,4 @@
-(ns interface.views.creature
+(ns interface.views.creatures
   (:require
    [datascript.core :as ds]
    ["react-native" :as rn]

@@ -4,9 +4,7 @@
    [data.conn :refer [conn]]
    [data.app-state :as app-state]
    [datascript.core :as ds]
-   [interface.views.home :refer [home]]
-   [interface.views.realm :refer [realm]]
-   [interface.views.creature :refer [creature]] 
+   [interface.views.library :as views]
    [reagent.core :as r]
    ["@react-navigation/native" :as rnn]
    ["@react-navigation/native-stack" :as rnn-stack])
@@ -15,9 +13,14 @@
 
 (defn root [db]
   (case (app-state/navigation-state db)
-    :realm (r/as-element [realm db {}])
-    :creature (r/as-element [creature db 8 {}])
-    (r/as-element [home db {}])))
+    :settings (r/as-element [views/setting db {}])
+    :realm (r/as-element [views/realm db {}])
+    :setting (r/as-element [views/setting db {}])
+    :rules (r/as-element [views/rules db {}])
+    :creatures (r/as-element [views/creatures db {}])
+    :resources (r/as-element [views/resources db {}])
+    :actions (r/as-element [views/actions db {}])
+    (r/as-element [views/realm db {}])))
 
 (defn render
   {:dev/after-load true}
