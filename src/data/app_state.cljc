@@ -2,13 +2,17 @@
   (:require [datascript.core :as ds]
             [data.conn :refer [conn]]
             [data.realms :as realms]
+            [data.setting :as settings]
             [data.domains :as domains]
-            [data.creatures :as creatures]))
+            [data.creatures :as creatures]
+            [clojure.string :as str]))
 
 (defn initialize-db
   [conn]
-  (let [_ (ds/transact! conn [[:db/add 1 :navigator/main :realm]
-                              [:db/add 1 :navigator/sub :none]])
+  (let [_ (ds/transact! conn [[:db/add 1 :navigator/main "realm"]
+                              ;; [:db/add 1 :navigator/sub :none]
+                              ])
+        _ (ds/transact! conn settings/example-fantasy-setting)
         _ (ds/transact! conn creatures/creature-races)
         _ (ds/transact! conn domains/default-domains)
         _ (ds/transact! conn realms/init-realms)
@@ -19,25 +23,27 @@
         _ (ds/transact! conn (creatures/example-creatures init-domain-entities))]
     :success))
 
+(defn navigation-state [db]
+  (map keyword (str/split (ffirst (ds/q '[:find ?main
+                                          :where [1 :navigator/main ?main]]
+                                        db))
+                          #"/")))
+
 (defn main-nav-state [db]
-  (ffirst (ds/q '[:find ?main
-                  :where [1 :navigator/main ?main]]
-                db)))
+  (first (navigation-state db)))
 
 (defn sub-nav-state [db]
-  (ffirst (ds/q '[:find ?sub
-                  :where [1 :navigator/sub ?sub]]
-                db)))
+  (rest (navigation-state db)))
 
-(defn navigation-state [db]
+(defn navigation-state-old [db]
   (ds/q '[:find [?main ?sub]
           :where [1 :navigator/main ?main]
           [1 :navigator/sub ?sub]]
         db))
 
 (defn navigate
-  ([main-key]
-   (ds/transact! conn [[:db/add 1 :navigator/main main-key]]))
-  ([main-key sub-key]
-   (ds/transact! conn [[:db/add 1 :navigator/main main-key]
-                       (when sub-key [:db/add 1 :navigator/sub sub-key])])))
+ [keyword-url]
+  (let [url (if (vector? keyword-url)
+              (apply str (interpose "/" (map name keyword-url)))
+              (name keyword-url))]
+    (ds/transact! conn [[:db/add 1 :navigator/main url]])) )
