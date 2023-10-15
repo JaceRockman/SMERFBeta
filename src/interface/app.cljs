@@ -12,15 +12,16 @@
    [interface.app :refer [profile]]))
 
 (defn root [db]
-  (case (app-state/navigation-state db)
-    :settings (r/as-element [views/setting db {}])
-    :realm (r/as-element [views/realm db {}])
-    :setting (r/as-element [views/setting db {}])
-    :rules (r/as-element [views/rules db {}])
-    :creatures (r/as-element [views/creatures db {}])
-    :resources (r/as-element [views/resources db {}])
-    :actions (r/as-element [views/actions db {}])
-    (r/as-element [views/realm db {}])))
+  (let [main-nav (app-state/main-nav-state db)] 
+    (case main-nav
+      :settings (r/as-element [views/setting db {}])
+      :realm (r/as-element [views/realm db {}])
+      :setting (r/as-element [views/setting db {}])
+      :rules (r/as-element [views/rules db {}])
+      :creatures (r/as-element [views/creatures db {}])
+      :resources (r/as-element [views/resources db {}])
+      :actions (r/as-element [views/actions db {}])
+      (r/as-element [views/realm db {}]))))
 
 (defn render
   {:dev/after-load true}

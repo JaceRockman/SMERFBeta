@@ -29,7 +29,7 @@
   [db content]
   (let [active-realm (first (realms/get-active-realm db))
         realm-data (when active-realm (realms/get-realm-details db active-realm))
-        view-title (str/capitalize (name (app-state/navigation-state db)))]
+        view-title (str/capitalize (name (first (app-state/navigation-state db))))]
     [:> rn/View {:style {:flex 1
                          :align-items :center
                          :background-color :white

@@ -16,7 +16,7 @@
 (defn select-realm-button [realm-data]
   [button {:on-press (fn [] (doall
                              (realms/set-active-realm (:db/id realm-data))
-                             (app-state/navigate :realm)))
+                             (app-state/navigate [:realm])))
            :style {:background-color :gray
                    :width 150
                    :height 150
