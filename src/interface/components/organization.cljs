@@ -35,7 +35,7 @@
                          :background-color :white
                          :height "100%"}}
      (view-header [(:realm/title realm-data) view-title])
-     (content db)
+     content 
      (navigation/tab-bar)]))
 
 

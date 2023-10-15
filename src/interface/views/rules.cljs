@@ -5,9 +5,9 @@
             [interface.components.navigation :as navigation]
             [interface.components.organization :as organization]))
 
-(defn rules-details [db]
+(defn rules-details []
   [:> rn/View {:style {:flex :1}}
    [:> rn/Text "Rules Details"]])
 
 (defn rules [db ^js props]
-  (organization/view-frame db rules-details))
+  (organization/view-frame db (rules-details)))

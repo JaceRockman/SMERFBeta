@@ -12,7 +12,7 @@
    [interface.app :refer [profile]]))
 
 (defn root [db]
-  (let [main-nav (app-state/main-nav-state db)] 
+  (let [main-nav (app-state/main-nav-state db)]
     (case main-nav
       :settings (r/as-element [views/setting db {}])
       :realm (r/as-element [views/realm db {}])

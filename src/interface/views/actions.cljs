@@ -6,9 +6,9 @@
             [interface.components.navigation :as navigation]
             [interface.components.organization :as organization]))
 
-(defn actions-details [db]
+(defn actions-details []
   [:> rn/View {:style {:flex :1}}
    [:> rn/Text "Actions Details"]])
 
 (defn actions [db ^js props]
-  (organization/view-frame db actions-details))
+  (organization/view-frame db (actions-details)))

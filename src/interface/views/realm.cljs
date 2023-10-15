@@ -51,16 +51,13 @@
       (:realm/title realm-data)]
    [:> rn/Text (str realm-data)]])
 
-(defn realm-content
-  [db]
+(defn realm 
+  [db ^js props]
   (let [active-realm (realms/get-active-realm db)
         realm-title-id (realms/get-details-for-all-realms db realms/simple-keys-pull-pattern)
         realm-data (when (not-empty active-realm) (realms/get-realm-details db (first active-realm) realms/simple-keys-pull-pattern))]
-    [:> rn/View {:style {:flex 1}}
-     (if (empty? active-realm)
-       (realm-select realm-title-id)
-       (realm-summary realm-data))]))
-
-(defn realm 
-  [db ^js props]
-  (organization/view-frame db realm-content))
+    (organization/view-frame db
+                             [:> rn/View {:style {:flex 1}}
+                              (if (empty? active-realm)
+                                (realm-select realm-title-id)
+                                (realm-summary realm-data))])))

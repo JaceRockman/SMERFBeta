@@ -36,9 +36,9 @@
    (details db creature-id)
    (details db creature-id )])
 
-(defn creatures-details [db]
+(defn creatures-details []
   [:> rn/View {:style {:flex :1}}
    [:> rn/Text "Creatures Details"]])
 
 (defn creatures [db ^js props]
-  (organization/view-frame db creatures-details))
+  (organization/view-frame db (creatures-details)))
