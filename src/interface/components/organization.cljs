@@ -30,10 +30,10 @@
   (let [active-realm (first (realms/get-active-realm db))
         realm-data (when active-realm (realms/get-realm-details db active-realm))
         view-title (str/capitalize (name (first (app-state/navigation-state db))))]
-    [:> rn/View {:style {:flex 1
+    [:> rn/View {:style {:width (.-width js/screen)
                          :align-items :center
                          :background-color :white
-                         :height "100%"}}
+                         :height (.-height js/screen)}}
      (view-header [(:realm/title realm-data) view-title])
      content 
      (navigation/tab-bar)]))

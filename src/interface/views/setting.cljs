@@ -24,7 +24,7 @@
 
 (defn setting-details [db sub-nav]
   (let [kalashar (settings/setting-details db "Kalashar")]
-    [:> rn/View {:style {:flex :1}}
+    [:> rn/ScrollView {:style {:flex :1}}
      (case (first sub-nav)
        :territories [:> Markdown {:rules setting-rules}
                      (:setting/home kalashar)]
