@@ -57,33 +57,51 @@ Stats (not conditional on other rules)"
 \tMinor injuries will heal naturally after 2 days while major injuries will heal naturally after 1 week. You may come across items or techniques that can be used to heal injuries quicker than through natural processes."})
 
 (def condition-list
-  {:wounded {:header "Wounded"
-             :body {:effect "As a result of the injuries you have accumulated, your performance in a particular domain has diminished. While wounded, a -1d penalty is applied to all checks made in the domain you are wounded in."
-                    :duration "This condition lasts until the total injuries in the relevant domain are equal to or lower than the threshold determined by that domain's health check."}}
-   :incapacitated {:header "Incapacitated"
-                   :body {:effect "You have accumulated enough injuries that your character is no longer in control of their body, mind, spirit, or reputation. When this condition is inflicted in the physical, spiritual, or mental domain, your character becomes unconscious, despondent, or unstable, respectively. You have no control over your character in any of these circumstances. In the case of social incapacitation, people may avoid associating with you or may ignore you completely."
-                          :duration "Whenever your wounds heal, make a health check where the target number is your new damage total. If you succeed, then this condition is removed."}}
-   :dead {:header "Dead"
-          :body {:effect "You have accumulated more injuries than your body, mind, spirit, or reputation can handle. When this condition is inflicted in the physical, spiritual, or mental domain, the injuries accumulated in those domains no longer heal naturally over time. In the case of the social domain, your relationships with specific individuals or groups may be permanently severed and trying to interact with them may cause them to become hostile."
-                 :duration "Unless a certain circumstance, process, or item says otherwise, this condition is permanent."}}
-   :exhausted {:header "Exhausted"
-               :body {:effect "Whether through over-exertion, sickness, or some other unfortunate circumstance, you have become exhausted and your overall capabilities are diminished. This condition can be applied any number of times adding additional levels of exhaustion. Each level of exhaustion inflicts a -1d penalty on all of your checks"
-                      :duration "Six hours of uninterrupted sleep removes one level of exhaustion."}}
-   :surprised {:header "Surprised"
-               :body {:effect "Events have unfolded that were so unexpected that it takes your mind a bit to catch up. You cannot take any actions while surprised."
-                      :duration "The surprise fades away after a few seconds."}}
-   :blinded {:header "Blinded"
-             :body {:effect "Some damage or barrier prevents you from seeing. Actions that depend on your sense of sight will receive penalties as determined by the Game Master."
-                    :duration "Your sense of sight returns once the barrier is removed or damage healed."}}
-   :deafened {:header "Deafened"
-              :body {:effect "Some damage or barrier prevents you from hearing. Actions that depend on your sense of hearing will receive penalties as determined by the Game Master."
-                     :duration "Your sense of hearing returns once the barrier is removed or damage healed."}}
-   :constrained {:header "Constrained"
-                 :body {:effect "You have become tangled, tied, or grappled and your movement is restricted. Actions that depend on your ability to move will receive penalties as determined by the Game Master."
-                        :duration "Your freedom of movement returns when the restraints are removed."}}
-   :frightened {:header "Frightened"
-                :body {:effect "Your instinctual desire to preserve your life and well-being take over in the face of great danger. You cannot move closer to where you believe the source of your fear is."
-                       :duration "This effect lasts until the source of your fear takes a major wound or until you deal any damage to it."}}})
+  {:wounded "# Wounded
+## Effect
+As a result of the injuries you have accumulated, your performance in a particular domain has diminished. While wounded, a -1d penalty is applied to all checks made in the domain you are wounded in.
+## Duration
+This condition lasts until the total injuries in the relevant domain are equal to or lower than the threshold determined by that domain's health check."
+   :incapacitated "# Incapacitated
+## Effect
+You have accumulated enough injuries that your character is no longer in control of their body, mind, spirit, or reputation. When this condition is inflicted in the physical, spiritual, or mental domain, your character becomes unconscious, despondent, or unstable, respectively. You have no control over your character in any of these circumstances. In the case of social incapacitation, people may avoid associating with you or may ignore you completely.
+## Duration
+Whenever your wounds heal, make a health check where the target number is your new damage total. If you succeed, then this condition is removed." 
+   :dead "# Dead
+## Effect
+You have accumulated more injuries than your body, mind, spirit, or reputation can handle. When this condition is inflicted in the physical, spiritual, or mental domain, the injuries accumulated in those domains no longer heal naturally over time. In the case of the social domain, your relationships with specific individuals or groups may be permanently severed and trying to interact with them may cause them to become hostile.
+## Duration
+Unless a certain circumstance, process, or item says otherwise, this condition is permanent."
+   :exhausted "# Exhausted
+## Effect
+Whether through over-exertion, sickness, or some other unfortunate circumstance, you have become exhausted and your overall capabilities are diminished. This condition can be applied any number of times adding additional levels of exhaustion. Each level of exhaustion inflicts a -1d penalty on all of your checks.
+## Duration
+Six hours of uninterrupted sleep removes one level of exhaustion."
+   :surprised "# Surprised
+## Effect
+Events have unfolded that were so unexpected that it takes your mind a bit to catch up. You cannot take any actions while surprised.
+## Duration
+The surprise fades away after a few seconds."
+   :blinded "# Blinded
+## Effect
+Some damage or barrier prevents you from seeing. Actions that depend on your sense of sight will receive penalties as determined by the Game Master.
+## Duration
+Your sense of sight returns once the barrier is removed or damage healed."
+   :deafened "# Deafened
+## Effect
+Some damage or barrier prevents you from hearing. Actions that depend on your sense of hearing will receive penalties as determined by the Game Master.
+## Duration
+Your sense of hearing returns once the barrier is removed or damage healed."
+   :constrained "# Constrained
+## Effect
+You have become tangled, tied, or grappled and your movement is restricted. Actions that depend on your ability to move will receive penalties as determined by the Game Master.
+## Duration
+Your freedom of movement returns when the restraints are removed."
+   :frightened "# Frightened
+## Effect
+Your instinctual desire to preserve your life and well-being take over in the face of great danger. You cannot move closer to where you believe the source of your fear is.
+## Duration
+This effect lasts until the source of your fear takes a major wound or until you deal any damage to it."})
 
 (def stats-list
   {:physical "# Physical
@@ -134,5 +152,36 @@ Connections represents how many relationships and affiliations a creature has, h
    :wit "# Wit"
    :poise "# Poise"})
 
+(defn cond-processing
+  [condition]
+  (str "ruleset/conditions-" (name condition) " (" condition " condition-list)"))
+
 (def simple-ruleset
-  [{:ruleset/title "Simple Ruleset"}])
+  [{:ruleset/title "Simple Ruleset"
+    :ruleset/skill-check-overview (:overview (skill-check-rules nil))
+    :ruleset/skill-check-base-dice-pool (:base-dice-pool (skill-check-rules nil))
+    :ruleset/skill-check-benefits-and-detriments (:benefits-and-detriments (skill-check-rules nil))
+    :ruleset/skill-check-passive-checks (:passive-checks (skill-check-rules nil))
+    :ruleset/encounter-overview (:overview encounter-rules)
+    :ruleset/encounter-actions (:actions encounter-rules)
+    :ruleset/encounter-moments (:moments encounter-rules)
+    :ruleset/encounter-rounds (:rounds encounter-rules)
+    :ruleset/damage-overview (:overview damage-rules)
+    :ruleset/damage-injuries (:injuries damage-rules)
+    :ruleset/damage-conditions (:conditions damage-rules)
+    :ruleset/damage-recover (:recover damage-rules)
+    :ruleset/conditions-wounded (:wounded condition-list)
+    :ruleset/conditions-incapacitated (:incapacitated condition-list)
+    :ruleset/conditions-dead (:dead condition-list)
+    :ruleset/conditions-exhausted (:exhausted condition-list)
+    :ruleset/conditions-surprised (:surprised condition-list)
+    :ruleset/conditions-blinded (:blinded condition-list)
+    :ruleset/conditions-deafened (:deafened condition-list)
+    :ruleset/conditions-constrained (:constrained condition-list)
+    :ruleset/conditions-frightened (:frightened condition-list)
+    :ruleset/stats-physical (:physical stats-list)
+    :ruleset/stats-spiritual (:spiritual stats-list)
+    :ruleset/stats-mental (:mental stats-list)
+    :ruleset/statssocial (:social stats-list)}])
+
+
