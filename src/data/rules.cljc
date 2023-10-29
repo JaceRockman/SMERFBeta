@@ -86,18 +86,53 @@ Stats (not conditional on other rules)"
                        :duration "This effect lasts until the source of your fear takes a major wound or until you deal any damage to it."}}})
 
 (def stats-list
-  {:coordination "Coordination represents a creature's physical strength, flexibility, and control. A creature with high coordination will hit harder and faster and be able to perform impressive feats of athleticism and acrobatics."
-   :reflexes "Reflexes represents the speed and accuracy of a creature's reactions. A creature with high reflexes will be able to defend themself from incoming attacks much more reliably."
-   :endurance "Endurance represents how much of a beating a creature can take as well as their resistance to sickness, disease, and exhaustion. A creature with high endurance will manage to survive where most other would not."
-   :exertion "Exertion represents the strength of a creature's sense of self. A creature with high exertion is capable of handling enormous amounts of aethereal energy without fear of being consumed by it."
-   :instinct "Instinct represents the strength and reliability of a creature's gut reactions. A creature with high instinct is very sensitive to the constantly shifting aether and are able to block out or reinforce the magic that touches their spirit."
-   :perseverance "Perseverance represents a creature's ability to maintain their sense of self in the face of doubt and temptation. A creature with high perseverance is able to absorb large amounts of foreign aethereal energy without losing themself to the chaos."
-   :concentration "Concentration represents a creature's ability to focus on a single task and avoid distractions. A creature with high concentration is able to accomplish more impressive feats with greater efficiency."
-   :recognition "Recognition represents a creature's attention to detail. A creature with high recognition will often be able to notice the small things that others find insignificant. They are attentive to their surroundings and usually have great memories."
-   :comprehension "Comprehension represents a creature's ability to absorb and retain information. A creature with high comprehension is better able to understand the underlying principles of that which they are learning often causing them to pick up skills quickly and can make them great teachers."
-   :persuasion "Persuasion represents a creature's ability to sway the dispositions of others through charm, intimidation, or deception. A creature with high persuasion is able to get what they want from people without resorting to violence."
-   :insight "Insight represents how well a creature picks up on the many unspoken facets of a social environment. A creature with high insight can often discern the true motives and character of those they are interacting with."
-   :connections "Connections represents how many relationships and affiliations a creature has, how deep those connections run, and how good they are at calling upon those connections for favors. A creature with high connections always knows a guy who knows a guy whether that is through a membership in a group, a trade deal they made years ago, or simply a friend they met throughout their journeys."})
+  {:physical "# Physical
+The Physical stat represents a creature's skill at coordinating their physical motions, the speed of their reflexes, and the degree to which they can endure physical pain or exhaustion. A creature with a high Physical stat will hit harder, react faster, and last longer while engaging in physical activity."
+   :coordination "# Coordination
+Coordination represents a creature's physical strength, flexibility, and control. A creature with high coordination will hit harder and faster and be able to perform impressive feats of athleticism and acrobatics."
+   :reflexes "# Reflexes
+Reflexes represents the speed and accuracy of a creature's reactions. A creature with high reflexes will be able to defend themself from incoming attacks much more reliably."
+   :endurance "# Endurance
+Endurance represents how much of a beating a creature can take as well as their resistance to sickness, disease, and exhaustion. A creature with high endurance will manage to survive where most other would not."
+   :might "# Might"
+   :finesse "# Finesse"
+   :fortitude "# Fortitude"
+
+   :spiritual "# Spiritual
+The Spiritual stat represents a creature's ability to exert their will upon the world, respond instinctively to adapting circumstances, and persevere in the face of trials all while staying true to themself. If applicable to the setting, the Spiritual stat is often the stat that is tied to supernatural abilities. A creature with a high spiritual will more easily act in accordance with their principles and not lose themself to the will of others or to the manipulating forces of magic."
+   :exertion "# Exertion
+Exertion represents the strength of a creature's sense of self. A creature with high exertion is capable of handling enormous amounts of aethereal energy without fear of being consumed by it."
+   :instinct "# Instinct
+Instinct represents the strength and reliability of a creature's gut reactions. A creature with high instinct is very sensitive to the constantly shifting aether and are able to block out or reinforce the magic that touches their spirit."
+   :perseverance "# Perseverance
+Perseverance represents a creature's ability to maintain their sense of self in the face of doubt and temptation. A creature with high perseverance is able to absorb large amounts of foreign aethereal energy without losing themself to the chaos."
+   :ambition "# Ambition"
+   :discipline "# Discipline"
+   :dedication "# Dedication"
+
+   :mental "# Mental
+The Mental stat represents a creature's ability to concentrate on a task, recognize patterns and trends, and comprehend the underlying principles of systems. A creature with a high Mental stat is more observant, knowledgable, and learns quickly."
+   :concentration "# Concentration
+Concentration represents a creature's ability to focus on a single task and avoid distractions. A creature with high concentration is able to accomplish more impressive feats with greater efficiency."
+   :recognition "# Recognition
+Recognition represents a creature's attention to detail. A creature with high recognition will often be able to notice the small things that others find insignificant. They are attentive to their surroundings and usually have great memories."
+   :comprehension "# Comprehension
+Comprehension represents a creature's ability to absorb and retain information. A creature with high comprehension is better able to understand the underlying principles of that which they are learning often causing them to pick up skills quickly and can make them great teachers."
+   :intellect "# Intellect"
+   :intuition "# Intuition"
+   :stability "# Stability"
+   
+   :social "# Social
+The Social stat represents a creatures ability to persuade others, the level of insight they have into other creatures' motivations and thoughts, and the number and strength of connections they have to individuals, groups, and organizations. A creature with a high Social stat will more easily be able to bring others to their cause whether through honest persuasion or lies and deceit."
+   :persuasion "# Persuasion
+Persuasion represents a creature's ability to sway the dispositions of others through charm, intimidation, or deception. A creature with high persuasion is able to get what they want from people without resorting to violence."
+   :insight "# Insight
+Insight represents how well a creature picks up on the many unspoken facets of a social environment. A creature with high insight can often discern the true motives and character of those they are interacting with."
+   :connections "# Connections
+Connections represents how many relationships and affiliations a creature has, how deep those connections run, and how good they are at calling upon those connections for favors. A creature with high connections always knows a guy who knows a guy whether that is through a membership in a group, a trade deal they made years ago, or simply a friend they met throughout their journeys."
+   :presence "# Presence"
+   :wit "# Wit"
+   :poise "# Poise"})
 
 (def simple-ruleset
   [{:ruleset/title "Simple Ruleset"}])
