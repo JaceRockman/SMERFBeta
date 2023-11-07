@@ -169,7 +169,7 @@ Connections represents how many relationships and affiliations a creature has, h
     :ruleset/damage-overview (:overview damage-rules)
     :ruleset/damage-injuries (:injuries damage-rules)
     :ruleset/damage-conditions (:conditions damage-rules)
-    :ruleset/damage-recover (:recover damage-rules)
+    :ruleset/damage-recover (:recovery damage-rules)
     :ruleset/conditions-wounded (:wounded condition-list)
     :ruleset/conditions-incapacitated (:incapacitated condition-list)
     :ruleset/conditions-dead (:dead condition-list)
@@ -182,6 +182,4 @@ Connections represents how many relationships and affiliations a creature has, h
     :ruleset/stats-physical (:physical stats-list)
     :ruleset/stats-spiritual (:spiritual stats-list)
     :ruleset/stats-mental (:mental stats-list)
-    :ruleset/statssocial (:social stats-list)}])
-
-
+    :ruleset/stats-social (:social stats-list)}])
