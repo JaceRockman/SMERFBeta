@@ -1,4 +1,5 @@
-(ns data.rules)
+(ns data.rules
+  (:require [datascript.core :as ds]))
 
 #_"Skill Checks
 - base dice pool
@@ -20,6 +21,17 @@ Damage (not conditional on other rules aside from how to roll a health check)
 Conditions (not conditional on other rules)
 
 Stats (not conditional on other rules)"
+
+(defn ruleset-eid-by-title
+  [db ruleset-title]
+  (ffirst (ds/q '[:find ?e
+                  :in $ ?ruleset-title
+                  :where [?e :ruleset/title ?ruleset-title]]
+                db ruleset-title)))
+
+(defn rule-details
+  [db ruleset-title]
+  (ds/pull db '[*] (ruleset-eid-by-title db ruleset-title)))
 
 (defn skill-check-rules
   [base-dice-pool-example]
@@ -151,10 +163,6 @@ Connections represents how many relationships and affiliations a creature has, h
    :presence "# Presence"
    :wit "# Wit"
    :poise "# Poise"})
-
-(defn cond-processing
-  [condition]
-  (str "ruleset/conditions-" (name condition) " (" condition " condition-list)"))
 
 (def simple-ruleset
   [{:ruleset/title "Simple Ruleset"

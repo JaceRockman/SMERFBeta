@@ -4,8 +4,9 @@
 (defn setting-eid-by-title
   [db setting-title]
   (ffirst (ds/q '[:find ?e
-          :in $ ?setting-title
-          :where [?e :setting/title ?setting-title]] db setting-title)))
+                  :in $ ?setting-title
+                  :where [?e :setting/title ?setting-title]]
+                db setting-title)))
 
 (defn setting-details
   [db setting-title]
