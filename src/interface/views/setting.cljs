@@ -10,37 +10,28 @@
             [interface.styles.text :refer [view-header-style]]
             [interface.components.navigation :as navigation]
             [interface.components.organization :as organization]
-            [interface.widgets.buttons :refer [button]]))
-
-(def Markdown (.-default (js/require "react-native-markdown-display")))
-
-(defn link-click [text] (fn [] (app-state/navigate [:setting (keyword text)])))
-
-(def setting-rules
-  {:link (fn [node children parent styles]
-           (r/as-element
-            (button {:on-press (link-click (-> node .-attributes .-href))}
-                    (-> node .-children first .-content))))})
+            [interface.widgets.buttons :refer [button]]
+            [interface.styles.markdown :refer [Markdown rules]]))
 
 (defn setting-details [db sub-nav]
   (let [kalashar (settings/setting-details db "Kalashar")]
     [:> rn/ScrollView {:style {:flex :1}}
      (case (first sub-nav)
-       :territories [:> Markdown {:rules setting-rules}
+       :territories [:> Markdown {:rules (rules :setting)}
                      (:setting/home kalashar)]
-       :commonlands [:> Markdown {:rules setting-rules}
+       :commonlands [:> Markdown {:rules (rules :setting)}
                      (:setting/commonlands kalashar)]
-       :outwilds [:> Markdown {:rules setting-rules}
+       :outwilds [:> Markdown {:rules (rules :setting)}
                      (:setting/outwilds kalashar)]
-       :humans [:> Markdown {:rules setting-rules}
+       :humans [:> Markdown {:rules (rules :setting)}
                 (:setting/humans kalashar)]
-       :elves [:> Markdown {:rules setting-rules}
+       :elves [:> Markdown {:rules (rules :setting)}
                      (:setting/elves kalashar)]
-       :dwarves [:> Markdown {:rules setting-rules}
+       :dwarves [:> Markdown {:rules (rules :setting)}
                      (:setting/dwarves kalashar)]
-       :goblins [:> Markdown {:rules setting-rules}
+       :goblins [:> Markdown {:rules (rules :setting)}
                      (:setting/goblins kalashar)]
-       [:> Markdown {:rules setting-rules}
+       [:> Markdown {:rules (rules :setting)}
         (:setting/home kalashar)])]))
 
 (defn setting [db ^js props]
