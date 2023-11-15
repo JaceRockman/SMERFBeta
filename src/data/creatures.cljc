@@ -1,6 +1,6 @@
 (ns data.creatures
-  (:require
-   [data.domains :as domains]))
+  (:require [datascript.core :as ds]
+            [data.domains :as domains]))
 
 
 (def creature-races [{:db/ident :race/elf}
@@ -9,16 +9,22 @@
 
 (defn example-creatures
   [default-domain-entities]
-  [{:creature/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
-    :creature/domains default-domain-entities
+  [{:creature/domains default-domain-entities
     :creature/name "aleksander"
-    :creature/race [:race/elf :race/human]}
-   {:creature/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
-    :creature/domains default-domain-entities
+    :creature/portrait ""
+    :creature/gender ""
+    :creature/race [:race/elf :race/human]
+    :creature/description ""
+    :creature/experience 0
+    :creature/damage []
+    :creature/resources []
+    :creature/actions []
+    :creature/notes ""
+    :creature/rolls []}
+   {:creature/domains default-domain-entities
     :creature/name "eilonwey"
     :creature/race :race/elf}
-   {:creature/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
-    :creature/domains default-domain-entities
+   {:creature/domains default-domain-entities
     :creature/name "durflag"
     :creature/race :race/dwarf}])
 
@@ -28,6 +34,33 @@
   {:creature/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
    :creature/domains domains/default-domains})
 
+
+
+(defn creature-eid-by-name
+  [db creature-name]
+  (ffirst (ds/q '[:find ?e
+                  :in $ ?creature-name
+                  :where [?e :creature/name ?creature-name]]
+                db creature-name)))
+
+(defn creature-info
+  [db creature-name]
+  (ds/pull db '[*] (creature-eid-by-name db creature-name)))
+
+(defn creature-domains
+  [db creature-data]
+  (let [db* (ds/conn-from-datoms (into #{} (map (fn [[k v]] (ds/datom 1 k v)) creature-data)))
+        creature-domains (ffirst (ds/q '[:find ?domains
+                                              :where [_ :creature/domains ?domains]]
+                                            @db*))
+        domains-data (ds/pull db '[*] (first creature-domains))]
+    domains-data))
+
+(defn all-creatures
+  [db]
+  (ds/q '[:find ?e
+          :where [?e :creature/name]]
+        db))
 
 ;; Pull Patterns
 ;; Pull patterns define the structure of the data to be returned given an entity id

@@ -2,7 +2,12 @@
   (:require
    [datascript.core :as ds]
    ["react-native" :as rn]
+   [data.creatures :as creatures]
    [interface.components.organization :as organization]))
+
+#_"The Creature page will show the portrait and main details of the creature at the top
+like their name, gender, race, and description. Below that will be a section for their stats in each domain and their damage trackers. Below that will be a search bar for viewing their resources that automatically shows their favorites and has a button to show all and a plus button to add a new action which takes you to the resources tab of the app. Each of the resources will list their name, their quality, their power, and their quantity with the ability to increase or decrease. Below that will be another search bar for viewing their actions that automatically shows their favorites and has a button to show all and a plus button to add a new action which takes you to the action tab of the app. Each of the actions will list their name, their quality, their power, and a button to start a roll with that action."
+
 
 (defn details-query [creature-eid db]
   (ds/q '[:find ?name ?race
@@ -36,9 +41,17 @@
    (details db creature-id)
    (details db creature-id )])
 
-(defn creatures-details []
-  [:> rn/View {:style {:flex :1}}
-   [:> rn/Text "Creatures Details"]])
+(defn creature-stats
+  [db creature-info]
+  (let [creature-domains (creatures/creature-domains db creature-info)]
+    [:> rn/View
+     [:> rn/Text creature-domains]]))
+
+(defn creatures-details [db]
+  (let [creature-info (creatures/creature-info db "aleksander")]
+    [:> rn/View {:style {:flex :1}}
+   [:> rn/Text "Creatures Details"]
+   (creature-stats db creature-info)]))
 
 (defn creatures [db ^js props]
-  (organization/view-frame db (creatures-details)))
+  (organization/view-frame db (creatures-details db)))

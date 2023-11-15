@@ -1,12 +1,9 @@
 (ns interface.views.rules
   (:require [reagent.core :as r]
             ["react-native" :as rn]
-            [data.app-state :as app-state]
-            [interface.styles.text :refer [view-header-style]]
-            [interface.components.navigation :as navigation]
+            [data.rules :as rules-data]
             [interface.components.organization :as organization]
-            [interface.styles.markdown :refer [Markdown]]
-            [data.rules :as rules-data]))
+            [interface.styles.markdown :refer [Markdown]]))
 
 (defn rules-details [db]
   (let [ruleset-data (rules-data/rule-details db "Simple Ruleset")]
