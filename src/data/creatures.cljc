@@ -8,7 +8,7 @@
                      {:db/ident :race/dwarf}])
 
 (defn example-creatures
-  [default-domain-entities]
+  [default-domain-entities example-resources default-actions]
   [{:creature/domains default-domain-entities
     :creature/name "aleksander"
     :creature/portrait ""
@@ -17,9 +17,9 @@
     :creature/description ""
     :creature/experience 0
     :creature/damage []
-    :creature/resources []
-    :creature/actions []
-    :creature/notes ""
+    :creature/resources example-resources
+    :creature/actions default-actions
+    :creature/notes "Notes about Aleksander"
     :creature/rolls []}
    {:creature/domains default-domain-entities
     :creature/name "eilonwey"
@@ -32,7 +32,7 @@
   "A transaction schema for a new creature"
   []
   {:creature/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
-   :creature/domains domains/default-domains})
+   :creature/domains "Domains"})
 
 
 

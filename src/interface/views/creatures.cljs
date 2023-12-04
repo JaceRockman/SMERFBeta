@@ -3,6 +3,7 @@
    [datascript.core :as ds]
    ["react-native" :as rn]
    [data.creatures :as creatures]
+   [data.domains :as domains]
    [interface.components.organization :as organization]))
 
 #_"The Creature page will show the portrait and main details of the creature at the top
@@ -24,34 +25,69 @@ like their name, gender, race, and description. Below that will be a section for
    :z-index -1
    :position :absolute})
 
-(defn details [db creature-id]
-  (let [details (details-query creature-id db)]
+(defn info [creature-details]
+  (let [name (:creature/name creature-details)
+        gender (:creature/gender creature-details)
+        race (:creature/race creature-details)
+        description (:creature/description creature-details)]
     [:> rn/View
      [:> rn/Image {:style card-style}]
-     [:> rn/Text details]]))
+     [:> rn/Text name]
+     [:> rn/Text gender]
+     [:> rn/Text (str race)]
+     [:> rn/Text description]]))
 
-(defn stats [])
-
-(defn resources [])
-
-(defn actions [])
-
-(defn creature [db creature-id ^js props]
+(defn stat [{:keys [:domain/name]}]
   [:> rn/View
-   (details db creature-id)
-   (details db creature-id )])
+   [:> rn/Text name]])
+
+(defn stats [db {:keys [:creature/domains]}]
+  (let [domain-details (ds/pull-many db ["*"] domains)]
+    [:> rn/View
+     (map stat domain-details)]))
+
+(defn resource [{:keys [:resource/title]}]
+  [:> rn/View
+   [:> rn/Text title]])
+
+(defn resources [db {:keys [:creature/resources]}]
+  (let [resource-details (ds/pull-many db ["*"] resources)]
+    [:> rn/View
+     (map resource resource-details)]))
+
+(defn action [{:keys [:action/title]}]
+  [:> rn/View
+   [:> rn/Text title]])
+
+(defn actions [db {:keys [:creature/actions]}]
+  (let [action-details (ds/pull-many db ["*"] actions)]
+    [:> rn/View
+     (map action action-details)]))
+
+(defn notes [{:keys [:creature/notes]}]
+  [:> rn/View
+   [:> rn/Text notes]])
+
+(defn creature [db creature-details]
+  [:> rn/View
+   (info creature-details)
+   (stats db creature-details)
+   (resources db creature-details)
+   (actions db creature-details)
+   (notes creature-details)])
 
 (defn creature-stats
   [db creature-info]
   (let [creature-domains (creatures/creature-domains db creature-info)]
     [:> rn/View
-     [:> rn/Text creature-domains]]))
+     [:> rn/Text "Hello"]
+     [:> rn/Text (str creature-domains)]]))
 
 (defn creatures-details [db]
   (let [creature-info (creatures/creature-info db "aleksander")]
     [:> rn/View {:style {:flex :1}}
-   [:> rn/Text "Creatures Details"]
-   (creature-stats db creature-info)]))
+     [:> rn/Text "Creatures Details"]
+     (creature db creature-info)]))
 
 (defn creatures [db ^js props]
   (organization/view-frame db (creatures-details db)))

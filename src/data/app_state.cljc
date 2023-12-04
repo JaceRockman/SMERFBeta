@@ -6,6 +6,8 @@
             [data.rules :as rules]
             [data.domains :as domains]
             [data.creatures :as creatures]
+            [data.resources :as resources]
+            [data.actions :as actions]
             [clojure.string :as str]))
 
 (defn initialize-db
@@ -18,11 +20,20 @@
         _ (ds/transact! conn domains/default-domains)
         _ (ds/transact! conn realms/init-realms)
         _ (ds/transact! conn rules/simple-ruleset)
+        _ (ds/transact! conn actions/example-actions)
+        _ (ds/transact! conn resources/resource-properties)
+        _ (ds/transact! conn resources/example-resources)
         _ (ds/transact! conn [{:db/ident :active}])
         init-domain-entities (map first (ds/q '[:find ?e
                                                 :where [?e :domain/id]]
                                               @conn))
-        _ (ds/transact! conn (creatures/example-creatures init-domain-entities))]
+        init-resources (map first(ds/q '[:find ?e
+                                         :where [?e :resource/title]]
+                                       @conn))
+        init-actions (map first(ds/q '[:find ?e
+                                       :where [?e :action/title]]
+                                     @conn))
+        _ (ds/transact! conn (creatures/example-creatures init-domain-entities init-resources init-actions))]
     :success))
 
 (defn navigation-state [db]
