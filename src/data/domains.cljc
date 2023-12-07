@@ -1,4 +1,5 @@
-(ns data.domains)
+(ns data.domains
+  (:require [datascript.core :as ds]))
 
 (def domains-schema
   [])
@@ -69,6 +70,18 @@
 
 ;; Queries
 
+(defn get-domain-by-id
+  [db domain-id]
+  (ds/pull db '[*] domain-id))
 
+(defn get-domains-by-creature
+  [db creature-id]
+  (ds/q '[:find (ds/pull-many db ["*"] ?domains)
+          :in $ ?creature-id
+          :where [?creature-id :creature/domains ?domains]]))
 
+;; Transactions
 
+(defn create-new-domain-instance
+  [db domain-id]
+  (ds/transact! db (get-domain-by-id db domain-id)))
