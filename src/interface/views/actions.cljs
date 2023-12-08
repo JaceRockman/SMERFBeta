@@ -6,6 +6,10 @@
             [interface.components.navigation :as navigation]
             [interface.components.organization :as organization]))
 
+(defn action [{:keys [:action/title]}]
+  [:> rn/View
+   [:> rn/Text title]])
+
 (defn actions-details []
   [:> rn/View {:style {:flex :1}}
    [:> rn/Text "Actions Details"]])

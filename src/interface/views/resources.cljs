@@ -5,6 +5,10 @@
             [interface.components.navigation :as navigation]
             [interface.components.organization :as organization]))
 
+(defn resource [{:keys [:resource/title]}]
+  [:> rn/View
+   [:> rn/Text title]])
+
 (defn resources-details []
   [:> rn/View {:style {:flex :1}}
    [:> rn/Text "Resources Details"]])
