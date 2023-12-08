@@ -41,7 +41,7 @@
     :resource/power-value "2"
     :resource/description "You have experience serving as a soldier in the King's military"}
 
-   {:resources/title "Membership: Mercenary's Guild"
+   {:resource/title "Membership: Mercenary's Guild"
     :resource/type "Affiliation"
     :resource/properties []
     :resource/quality-title "Quality"

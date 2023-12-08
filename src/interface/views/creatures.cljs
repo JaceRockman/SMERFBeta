@@ -9,7 +9,7 @@
    [interface.views.actions :as actions-view]))
 
 #_"The Creature page will show the portrait and main details of the creature at the top
-like their name, gender, race, and description. Below that will be a section for their stats in each domain and their damage trackers. Below that will be a search bar for viewing their resources that automatically shows their favorites and has a button to show all and a plus button to add a new action which takes you to the resources tab of the app. Each of the resources will list their name, their quality, their power, and their quantity with the ability to increase or decrease. Below that will be another search bar for viewing their actions that automatically shows their favorites and has a button to show all and a plus button to add a new action which takes you to the action tab of the app. Each of the actions will list their name, their quality, their power, and a button to start a roll with that action."
+like their name, gender, race, and description. Below that will be a section for their stats in each domain and their damage trackers. Below that will be a search bar for viewing their resources that automatically shows their favorites and has a button to show all and a plus button to add a new resource which takes you to the resources tab of the app. Each of the resources will list their name, their quality, their power, and their quantity with the ability to increase or decrease. Below that will be another search bar for viewing their actions that automatically shows their favorites and has a button to show all and a plus button to add a new action which takes you to the action tab of the app. Each of the actions will list their name, their quality, their power, and a button to start a roll with that action."
 
 (def card-style
   {:background-color :gray
@@ -106,14 +106,18 @@ like their name, gender, race, and description. Below that will be a section for
 
 (defn resources [db {:keys [:creature/resources]}]
   (let [resource-details (ds/pull-many db ["*"] resources)]
-    (println resource-details)
-    [:> rn/View
-     (map resources-view/resource resource-details)]))
+    [:> rn/View {:style {:background-color :grey}}
+     [:> rn/Text {:style {:font-size 24}} "Resources"]
+     [resources-view/resource-list resource-details (reduce (fn [qtys res]
+                                                              (assoc qtys (:db/id res) (rand-int 3)))
+                                                            {}
+                                                            resource-details)]]))
 
-(defn actions [db {:keys [:creature/actions]}]
+(defn actions [db {:keys [:db/id :creature/actions]}]
   (let [action-details (ds/pull-many db ["*"] actions)]
-    [:> rn/View
-     (map actions-view/action action-details)]))
+    [:> rn/View {:style {:background-color :grey}}
+     [:> rn/Text {:style {:font-size 24}} "Actions"]
+     (actions-view/action-list db id action-details)]))
 
 (defn notes [{:keys [:creature/notes]}]
   [:> rn/View
