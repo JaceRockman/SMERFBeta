@@ -24,7 +24,7 @@ like their name, gender, race, and description. Below that will be a section for
         gender (:creature/gender creature-details)
         race (:creature/race creature-details)
         description (:creature/description creature-details)]
-    [:> rn/View
+    [:> rn/View {:style {:width (.-width js/screen)}}
      [:> rn/Image {:style card-style}]
      [:> rn/Text name]
      [:> rn/Text gender]
@@ -96,7 +96,7 @@ like their name, gender, race, and description. Below that will be a section for
    (domain-damage (rand-int 5) (rand-int 3))])
 
 (def stats-section-style
-  {:padding 10 :gap 10 :background-color :grey :border-radius 10})
+  {:padding 10 :width (.-width js/screen) :gap 10 :background-color :grey :border-radius 10})
 
 (defn stats [db {:keys [:creature/domains]}]
   (let [domain-details (map #(domains/get-domain-by-id db %) domains)]
@@ -106,7 +106,7 @@ like their name, gender, race, and description. Below that will be a section for
 
 (defn resources [db {:keys [:creature/resources]}]
   (let [resource-details (ds/pull-many db ["*"] resources)]
-    [:> rn/View {:style {:background-color :grey}}
+    [:> rn/View {:style {:width (.-width js/screen) :background-color :grey}}
      [:> rn/Text {:style {:font-size 24}} "Resources"]
      [resources-view/resource-list resource-details (reduce (fn [qtys res]
                                                               (assoc qtys (:db/id res) (rand-int 3)))
@@ -115,32 +115,28 @@ like their name, gender, race, and description. Below that will be a section for
 
 (defn actions [db {:keys [:db/id :creature/actions]}]
   (let [action-details (ds/pull-many db ["*"] actions)]
-    [:> rn/View {:style {:background-color :grey}}
+    [:> rn/View {:style {:width (.-width js/screen) :background-color :grey}}
      [:> rn/Text {:style {:font-size 24}} "Actions"]
      (actions-view/action-list db id action-details)]))
 
 (defn notes [{:keys [:creature/notes]}]
-  [:> rn/View
+  [:> rn/View {:style {:width (.-width js/screen)}}
    [:> rn/Text notes]])
 
 (defn creature [db creature-details]
-  [:> rn/View {:style {:gap 5 :padding 5}}
+  [:> rn/ScrollView {:paging-enabled true
+                     :horizontal :true
+                     :shows-horizontal-scroll-indicator false
+                     :shows-vertical-scroll-indicator false}
    (info creature-details)
    (stats db creature-details)
    (resources db creature-details)
    (actions db creature-details)
    (notes creature-details)])
 
-(defn creature-stats
-  [db creature-info]
-  (let [creature-domains (creatures/creature-domains db creature-info)]
-    [:> rn/View
-     [:> rn/Text "Hello"]
-     [:> rn/Text (str creature-domains)]]))
-
 (defn creatures-details [db]
   (let [creature-info (creatures/creature-info db "aleksander")]
-    [:> rn/ScrollView {:style {:flex :1 :width "100%" :text-align :center}}
+    [:> rn/ScrollView {:style {:width "100%" :text-align :center}}
      [:> rn/Text "Creatures Details"]
      (creature db creature-info)]))
 
