@@ -1,10 +1,14 @@
 (ns interface.views.creatures
   (:require
+   [clojure.string :as str]
    [datascript.core :as ds]
    ["react-native" :as rn]
+   ["@expo/vector-icons" :refer [FontAwesome5 Ionicons]]
    [data.creatures :as creatures]
    [data.domains :as domains]
+   [interface.widgets.buttons :refer [button]]
    [interface.components.organization :as organization]
+   [interface.components.navigation :as navigation]
    [interface.views.resources :as resources-view]
    [interface.views.actions :as actions-view]))
 
@@ -19,16 +23,20 @@ like their name, gender, race, and description. Below that will be a section for
    :z-index -1
    :position :absolute})
 
-(defn info [creature-details]
+(defn info [db creature-details]
   (let [name (:creature/name creature-details)
+        portrait (:creature/portrait creature-details)
         gender (:creature/gender creature-details)
-        race (:creature/race creature-details)
+        races (str "Races: " (apply str (interpose " " (creatures/race-titles db (:creature/race creature-details)))))
         description (:creature/description creature-details)]
-    [:> rn/View {:style {:width (.-width js/screen)}}
-     [:> rn/Image {:style card-style}]
-     [:> rn/Text name]
+    [:> rn/View {:style {:width (.-width js/screen)
+                         :align-items :center}}
+     [:> rn/Image {:style {:width "50%" :aspect-ratio 1}
+                   :source (if portrait
+                             {:uri portrait}
+                             (js/require "../assets/character silhouette.png"))}]
      [:> rn/Text gender]
-     [:> rn/Text (str race)]
+     [:> rn/Text races]
      [:> rn/Text description]]))
 
 (defn skill
@@ -128,7 +136,7 @@ like their name, gender, race, and description. Below that will be a section for
                      :horizontal :true
                      :shows-horizontal-scroll-indicator false
                      :shows-vertical-scroll-indicator false}
-   (info creature-details)
+   (info db creature-details)
    (stats db creature-details)
    (resources db creature-details)
    (actions db creature-details)
@@ -137,7 +145,12 @@ like their name, gender, race, and description. Below that will be a section for
 (defn creatures-details [db]
   (let [creature-info (creatures/creature-info db "aleksander")]
     [:> rn/ScrollView {:style {:width "100%" :text-align :center}}
-     [:> rn/Text "Creatures Details"]
+     [:> rn/View {:style {:flex-direction :row :width "100%" :justify-content :space-between :align-items :center}}
+      (navigation/creature-list-nav-button)
+      [:> rn/Text (str/capitalize (:creature/name creature-info))]
+      (button {:style {:background-color :inherit}
+               :on-press (fn [] (println "button pressed"))}
+              [:> FontAwesome5 {:name :ellipsis-v :color :black :size 18}])]
      (creature db creature-info)]))
 
 (defn creatures [db ^js props]

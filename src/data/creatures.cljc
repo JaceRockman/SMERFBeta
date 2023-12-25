@@ -3,18 +3,25 @@
             [data.domains :as domains]))
 
 
-(def creature-races [{:db/ident :race/elf}
-                     {:db/ident :race/human}
-                     {:db/ident :race/dwarf}])
+(def creature-races [{:db/ident :race/elf
+                      :race/title "Elf"}
+                     {:db/ident :race/human
+                      :race/title "Human"}
+                     {:db/ident :race/dwarf
+                      :race/title "Dwarf"}])
+
+(defn race-titles
+  [db race-idents]
+  (map :race/title (ds/pull-many db '[:race/title] race-idents)))
 
 (defn example-creatures
   [default-domain-entities example-resources default-actions]
   [{:creature/domains default-domain-entities
     :creature/name "aleksander"
-    :creature/portrait ""
-    :creature/gender ""
+    :creature/portrait "https://i.pinimg.com/originals/d8/30/bc/d830bc587482ed8af3639903c5d406b4.png"
+    :creature/gender "Male"
     :creature/race [:race/elf :race/human]
-    :creature/description ""
+    :creature/description "Aleksander is a really cool dude."
     :creature/experience 0
     :creature/damage []
     :creature/resources example-resources

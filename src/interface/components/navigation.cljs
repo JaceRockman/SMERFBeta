@@ -93,3 +93,11 @@
                                           (list-item item (on-press item))))
                          :key-extractor #(:db-id %)
                          :sticky-section-headers-enabled true}]]))
+
+(defn creature-list-nav-button
+  []
+  (button {:style {:background-color :inherit}
+           :on-press #(println "navigate to creature list")}
+          [:> rn/View {:style {:flex-direction :row}}
+           [:> FontAwesome5 {:name :chevron-left :color :black :size 16}]
+           [:> FontAwesome5 {:name :search :color :black :size 14}]]))
