@@ -1,5 +1,7 @@
 (ns data.domains
-  (:require [datascript.core :as ds]))
+  (:require [clojure.string :as str]
+            [datascript.core :as ds]
+            [data.conn :as conn]))
 
 (def domains-schema
   [])
@@ -18,7 +20,10 @@
                        :domain/competence-title "Finesse"
                        :domain/competence-value 6
                        :domain/resilience-title "Fortitude"
-                       :domain/resilience-value 6}
+                       :domain/resilience-value 6
+                       :domain/minor-wounds 0
+                       :domain/moderate-wounds 0
+                       :domain/major-wounds 0}
 
                       {:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
                        :domain/name "Spiritual"
@@ -34,7 +39,10 @@
                        :domain/competence-title "Discipline"
                        :domain/competence-value 6
                        :domain/resilience-title "Tenacity"
-                       :domain/resilience-value 6}
+                       :domain/resilience-value 6
+                       :domain/minor-wounds 0
+                       :domain/moderate-wounds 0
+                       :domain/major-wounds 0}
 
                       {:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
                        :domain/name "Mental"
@@ -50,7 +58,10 @@
                        :domain/competence-title "Focus"
                        :domain/competence-value 6
                        :domain/resilience-title "Stability"
-                       :domain/resilience-value 6}
+                       :domain/resilience-value 6
+                       :domain/minor-wounds 0
+                       :domain/moderate-wounds 0
+                       :domain/major-wounds 0}
 
                       {:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
                        :domain/name "Social"
@@ -66,7 +77,10 @@
                        :domain/competence-title "Wit"
                        :domain/competence-value 6
                        :domain/resilience-title "Poise"
-                       :domain/resilience-value 6}])
+                       :domain/resilience-value 6
+                       :domain/minor-wounds 0
+                       :domain/moderate-wounds 0
+                       :domain/major-wounds 0}])
 
 ;; Queries
 
@@ -85,3 +99,14 @@
 (defn create-new-domain-instance
   [db domain-id]
   (ds/transact! db (get-domain-by-id db domain-id)))
+
+(defn update-wound-value
+  [db domain-id wound-severity update-fn]
+  (let [wound-type-keyword (keyword (str "domain/" (str/lower-case wound-severity) "-wounds"))
+        current-wound-quantity (ffirst (ds/q '[:find ?wound-quantity
+                                               :in $ ?id ?key
+                                               :where [?id ?key ?wound-quantity]]
+                                             db domain-id wound-type-keyword))]
+    (println (update-fn current-wound-quantity))
+    (ds/transact! conn/conn [{:db/id domain-id
+                              wound-type-keyword (update-fn current-wound-quantity)}])))

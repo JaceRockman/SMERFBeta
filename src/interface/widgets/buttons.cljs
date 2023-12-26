@@ -7,7 +7,8 @@
                :or {on-press #()}} text]
   [:> rn/Pressable {:style (cond-> {:font-size        18
                                     :padding          6
-                                    :border-radius    999}
+                                    :border-radius    999
+                                    :background-color :gray}
                              :always (merge style)
                              disabled? (merge {:background-color "#aaaaaa"}
                                               disabled-style))
