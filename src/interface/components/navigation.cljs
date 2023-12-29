@@ -60,7 +60,6 @@
   (let [{:keys [section]} (js->clj section-data {:keywordize-keys true})
         {:keys [title data]} section
         column-headers (map name (keys (dissoc (first data) :id)))]
-    (println section-data)
     (r/as-element
      [:> rn/View
       [:> rn/Text title]
@@ -99,5 +98,5 @@
   (button {:style {:background-color :inherit}
            :on-press #(println "navigate to creature list")}
           [:> rn/View {:style {:flex-direction :row}}
-           [:> FontAwesome5 {:name :chevron-left :color :black :size 16}]
-           [:> FontAwesome5 {:name :search :color :black :size 14}]]))
+           [:> FontAwesome5 {:name :chevron-left :color :white :size 16}]
+           [:> FontAwesome5 {:name :search :color :white :size 14}]]))

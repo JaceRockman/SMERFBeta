@@ -103,10 +103,12 @@
 (defn update-wound-value
   [db domain-id wound-severity update-fn]
   (let [wound-type-keyword (keyword (str "domain/" (str/lower-case wound-severity) "-wounds"))
-        current-wound-quantity (ffirst (ds/q '[:find ?wound-quantity
-                                               :in $ ?id ?key
-                                               :where [?id ?key ?wound-quantity]]
-                                             db domain-id wound-type-keyword))]
-    (println (update-fn current-wound-quantity))
+        updated-wound-quantity (update-fn (ffirst (ds/q '[:find ?wound-quantity
+                                                          :in $ ?id ?key
+                                                          :where [?id ?key ?wound-quantity]]
+                                                        db domain-id wound-type-keyword)))
+        new-wound-quantity (if (> 0 updated-wound-quantity)
+                             0
+                             updated-wound-quantity)]
     (ds/transact! conn/conn [{:db/id domain-id
-                              wound-type-keyword (update-fn current-wound-quantity)}])))
+                              wound-type-keyword new-wound-quantity}])))

@@ -95,7 +95,7 @@
     ;; (println "splintered-mods" splintered-mods)
     ;; (println "dice pools" dice-pools)
     ;; (println "combined-dice-pools" combined-dice-pools)
-    (interpose " | "(map format-dice-pool combined-dice-pools))))
+    (interpose "\n" (map format-dice-pool combined-dice-pools))))
 
 (defn derive-roll-value [db
                          creature-id
