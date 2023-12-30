@@ -15,7 +15,7 @@
 #_"The Creature page will show the portrait and main details of the creature at the top
 like their name, gender, race, and description. Below that will be a section for their stats in each domain and their damage trackers. Below that will be a search bar for viewing their resources that automatically shows their favorites and has a button to show all and a plus button to add a new resource which takes you to the resources tab of the app. Each of the resources will list their name, their quality, their power, and their quantity with the ability to increase or decrease. Below that will be another search bar for viewing their actions that automatically shows their favorites and has a button to show all and a plus button to add a new action which takes you to the action tab of the app. Each of the actions will list their name, their quality, their power, and a button to start a roll with that action."
 
-(def screen-width (.-width js/screen))
+(defn screen-width [] (.-width js/screen))
 
 (def card-style
   {:background-color :gray
@@ -89,22 +89,22 @@ like their name, gender, race, and description. Below that will be a section for
     [skillbility "Continuation" continuation-value resilience-value]]
    (domain-damage db id minor-wounds major-wounds)])
 
-(def section-divider
+(defn section-divider []
   [:> rn/View {:style {:background-color :lavender :width "80%" :height 2 :align-self :center}}])
 
-(def stats-section-style
-  {:padding 10 :width screen-width :gap 10 :border-radius 10})
+(defn stats-section-style []
+  {:padding 10 :width (screen-width) :gap 10 :border-radius 10})
 
 (defn stats [db {:keys [:creature/domains]}]
   (let [domain-details (map #(domains/get-domain-by-id db %) domains)]
-    [:> rn/View {:style stats-section-style}
+    [:> rn/View {:style (stats-section-style)}
      [:> rn/Text {:style {:font-size 32 :color :white}} "Stats"]
-     (interpose section-divider
+     (interpose (section-divider)
       (map stats-domain (repeat db) domain-details))]))
 
 (defn resources [db {:keys [:creature/resources]}]
   (let [resource-details (ds/pull-many db ["*"] resources)]
-    [:> rn/View {:style {:width screen-width}}
+    [:> rn/View {:style {:width (screen-width)}}
      [:> rn/Text {:style {:font-size 24 :color :white}} "Resources"]
      [resources-view/resource-list resource-details (reduce (fn [qtys res]
                                                               (assoc qtys (:db/id res) (rand-int 3)))
@@ -113,7 +113,7 @@ like their name, gender, race, and description. Below that will be a section for
 
 (defn actions [db {:keys [:db/id :creature/actions]}]
   (let [action-details (ds/pull-many db ["*"] actions)]
-    [:> rn/View {:style {:width screen-width}}
+    [:> rn/View {:style {:width (screen-width)}}
      [:> rn/Text {:style {:font-size 24 :color :white}} "Actions"]
      (actions-view/action-list db id action-details)]))
 
@@ -123,7 +123,7 @@ like their name, gender, race, and description. Below that will be a section for
         gender (:creature/gender creature-details)
         races (str "Races: " (apply str (interpose " " (creatures/race-titles db (:creature/race creature-details)))))
         description (:creature/description creature-details)]
-    [:> rn/View {:style {:width screen-width
+    [:> rn/View {:style {:width (screen-width)
                          :align-items :center}}
      [:> rn/Image {:style {:width "50%" :aspect-ratio 1}
                    :source (if portrait
@@ -134,8 +134,8 @@ like their name, gender, race, and description. Below that will be a section for
      [:> rn/Text description]]))
 
 (defn notes [{:keys [:creature/notes]}]
-  [:> rn/View {:style {:width screen-width}}
-   [:> rn/Text notes]])
+  [:> rn/View {:style {:width (screen-width)}}
+   [:> rn/Text {:style {:color :white}} notes]])
 
 (defn creature [db creature-details]
   [:> rn/ScrollView {:paging-enabled true

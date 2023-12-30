@@ -7,7 +7,7 @@
             [interface.components.navigation :as navigation]
             [interface.components.organization :as organization]))
 
-(def section-divider
+(defn section-divider []
   [:> rn/View {:style {:background-color :lavender :width "80%" :height 2 :align-self :center}}])
 
 (defn action [db creature-id action-data]
@@ -23,9 +23,9 @@
     [:> rn/Text {:style {:flex 3 :font-size 16 :color :white}} "Title"]
     [:> rn/Text {:style {:flex 2 :font-size 16 :color :white}} "Roll Value"]
     [:> rn/Text {:style {:flex 1 :font-size 16 :color :white}} "Start Roll"]]
-   section-divider
-   (interpose section-divider (map (fn [action-data] (action db creature-id action-data)) actions))
-   section-divider])
+   (section-divider)
+   (interpose (section-divider) (map (fn [action-data] (action db creature-id action-data)) actions))
+   (section-divider)])
 
 (defn actions-details []
   [:> rn/View {:style {:flex :1}}

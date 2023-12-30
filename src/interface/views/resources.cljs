@@ -5,7 +5,7 @@
             [interface.components.navigation :as navigation]
             [interface.components.organization :as organization]))
 
-(def section-divider
+(defn section-divider []
   [:> rn/View {:style {:background-color :lavender :width "80%" :height 2 :align-self :center}}])
 
 (defn resource [{:keys [:resource/title :resource/quality-value :resource/power-value]} quantity]
@@ -29,9 +29,9 @@
   [:> rn/View {:style {:background-color :black :padding 5}}
    [:> rn/Text {:style {:flex 1 :font-size 24 :text-align :start :color :white}} sorted-group-name]
    resource-list-headers
-   section-divider
-   (interpose section-divider (map (fn [resource-data] (resource resource-data (get quantities (:db/id resource-data)))) resources))
-   section-divider])
+   (section-divider)
+   (interpose (section-divider) (map (fn [resource-data] (resource resource-data (get quantities (:db/id resource-data)))) resources))
+   (section-divider)])
 
 (defn resource-list [resources quantities]
   (let [equipment (filter #(= "Equipment" (:resource/type %)) resources)
