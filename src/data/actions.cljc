@@ -48,6 +48,12 @@
 
    ])
 
+(defn get-all-actions [db]
+  (let [action-eids (map first (ds/q '[:find ?eid
+                                       :where [?eid :action/title]]
+                                     db))]
+    (ds/pull-many db '[*] action-eids)))
+
 (defn divide-evenly [n m]
   (let [q (quot n m)
         r (rem n m)]

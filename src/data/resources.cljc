@@ -1,4 +1,5 @@
-(ns data.resources)
+(ns data.resources
+  (:require [datascript.core :as ds]))
 
 (def resource-properties [{:db/ident :resource-property/light}
                           {:db/ident :resource-property/medium}
@@ -49,3 +50,9 @@
     :resource/power-title "Power"
     :resource/power-value "1"
     :resource/description "Membership in the Mercenary's Guild can gain you access to quests, equipment, training, assistance, etc."}])
+
+(defn get-all-resources [db]
+  (let [resource-ids (map first(ds/q '[:find ?eid
+                                       :where [?eid :resource/title]]
+                                     db))]
+    (ds/pull-many db '[*] resource-ids)))
