@@ -37,19 +37,19 @@
 (defn realm-select-list
   [realms-data]
   (navigation/search-filter-sort-list
-   realms-data
-   ["Realm Title" "Realm Owner"]
-   [1 1]
-   (fn [{:keys [owner id title]}]
-     [:> rn/Pressable {:style {:flex-direction :row}
-                       :on-press #(realms/set-active-realm id)}
-      [:> rn/Text {:style {:flex 1}}
-       title]
-      [:> rn/Text {:style {:flex 1}}
-       (or owner "Unknown")]])
-   []
-   []
-   [(fn [items] [{:title "Realms" :data items}])]))
+   {:items realms-data
+    :column-headers ["Realm Title" "Realm Owner"]
+    :column-flex-vals [1 1]
+    :item-format-fn (fn [{:keys [owner id title]}]
+                      [:> rn/Pressable {:style {:flex-direction :row}
+                                        :on-press #(doall
+                                                    (realms/set-active-realm id)
+                                                    (app-state/navigate [:realm]))}
+                       [:> rn/Text {:style {:flex 1}}
+                        title]
+                       [:> rn/Text {:style {:flex 1}}
+                        (or owner "Unknown")]])
+    :sort-fns [(fn [items] [{:title "Realms" :data items}])]}))
 
 (defn realm-select
   [realms-data]

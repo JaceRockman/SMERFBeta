@@ -135,17 +135,17 @@
                                     (r/as-element (row-constructor (clojure.walk/keywordize-keys clj-item)))))}])
 
 (defn search-filter-sort-list
-  [list-items column-headers column-flex-vals row-constructor-fn search-fns filter-fns sort-fns]
+  [{:keys [items column-headers column-flex-vals item-format-fn search-fns filter-fns sort-fns]}]
   (let [full-fn-list (concat search-fns filter-fns sort-fns)
-        reduced-list-items (if (empty? full-fn-list)
-                             list-items
+        reduced-items (if (empty? full-fn-list)
+                             items
                              (reduce (fn [list function]
                                        (function list))
-                                     list-items
+                                     items
                                      full-fn-list))]
-    [:> rn/View
+    [:> rn/View {:style {:width "100%"}}
      ((if (empty? sort-fns) FlatList SectionList)
-      reduced-list-items
+      reduced-items
       column-headers
       column-flex-vals
-      row-constructor-fn)]))
+      item-format-fn)]))

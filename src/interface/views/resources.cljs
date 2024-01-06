@@ -11,47 +11,40 @@
 (defn section-divider []
   [:> rn/View {:style {:background-color :lavender :width "80%" :height 2 :align-self :center}}])
 
-(defn resource [{:keys [:resource/title :resource/quality-value :resource/power-value]} quantity]
+(defn resource [{:keys [title quality-value power-value] :as resource} quantity]
   [:> rn/Pressable {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}
                     :on-press #(println "button pressed")}
-   [:> rn/Text {:style {:flex 3 :font-size 16 :color :white}} title]
-   [:> rn/Text {:style {:flex 1 :font-size 16 :color :white}} quality-value]
-   [:> rn/Text {:style {:flex 1 :font-size 16 :color :white}} power-value]
-   [:> rn/Text {:style {:flex 2 :font-size 16 :color :white}} (or quantity 0)]])
+   [:> rn/Text {:style {:flex 3 :font-size 16}} title]
+   [:> rn/Text {:style {:flex 1 :font-size 16}} quality-value]
+   [:> rn/Text {:style {:flex 1 :font-size 16}} power-value]
+   [:> rn/Text {:style {:flex 2 :font-size 16}} (or quantity 0)]])
 
-(defn search-sort-scroll-list [headers list-items sort-parameters filter-parameters])
-
-(def resource-list-headers
-  [:> rn/View {:style {:flex-direction :row :width "100%"}}
-   [:> rn/Text {:style {:flex 3 :font-size 16 :color :white}} "Title"]
-   [:> rn/Text {:style {:flex 1 :font-size 16 :color :white}} "Quality"]
-   [:> rn/Text {:style {:flex 1 :font-size 16 :color :white}} "Power"]
-   [:> rn/Text {:style {:flex 2 :font-size 16 :color :white}} "Quantity"]])
-
-(defn resource-list-sorted-group [resources quantities sorted-group-name]
-  [:> rn/View {:style {:background-color :black :padding 5 :width "100%"}}
-   [:> rn/Text {:style {:flex 1 :font-size 24 :text-align :start :color :white}} sorted-group-name]
-   resource-list-headers
-   (section-divider)
-   (interpose (section-divider) (map (fn [resource-data] (resource resource-data (get quantities (:db/id resource-data)))) resources))
-   (section-divider)])
+(defn sort-resources-by-type
+  [resources]
+  (let [type-section-from-resources (fn [type resources]
+                                      (let [resource-type-section-data (filter #(= type (:resource/type %))
+                                                                               resources)]
+                                        (when-not (empty? resource-type-section-data)
+                                          {:title type :data resource-type-section-data})))
+        equipment (type-section-from-resources "Equipment" resources)
+        traits (type-section-from-resources "Trait" resources)
+        expertise (type-section-from-resources "Expertise" resources)
+        affiliations (type-section-from-resources "Affiliations" resources)
+        items (type-section-from-resources "Items" resources)]
+    (remove nil? [equipment traits expertise affiliations items])))
 
 (defn resource-list [resources quantities]
-  (let [equipment (filter #(= "Equipment" (:resource/type %)) resources)
-        traits (filter #(= "Trait" (:resource/type %)) resources)
-        expertise (filter #(= "Expertise" (:resource/type %)) resources)
-        affiliations (filter #(= "Affiliation" (:resource/type %)) resources)
-        items (filter #(= "Item" (:resource/type %)) resources)]
-    [:> rn/View {:style {:width "100%" :text-align :center}}
-     (when (not-empty equipment) (resource-list-sorted-group equipment quantities "Equipment"))
-     (when (not-empty traits) (resource-list-sorted-group traits quantities "Traits"))
-     (when (not-empty expertise) (resource-list-sorted-group expertise quantities "Expertise"))
-     (when (not-empty affiliations) (resource-list-sorted-group affiliations quantities "Affiliations"))
-     (when (not-empty items) (resource-list-sorted-group items quantities "Items"))]))
+  (println (sort-resources-by-type resources))
+  (navigation/search-filter-sort-list
+   {:items resources
+    :column-headers ["Title" "Quality" "Power" "Quantity"]
+    :column-flex-vals [3 1 1 2]
+    :item-format-fn #(resource % (get quantities (:db/id resource)))
+    :sort-fns [sort-resources-by-type]}))
 
 (defn resources-main-page [db]
   (let [resources (resources/get-all-resources db)]
-    [:> rn/View {:style {:flex :1 :background-color :black :width (screen-width) :align-items :center}}
+    [:> rn/View {:style {:flex :1 :width (screen-width) :align-items :center}}
      (resource-list resources {})]))
 
 (defn resources [db ^js props]
