@@ -30,14 +30,13 @@
 
 (defn view-frame
   [db content]
-  (let [active-realm (first (realms/get-active-realm db))
-        realm-data (when active-realm (realms/get-realm-details db active-realm))
+  (let [active-realm-data (first (realms/get-active-realm-data db))
         view-title (str/capitalize (name (first (app-state/navigation-state db))))]
     [:> rn/View {:style {:width (screen-width)
                          :align-items :center
                          :background-color :white
                          :height (screen-height)}}
-     (view-header [(:realm/title realm-data) view-title])
+     (view-header [(:realm/title active-realm-data) view-title])
      content 
      (navigation/tab-bar)]))
 

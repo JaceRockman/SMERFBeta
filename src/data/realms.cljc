@@ -11,7 +11,7 @@
     :realm/title "Lovecraftian Horror"}])
 
 (def simple-keys-pull-pattern
-  '[[:realm/id :as :id] [:realm/title :as :title]])
+  '[[:db/id :as :id] [:realm/title :as :title]])
 
 (defn get-ids-for-all-realms [db]
   (map first (ds/q '[:find ?e :where [?e :realm/id]] db)))
@@ -26,23 +26,23 @@
   ([db realm-id]
    (get-realm-details db realm-id '[*]))
   ([db realm-id pull-pattern]
-   (ds/pull db pull-pattern (ffirst (ds/q '[:find ?eid
-                                            :in $ ?realm-id
-                                            :where [?eid :realm/id ?realm-id]]
-                                          db realm-id)))))
+   (ds/pull db pull-pattern realm-id)))
 
 (defn get-realm-titles
   [db]
   (ds/pull-many db '[[:realm/title :as :title]] (get-ids-for-all-realms db)))
 
-(defn get-active-realm [db]
-  (map first (ds/q '[:find ?realm
-                     :where [:active :active/realm ?realm]]
-                   db)))
+(defn get-active-realm-data [db]
+  (let [active-realm-id (ds/q '[:find ?realm 
+                                :where [?eid :active/realm ?realm]]
+                              db)]
+    (when-not (empty? active-realm-id)
+      (get-realm-details db (ffirst active-realm-id)))))
 
 (defn create-new-realm []
   (ds/transact! conn [{:realm/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
                        :realm/title "New Realm"}]))
 
 (defn set-active-realm [realm-id]
-  (ds/transact! conn [{:db/ident :active :active/realm realm-id}]))
+  (ds/transact! conn [{:db/id -1
+                       :active/realm realm-id}]))

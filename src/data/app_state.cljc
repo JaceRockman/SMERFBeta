@@ -23,7 +23,6 @@
         _ (ds/transact! conn actions/example-actions)
         _ (ds/transact! conn resources/resource-properties)
         _ (ds/transact! conn resources/example-resources)
-        _ (ds/transact! conn [{:db/ident :active}])
         init-domain-entities (map first (ds/q '[:find ?e
                                                 :where [?e :domain/id]]
                                               @conn))

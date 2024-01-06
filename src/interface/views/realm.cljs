@@ -1,5 +1,6 @@
 (ns interface.views.realm
   (:require
+   [clojure.string :as str]
    [reagent.core :as r]
    ["react-native" :as rn]
    ["expo-status-bar" :refer [StatusBar]]
@@ -35,7 +36,20 @@
 
 (defn realm-select-list
   [realms-data]
-  (navigation/list-select realms-data (fn [item] (fn [] (realms/set-active-realm (-> item :item :id))))))
+  (navigation/search-filter-sort-list
+   realms-data
+   ["Realm Title" "Realm Owner"]
+   [1 1]
+   (fn [{:keys [owner id title]}]
+     [:> rn/Pressable {:style {:flex-direction :row}
+                       :on-press #(realms/set-active-realm id)}
+      [:> rn/Text {:style {:flex 1}}
+       title]
+      [:> rn/Text {:style {:flex 1}}
+       (or owner "Unknown")]])
+   []
+   []
+   [(fn [items] [{:title "Realms" :data items}])]))
 
 (defn realm-select
   [realms-data]
@@ -51,13 +65,12 @@
       (:realm/title realm-data)]
    [:> rn/Text (str realm-data)]])
 
-(defn realm 
+(defn realm
   [db ^js props]
-  (let [active-realm (realms/get-active-realm db)
-        realm-title-id (realms/get-details-for-all-realms db realms/simple-keys-pull-pattern)
-        realm-data (when (not-empty active-realm) (realms/get-realm-details db (first active-realm) realms/simple-keys-pull-pattern))]
+  (let [active-realm-data (realms/get-active-realm-data db)
+        all-realms-data (realms/get-details-for-all-realms db realms/simple-keys-pull-pattern)]
     (organization/view-frame db
-                             [:> rn/View {:style {:flex 1}}
-                              (if (empty? active-realm)
-                                (realm-select realm-title-id)
-                                (realm-summary realm-data))])))
+                             [:> rn/ScrollView {:style {:flex 1 :width "100%"}}
+                              (if (empty? active-realm-data)
+                                (realm-select all-realms-data)
+                                (realm-summary active-realm-data))])))

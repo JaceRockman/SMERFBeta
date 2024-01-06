@@ -100,3 +100,52 @@
           [:> rn/View {:style {:flex-direction :row}}
            [:> FontAwesome5 {:name :chevron-left :color :white :size 16}]
            [:> FontAwesome5 {:name :search :color :white :size 14}]]))
+
+(defn SectionList
+  [sections headers flex-vals row-constructor]
+  [:> rn/SectionList {:sections (clj->js sections)
+                      :render-section-header (fn [section]
+                                               (let [clj-section-title (-> (clojure.walk/keywordize-keys (js->clj section)) :section :title)]
+                                                 (r/as-element
+                                                  [:> rn/View
+                                                   [:> rn/Text {:style {:font-size 24}}
+                                                    clj-section-title]
+                                                   [:> rn/View {:style {:flex-direction :row}}
+                                                    (map (fn [header flex]
+                                                           [:> rn/Text {:style {:flex flex}} header])
+                                                         headers
+                                                         flex-vals)]])))
+                      :render-item (fn [js-item]
+                                     (let [clj-item (js->clj (.-item js-item))]
+                                       (r/as-element (row-constructor (clojure.walk/keywordize-keys clj-item)))))
+                      :sticky-section-headers-enabled true}])
+
+(defn FlatList
+  [items headers flex-vals row-constructor]
+  [:> rn/FlatList {:data (clj->js items)
+                   :list-header-component (fn []
+                                            (r/as-element
+                                             [:> rn/View {:style {:flex-direction :row}}
+                                              (map (fn [header flex]
+                                                     [:> rn/Text {:style {:flex flex}} header])
+                                                   headers
+                                                   flex-vals)]))
+                   :render-item (fn [js-item]
+                                  (let [clj-item (js->clj (.-item js-item))]
+                                    (r/as-element (row-constructor (clojure.walk/keywordize-keys clj-item)))))}])
+
+(defn search-filter-sort-list
+  [list-items column-headers column-flex-vals row-constructor-fn search-fns filter-fns sort-fns]
+  (let [full-fn-list (concat search-fns filter-fns sort-fns)
+        reduced-list-items (if (empty? full-fn-list)
+                             list-items
+                             (reduce (fn [list function]
+                                       (function list))
+                                     list-items
+                                     full-fn-list))]
+    [:> rn/View
+     ((if (empty? sort-fns) FlatList SectionList)
+      reduced-list-items
+      column-headers
+      column-flex-vals
+      row-constructor-fn)]))
