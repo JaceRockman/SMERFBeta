@@ -6,9 +6,10 @@
    ["@expo/vector-icons" :refer [FontAwesome5 Ionicons]]
    [data.creatures :as creatures]
    [data.domains :as domains]
-   [interface.widgets.buttons :refer [button]]
    [interface.components.organization :as organization]
    [interface.components.navigation :as navigation]
+   [interface.widgets.buttons :as buttons]
+   [interface.widgets.text :as text]
    [interface.views.resources :as resources-view]
    [interface.views.actions :as actions-view]))
 
@@ -46,28 +47,29 @@ like their name, gender, race, and description. Below that will be a section for
 
 (defn skillbility
   [title skill-value ability-value]
-  [:> rn/View {:style skillbility-style}
-   [:> rn/Text title]
-   [:> rn/Text skill-value "d" ability-value]])
+  [:> rn/View {:style {:width "25%" :align-items :center}}
+   (buttons/tertiary-button (str title "\n" skill-value "d" ability-value)
+                            #(println title "button pressed")
+                            false)])
 
 (defn damage-severity-tracker
   [db domain-id {:keys [severity-title damage-quantity]}]
   [:> rn/View {:style {:flex 1}}
-     [:> rn/Text {:style {:color :white :flex 1}} (str severity-title " Wounds")]
-     [:> rn/View {:style {:flex-direction :row :align-items :center}}
-      [:> rn/Image {:style {:flex 1}}]
-      (button {:style {:color :white :padding 2 :background-color :inherit} :on-press #(domains/update-wound-value db domain-id severity-title dec)} "-")
-      [:> rn/Text {:style {:color :white}} damage-quantity]
-      (button {:style {:color :white :padding 2 :background-color :inherit} :on-press #(domains/update-wound-value db domain-id severity-title inc)} "+")
-      [:> rn/Image {:style {:flex 1}}]]])
+   (text/default-text {:style {:flex 1} :text (str severity-title " Wounds")})
+   [:> rn/View {:style {:flex-direction :row :align-items :center}}
+    [:> rn/Image {:style {:flex 1}}]
+    (buttons/button {:style {:color :white :padding 2 :background-color :inherit} :on-press #(domains/update-wound-value db domain-id severity-title dec)} "-")
+    (text/default-text {:text damage-quantity})
+    (buttons/button {:style {:color :white :padding 2 :background-color :inherit} :on-press #(domains/update-wound-value db domain-id severity-title inc)} "+")
+    [:> rn/Image {:style {:flex 1}}]]])
 
 (defn domain-damage [db domain-id minor-wounds major-wounds]
   [:> rn/View
    [:> rn/View {:style {:flex-direction :row}}
-    (damage-severity-tracker db domain-id {:severity-title "Minor" :damage-quantity minor-wounds}) 
+    (damage-severity-tracker db domain-id {:severity-title "Minor" :damage-quantity minor-wounds})
     (damage-severity-tracker db domain-id {:severity-title "Major" :damage-quantity major-wounds})]
    [:> rn/View {:style {:flex 1}}
-    [:> rn/Text {:style {:color :white :flex 1}} "Total Damage: " (+ minor-wounds (* 2 major-wounds))]]])
+    (text/default-text {:style {:flex 1} :text (str "Total Damage: " (+ minor-wounds (* 2 major-wounds)))})]])
 
 (defn stats-domain
   [db
@@ -82,8 +84,8 @@ like their name, gender, race, and description. Below that will be a section for
      :domain/resilience-title :domain/resilience-value
      :domain/minor-wounds :domain/moderate-wounds :domain/major-wounds]}]
   [:> rn/View
-   [:> rn/Text {:style {:color :white :font-size 24}} name]
-   [:> rn/View {:style {:flex-direction :row :gap 5 :padding 5}}
+   (text/default-text {:style {:font-size 24} :text name})
+   [:> rn/View {:style {:flex-direction :row :gap 5 :padding 5 :justify-content :space-evenly}}
     [skillbility "Initiation" initiation-value dominance-value]
     [skillbility "Reaction" reaction-value competence-value]
     [skillbility "Continuation" continuation-value resilience-value]]
@@ -98,14 +100,14 @@ like their name, gender, race, and description. Below that will be a section for
 (defn stats [db {:keys [:creature/domains]}]
   (let [domain-details (map #(domains/get-domain-by-id db %) domains)]
     [:> rn/View {:style (stats-section-style)}
-     [:> rn/Text {:style {:font-size 32 :color :white}} "Stats"]
+     (text/default-text {:style {:font-size 32} :text "Stats"})
      (interpose (section-divider)
-      (map stats-domain (repeat db) domain-details))]))
+                (map stats-domain (repeat db) domain-details))]))
 
 (defn resources [db {:keys [:creature/resources]}]
   (let [resource-details (ds/pull-many db ["*"] resources)]
     [:> rn/View {:style {:width (screen-width)}}
-     [:> rn/Text {:style {:font-size 24 :color :white}} "Resources"]
+     (text/default-text {:style {:font-size 24} :text "Resources"})
      [resources-view/resource-list resource-details (reduce (fn [qtys res]
                                                               (assoc qtys (:db/id res) (rand-int 3)))
                                                             {}
@@ -114,7 +116,7 @@ like their name, gender, race, and description. Below that will be a section for
 (defn actions [db {:keys [:db/id :creature/actions]}]
   (let [action-details (ds/pull-many db ["*"] actions)]
     [:> rn/View {:style {:width (screen-width)}}
-     [:> rn/Text {:style {:font-size 24 :color :white}} "Actions"]
+     (text/default-text {:style {:font-size 24} :text "Actions"})
      (actions-view/action-list db id action-details)]))
 
 (defn info [db creature-details]
@@ -129,13 +131,13 @@ like their name, gender, race, and description. Below that will be a section for
                    :source (if portrait
                              {:uri portrait}
                              (js/require "../assets/character silhouette.png"))}]
-     [:> rn/Text gender]
-     [:> rn/Text races]
-     [:> rn/Text description]]))
+     (text/default-text {:text gender})
+     (text/default-text {:text races})
+     (text/default-text {:text description})]))
 
 (defn notes [{:keys [:creature/notes]}]
   [:> rn/View {:style {:width (screen-width)}}
-   [:> rn/Text {:style {:color :white}} notes]])
+   (text/default-text {:text notes})])
 
 (defn creature [db creature-details]
   [:> rn/ScrollView {:paging-enabled true
@@ -150,12 +152,11 @@ like their name, gender, race, and description. Below that will be a section for
 
 (defn creatures-details [db]
   (let [creature-info (creatures/creature-info db "aleksander")]
-    [:> rn/ScrollView {:style {:background-color :black :width "100%" :text-align :center}}
+    [:> rn/ScrollView {:style {:width "100%" :text-align :center}}
      [:> rn/View {:style {:flex-direction :row :width "100%" :justify-content :space-between :align-items :center}}
       (navigation/creature-list-nav-button)
-      [:> rn/Text {:style {:color :white}}
-       (str/capitalize (:creature/name creature-info))]
-      (button {:style {:background-color :inherit}
+      (text/default-text {:text (str/capitalize (:creature/name creature-info))})
+      (buttons/button {:style {:background-color :inherit}
                :on-press (fn [] (println "button pressed"))}
               [:> FontAwesome5 {:name :ellipsis-v :color :white :size 18}])]
      (creature db creature-info)]))

@@ -5,7 +5,8 @@
             [interface.views.rules :as rules] 
             [interface.views.creatures :as creatures]
             [interface.views.resources :as resources]
-            [interface.views.actions :as actions]))
+            [interface.views.actions :as actions]
+            [interface.views.asset-library :as asset-library]))
 
 (defn no-page [db ^js props]
   [:> rn/View
@@ -14,6 +15,9 @@
 (defn account [db ^js props]
   [:> rn/View
    [:> rn/Text "Account Stuff"]])
+
+(defn asset-library [db ^js props]
+  (asset-library/asset-library db props))
 
 (defn realm [db ^js props]
   (realm/realm db props))

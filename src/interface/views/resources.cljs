@@ -2,9 +2,9 @@
   (:require ["react-native" :as rn]
             [data.realms :as realms]
             [data.resources :as resources]
-            [interface.styles.text :refer [view-header-style]]
             [interface.components.navigation :as navigation]
-            [interface.components.organization :as organization]))
+            [interface.components.organization :as organization]
+            [interface.widgets.text :as text]))
 
 (defn screen-width [] (.-width js/screen))
 
@@ -14,10 +14,10 @@
 (defn resource [{:keys [title quality-value power-value] :as resource} quantity]
   [:> rn/Pressable {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}
                     :on-press #(println "button pressed")}
-   [:> rn/Text {:style {:flex 3 :font-size 16}} title]
-   [:> rn/Text {:style {:flex 1 :font-size 16}} quality-value]
-   [:> rn/Text {:style {:flex 1 :font-size 16}} power-value]
-   [:> rn/Text {:style {:flex 2 :font-size 16}} (or quantity 0)]])
+   (text/default-text {:style {:flex 3 :font-size 16} :text title})
+   (text/default-text {:style {:flex 1 :font-size 16} :text quality-value})
+   (text/default-text {:style {:flex 1 :font-size 16} :text power-value})
+   (text/default-text {:style {:flex 2 :font-size 16} :text (or quantity 0)})])
 
 (defn sort-resources-by-type
   [resources]

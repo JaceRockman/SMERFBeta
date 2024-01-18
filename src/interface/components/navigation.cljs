@@ -5,6 +5,7 @@
             [data.app-state :as app-state]
             [data.realms :as realms]
             [interface.widgets.buttons :refer [button]]
+            [interface.widgets.text :as text]
             [clojure.string :as str]))
 
 (def menu-expanded? (r/atom false))
@@ -62,11 +63,11 @@
         column-headers (map name (keys (dissoc (first data) :id)))]
     (r/as-element
      [:> rn/View
-      [:> rn/Text title]
+      (text/default-text {:text title})
       (when (< 1 (count column-headers))
         [:> rn/View {:style {:flex-direction :row :justify-content :space-evenly}}
          (map (fn [column-header]
-                [:> rn/Text (str/capitalize column-header)])
+                (text/default-text {:text (str/capitalize column-header)}))
               column-headers)])])))
 
 (defn list-item [data on-press]
@@ -76,8 +77,9 @@
                                     :justify-content :space-evenly
                                     :flex-direction :row}
                             :on-press on-press}
-    (map (fn [[k v]]
-           [:> rn/Text {:style {:padding 5 :color :white :font-size 18}} v])
+    (map (fn [[_ v]]
+           (text/default-text {:style {:padding 5 :color :white :font-size 18}
+                               :text v}))
          (dissoc (:item data) :id))]))
 
 (defn list-select [items on-press]
@@ -105,14 +107,16 @@
   [sections headers flex-vals row-constructor]
   [:> rn/SectionList {:sections (clj->js sections)
                       :render-section-header (fn [section]
-                                               (let [clj-section-title (-> (clojure.walk/keywordize-keys (js->clj section)) :section :title)]
+                                               (let [clj-section (clojure.walk/keywordize-keys (js->clj section))
+                                                     clj-section-title (-> clj-section :section :title)]
                                                  (r/as-element
                                                   [:> rn/View
-                                                   [:> rn/Text {:style {:font-size 24}}
-                                                    clj-section-title]
+                                                   (text/default-text {:style {:font-size 24}
+                                                                       :text clj-section-title})
                                                    [:> rn/View {:style {:flex-direction :row}}
                                                     (map (fn [header flex]
-                                                           [:> rn/Text {:style {:flex flex}} header])
+                                                           (text/default-text {:style {:flex flex}
+                                                                               :text header}))
                                                          headers
                                                          flex-vals)]])))
                       :render-item (fn [js-item]
@@ -127,7 +131,8 @@
                                             (r/as-element
                                              [:> rn/View {:style {:flex-direction :row}}
                                               (map (fn [header flex]
-                                                     [:> rn/Text {:style {:flex flex}} header])
+                                                     (text/default-text {:style {:flex flex}
+                                                                               :text header}))
                                                    headers
                                                    flex-vals)]))
                    :render-item (fn [js-item]

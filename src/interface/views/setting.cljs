@@ -7,7 +7,6 @@
             [data.app-state :as app-state]
             [data.realms :as realms]
             [data.setting :as settings]
-            [interface.styles.text :refer [view-header-style]]
             [interface.components.navigation :as navigation]
             [interface.components.organization :as organization]
             [interface.widgets.buttons :refer [button]]
@@ -17,21 +16,21 @@
   (let [kalashar (settings/setting-details db "Kalashar")]
     [:> rn/ScrollView {:style {:flex :1}}
      (case (first sub-nav)
-       :territories [:> Markdown {:rules (rules :setting)}
+       :territories [:> Markdown {:style {:body {:color :white}} :rules (rules :setting)}
                      (:setting/home kalashar)]
-       :commonlands [:> Markdown {:rules (rules :setting)}
+       :commonlands [:> Markdown {:style {:body {:color :white}} :rules (rules :setting)}
                      (:setting/commonlands kalashar)]
-       :outwilds [:> Markdown {:rules (rules :setting)}
+       :outwilds [:> Markdown {:style {:body {:color :white}} :rules (rules :setting)}
                      (:setting/outwilds kalashar)]
-       :humans [:> Markdown {:rules (rules :setting)}
+       :humans [:> Markdown {:style {:body {:color :white}} :rules (rules :setting)}
                 (:setting/humans kalashar)]
-       :elves [:> Markdown {:rules (rules :setting)}
+       :elves [:> Markdown {:style {:body {:color :white}} :rules (rules :setting)}
                      (:setting/elves kalashar)]
-       :dwarves [:> Markdown {:rules (rules :setting)}
+       :dwarves [:> Markdown {:style {:body {:color :white}} :rules (rules :setting)}
                      (:setting/dwarves kalashar)]
-       :goblins [:> Markdown {:rules (rules :setting)}
+       :goblins [:> Markdown {:style {:body {:color :white}} :rules (rules :setting)}
                      (:setting/goblins kalashar)]
-       [:> Markdown {:rules (rules :setting)}
+       [:> Markdown {:style {:body {:color :white}} :rules (rules :setting)}
         (:setting/home kalashar)])]))
 
 (defn setting [db ^js props]

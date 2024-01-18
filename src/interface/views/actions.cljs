@@ -3,9 +3,9 @@
             ["react-native" :as rn]
             [data.realms :as realms]
             [data.actions :as actions]
-            [interface.styles.text :refer [view-header-style]]
             [interface.components.navigation :as navigation]
-            [interface.components.organization :as organization]))
+            [interface.components.organization :as organization]
+            [interface.widgets.text :as text]))
 
 (defn screen-width [] (.-width js/screen))
 
@@ -33,17 +33,17 @@
 (defn action-constructor [action-data]
   (println action-data)
   [:> rn/View {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}}
-   [:> rn/Text {:style {:flex 3 :font-size 16 :align-self :center}} (:title action-data)]
-   [:> rn/Text {:style {:flex 2 :font-size 16 :align-self :center}} (actions/dummy-roll-value)]
+   (text/default-text {:style {:flex 3 :font-size 16 :align-self :center} :text (:title action-data)})
+   (text/default-text {:style {:flex 2 :font-size 16 :align-self :center} :text (actions/dummy-roll-value)})
    [:> rn/Pressable {:style {:flex 1 :font-size 16 :align-self :center}
-                     :on-press #(println "Rolled dice!")} "Roll!"]])
+                     :on-press #(println "Rolled dice!")} (text/default-text {:text "Roll!"})]])
 
 (defn action-list [db creature-id actions]
   [:> rn/View {:style {:width "100%"}}
    [:> rn/View {:style {:flex-direction :row}}
-    [:> rn/Text {:style {:flex 3 :font-size 16}} "Title"]
-    [:> rn/Text {:style {:flex 2 :font-size 16}} "Roll Value"]
-    [:> rn/Text {:style {:flex 1 :font-size 16}} "Start Roll"]]
+    (text/default-text {:style {:flex 3 :font-size 16} :text "Title"})
+    (text/default-text {:style {:flex 2 :font-size 16} :text "Roll Value"})
+    (text/default-text {:style {:flex 1 :font-size 16} :text "Start Roll"})]
    (section-divider)
    (interpose (section-divider) (map (fn [action-data] (action-constructor action-data)) actions))
    (section-divider)]

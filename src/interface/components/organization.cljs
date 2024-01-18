@@ -3,22 +3,18 @@
             ["react-native" :as rn]
             [data.app-state :as app-state]
             [data.realms :as realms]
-            [interface.styles.text :refer [view-header-style]]
-            [interface.components.navigation :as navigation]))
-
-(defn view-header-text
-  [text]
-  [:> rn/Text {:style view-header-style} text])
+            [interface.components.navigation :as navigation]
+            [interface.widgets.text :as text]))
 
 (defn view-header
   [headers]
   [:> rn/View {:style {:background-color :lavender
-                       :width "100%" 
+                       :width "100%"
                        :flex-direction :row
                        :justify-content :space-between}}
    (navigation/realm-management-nav-button)
    [:> rn/View
-    (map view-header-text headers)]
+    (map #(text/view-header-text {:text %}) headers)]
    (navigation/menu)])
 
 (defn card [contents]
@@ -34,7 +30,8 @@
         view-title (str/capitalize (name (first (app-state/navigation-state db))))]
     [:> rn/View {:style {:width (screen-width)
                          :align-items :center
-                         :background-color :white
+                         :background-color "#121212"
+                         :color :white
                          :height (screen-height)}}
      (view-header [(:realm/title active-realm-data) view-title])
      content 

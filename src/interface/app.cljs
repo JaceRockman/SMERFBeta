@@ -15,6 +15,7 @@
   (let [main-nav (app-state/main-nav-state db)]
     (case main-nav
       :settings (r/as-element [views/setting db {}])
+      :asset-library (r/as-element [views/asset-library db {}])
       :realm (r/as-element [views/realm db {}])
       :setting (r/as-element [views/setting db {}])
       :rules (r/as-element [views/rules db {}])

@@ -7,10 +7,10 @@
    ["@expo/vector-icons" :refer [FontAwesome5]]
    [data.app-state :as app-state]
    [data.realms :as realms]
-   [interface.styles.text :refer [view-header-style]] 
    [interface.components.organization :as organization]
    [interface.components.navigation :as navigation]
-   [interface.widgets.buttons :refer [button]]))
+   [interface.widgets.buttons :refer [button primary-button secondary-button]]
+   [interface.widgets.text :as text]))
 
 (def active-section (r/atom :setting))
 
@@ -45,32 +45,33 @@
                                         :on-press #(doall
                                                     (realms/set-active-realm id)
                                                     (app-state/navigate [:realm]))}
-                       [:> rn/Text {:style {:flex 1}}
-                        title]
-                       [:> rn/Text {:style {:flex 1}}
-                        (or owner "Unknown")]])
+                       (text/default-text {:style {:flex 1}
+                                           :text title})
+                       (text/default-text {:style {:flex 1}
+                                           :text (or owner "Unknown")})])
     :sort-fns [(fn [items] [{:title "Realms" :data items}])]}))
 
 (defn realm-select
   [realms-data]
   [:> rn/View
-   [:> rn/Text {:style view-header-style}
-      "Select a Realm"]
+   (text/view-header-text {:style {:color :white} :text "Select a Realm"})
    (realm-select-list realms-data)])
 
 (defn realm-summary
   [realm-data]
   [:> rn/View
-   [:> rn/Text {:style view-header-style}
-      (:realm/title realm-data)]
-   [:> rn/Text (str realm-data)]])
+   (text/view-header-text {:text (:realm/title realm-data)})
+   (text/default-text {:text (str realm-data)})])
 
 (defn realm
   [db ^js props]
   (let [active-realm-data (realms/get-active-realm-data db)
         all-realms-data (realms/get-details-for-all-realms db realms/simple-keys-pull-pattern)]
-    (organization/view-frame db
-                             [:> rn/ScrollView {:style {:flex 1 :width "100%"}}
-                              (if (empty? active-realm-data)
-                                (realm-select all-realms-data)
-                                (realm-summary active-realm-data))])))
+    (organization/view-frame
+     db
+     [:> rn/ScrollView {:style {:flex 1 :width "100%"}
+                        :content-container-style {:align-items :center}}
+      (if (empty? active-realm-data)
+        (realm-select all-realms-data)
+        (realm-summary active-realm-data))
+      (primary-button "Asset Library" #(app-state/navigate [:asset-library]) false)])))
