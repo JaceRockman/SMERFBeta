@@ -10,28 +10,20 @@
             [interface.components.navigation :as navigation]
             [interface.components.organization :as organization]
             [interface.widgets.buttons :refer [button]]
-            [interface.styles.markdown :refer [Markdown rules]]))
+            [interface.styles.markdown :as markdown]))
 
 (defn setting-details [db sub-nav]
   (let [kalashar (settings/setting-details db "Kalashar")]
     [:> rn/ScrollView {:style {:flex :1}}
      (case (first sub-nav)
-       :territories [:> Markdown {:style {:body {:color :white}} :rules (rules :setting)}
-                     (:setting/home kalashar)]
-       :commonlands [:> Markdown {:style {:body {:color :white}} :rules (rules :setting)}
-                     (:setting/commonlands kalashar)]
-       :outwilds [:> Markdown {:style {:body {:color :white}} :rules (rules :setting)}
-                     (:setting/outwilds kalashar)]
-       :humans [:> Markdown {:style {:body {:color :white}} :rules (rules :setting)}
-                (:setting/humans kalashar)]
-       :elves [:> Markdown {:style {:body {:color :white}} :rules (rules :setting)}
-                     (:setting/elves kalashar)]
-       :dwarves [:> Markdown {:style {:body {:color :white}} :rules (rules :setting)}
-                     (:setting/dwarves kalashar)]
-       :goblins [:> Markdown {:style {:body {:color :white}} :rules (rules :setting)}
-                     (:setting/goblins kalashar)]
-       [:> Markdown {:style {:body {:color :white}} :rules (rules :setting)}
-        (:setting/home kalashar)])]))
+       :territories (markdown/default-markdown (:setting/home kalashar))
+       :commonlands (markdown/default-markdown (:setting/commonlands kalashar))
+       :outwilds (markdown/default-markdown (:setting/outwilds kalashar))
+       :humans (markdown/default-markdown (:setting/humans kalashar))
+       :elves (markdown/default-markdown (:setting/elves kalashar))
+       :dwarves (markdown/default-markdown (:setting/dwarves kalashar))
+       :goblins (markdown/default-markdown (:setting/goblins kalashar))
+       (markdown/default-markdown (:setting/home kalashar)))]))
 
 (defn setting [db ^js props]
   (let [sub-nav (app-state/sub-nav-state db)]

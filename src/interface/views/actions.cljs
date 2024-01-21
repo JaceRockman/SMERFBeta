@@ -40,7 +40,7 @@
 
 (defn action-list [{:keys [db creature-id actions show-header?]}]
   (navigation/search-filter-sort-list
-   {:list-header (when show-header? (text/view-header-text {:style {:color :white} :text "Actions"}))
+   {:list-header (when show-header? "Actions")
     :items actions
     :column-headers ["Title" "Roll Value" "Start Roll"]
     :column-flex-vals [3 2 1]

@@ -9,30 +9,10 @@
    [data.realms :as realms]
    [interface.components.organization :as organization]
    [interface.components.navigation :as navigation]
-   [interface.widgets.buttons :refer [button primary-button secondary-button]]
+   [interface.widgets.buttons :refer [primary-button secondary-button]]
    [interface.widgets.text :as text]))
 
 (def active-section (r/atom :setting))
-
-(defn select-realm-button [realm-data]
-  [button {:on-press (fn [] (doall
-                             (realms/set-active-realm (:db/id realm-data))
-                             (app-state/navigate [:realm])))
-           :style {:background-color :gray
-                   :width 150
-                   :height 150
-                   :border-radius 10
-                   :text-align :center
-                   :justify-content :center
-                   :align-items :center}
-           :key (:db/id realm-data)}
-   (:realm/title realm-data)])
-
-(defn realm-select-buttons
-  [existing-realms-data]
-  [:> rn/View {:style {:color :gray}}
-   (map select-realm-button existing-realms-data)
-   [button {:on-press (fn [] (realms/create-new-realm))} "Create Realm"]])
 
 (defn realm-select-list
   [{:keys [realms-data show-header?]}]
@@ -42,18 +22,20 @@
     :column-headers ["Realm Title" "Realm Owner"]
     :column-flex-vals [1 1]
     :item-format-fn (fn [{:keys [owner id title]}]
-                      [:> rn/Pressable {:style {:flex-direction :row}
+                      [:> rn/Pressable {:style {:flex-direction :row
+                                                :margin-top 5
+                                                :margin-bottom 5}
                                         :on-press #(doall
                                                     (realms/set-active-realm id)
                                                     (app-state/navigate [:realm]))}
                        (text/default-text {:style {:flex 1}
                                            :text title})
                        (text/default-text {:style {:flex 1}
-                                           :text (or owner "Unknown")})])}))
+                                           :text (or owner "Avis Industries")})])}))
 
 (defn realm-select
   [realms-data]
-  [:> rn/View
+  [:> rn/View {:style {:width "100%"}}
    (realm-select-list {:realms-data realms-data :show-header? true})])
 
 (defn realm-summary
@@ -69,8 +51,11 @@
     (organization/view-frame
      db
      [:> rn/ScrollView {:style {:flex 1 :width "100%"}
-                        :content-container-style {:align-items :center}}
+                        :content-container-style {:align-items :center
+                                                  :justify-content :space-between
+                                                  :height "100%"
+                                                  :padding "5%"}}
       (if (empty? active-realm-data)
         (realm-select all-realms-data)
         (realm-summary active-realm-data))
-      (primary-button "Asset Library" #(app-state/navigate [:asset-library]) false)])))
+      (primary-button {:text "Asset Library" :on-press #(app-state/navigate [:asset-library])})])))

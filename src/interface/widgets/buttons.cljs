@@ -3,7 +3,7 @@
             [interface.styles.buttons :as button-styles]))
 
 (defn test-button
-  [text text-style button-style on-press disabled?]
+  [{:keys [text text-style button-style on-press disabled?]}]
   [:> rn/Pressable {:style button-style 
                     :on-press on-press
                     :disabled disabled?}
@@ -11,16 +11,28 @@
     text]])
 
 (defn primary-button
-  [text on-press disabled?]
-  (test-button text button-styles/primary-button-text button-styles/primary-button on-press disabled?))
+  [{:keys [text text-style-variant button-variant on-press disabled?]}]
+  (test-button {:text text
+                :text-style button-styles/primary-button-text
+                :button-style (button-styles/primary-button button-variant)
+                :on-press on-press
+                :disabled? disabled?}))
 
 (defn secondary-button
-  [text on-press disabled?]
-  (test-button text button-styles/secondary-button-text button-styles/secondary-button on-press disabled?))
+  [{:keys [text text-style button-variant on-press disabled?]}]
+  (test-button {:text text
+                :text-style button-styles/secondary-button-text
+                :button-style (button-styles/secondary-button button-variant)
+                :on-press on-press
+                :disabled? disabled?}))
 
 (defn tertiary-button
-  [text on-press disabled?]
-  (test-button text button-styles/tertiary-button-text button-styles/tertiary-button on-press disabled?))
+  [{:keys [text text-style button-variant on-press disabled?]}]
+  (test-button {:text text
+                :text-style button-styles/tertiary-button-text
+                :button-style (button-styles/tertiary-button button-variant)
+                :on-press on-press
+                :disabled? disabled?}))
 
 (defn button [{:keys [style text-style on-press
                       disabled? disabled-style disabled-text-style]

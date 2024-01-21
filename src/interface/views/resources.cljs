@@ -35,7 +35,7 @@
 
 (defn resource-list [{:keys [resources quantities show-header?]}]
   (navigation/search-filter-sort-list
-   {:list-header (when show-header? (text/view-header-text {:style {:color :white} :text "Resources"})) 
+   {:list-header (when show-header? "Resources") 
     :items resources
     :column-headers ["Title" "Quality" "Power" "Quantity"]
     :column-flex-vals [3 1 1 2]

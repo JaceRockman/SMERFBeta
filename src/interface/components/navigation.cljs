@@ -40,7 +40,7 @@
 
 (defn tab-bar
   [& [icons destinations]]
-  [:> rn/View {:style {:display :grid :grid-auto-flow :column :background-color :lavender :justify-content :space-evenly :width "100%" :align-self :flex-end}}
+  [:> rn/View {:style {:display :grid :grid-auto-flow :column :background-color :lavender :justify-content :space-evenly :width "100%" :height "5%" :align-self :flex-end}}
    (if (and (not-empty icons) (not-empty destinations))
      (map tab-bar-button icons destinations)
      (map tab-bar-button
@@ -104,20 +104,24 @@
            [:> FontAwesome5 {:name :search :color :white :size 14}]]))
 
 (defn SectionList
-  [list-header sections headers flex-vals row-constructor]
+  [list-title sections headers flex-vals row-constructor]
   [:> rn/SectionList {:sections (clj->js sections)
                       :ListHeaderComponent (fn []
-                                             (r/as-element list-header))
+                                             (r/as-element [:> rn/Text {:style {:color :white :font-size 24}}
+                                                            list-title]))
                       :render-section-header (fn [section]
                                                (let [clj-section (clojure.walk/keywordize-keys (js->clj section))
                                                      clj-section-title (-> clj-section :section :title)]
                                                  (r/as-element
                                                   [:> rn/View
-                                                   (text/default-text {:style {:font-size 24}
+                                                   (text/default-text {:style {:font-size 24
+                                                                               :text-align :center
+                                                                               :padding 10}
                                                                        :text clj-section-title})
                                                    [:> rn/View {:style {:flex-direction :row}}
                                                     (map (fn [header flex]
-                                                           (text/default-text {:style {:flex flex}
+                                                           (text/default-text {:style {:flex flex
+                                                                                       :font-size 16}
                                                                                :text header}))
                                                          headers
                                                          flex-vals)]])))
@@ -125,34 +129,46 @@
                                      (let [clj-item (js->clj (.-item js-item))]
                                        (r/as-element (row-constructor (clojure.walk/keywordize-keys clj-item)))))
                       :SectionSeparatorComponent (fn []
-                                                   (r/as-element [:> rn/View {:style {:height 2 :width "90%" :background-color :white}}]))
+                                                   (r/as-element [:> rn/View {:style {:height 2
+                                                                                      :width "90%"
+                                                                                      :background-color :white
+                                                                                      :align-self :center}}]))
                       :ItemSeparatorComponent (fn []
-                                                (r/as-element [:> rn/View {:style {:height 1 :width "80%" :background-color :white}}]))
+                                                (r/as-element [:> rn/View {:style {:height 1
+                                                                                   :width "80%"
+                                                                                   :background-color :white
+                                                                                   :align-self :center}}]))
                       :key-extractor (fn [js-item]
                                        (let [clj-item (clojure.walk/keywordize-keys (js->clj js-item))]
                                          (:id clj-item)))
                       :listEmptyComponent (fn []
-                                            (r/as-element [:> rn/Text {:style {:color :white}} "No Items"]))
+                                            (r/as-element (text/default-text {:text "No Items"})))
                       :sticky-section-headers-enabled true}])
 
 (defn FlatList
-  [list-header items headers flex-vals row-constructor]
+  [list-title items headers flex-vals row-constructor]
   [:> rn/FlatList {:data (clj->js items)
                    :ListHeaderComponent (fn []
-                                          (r/as-element list-header))
-                   :list-header-component (fn []
-                                            (r/as-element
-                                             [:> rn/View {:style {:flex-direction :row}}
-                                              (map (fn [header flex]
-                                                     (text/default-text {:style {:flex flex}
-                                                                         :text header}))
-                                                   headers
-                                                   flex-vals)]))
+                                          (r/as-element
+                                           [:> rn/View
+                                            (text/default-text {:style {:color :white
+                                                                        :font-size 24
+                                                                        :text-align :center}
+                                                                :text list-title})
+                                            [:> rn/View {:style {:flex-direction :row}}
+                                            (map (fn [header flex]
+                                                   (text/default-text {:style {:flex flex}
+                                                                       :text header}))
+                                                 headers
+                                                 flex-vals)]]))
                    :render-item (fn [js-item]
                                   (let [clj-item (js->clj (.-item js-item))]
                                     (r/as-element (row-constructor (clojure.walk/keywordize-keys clj-item)))))
                    :ItemSeparatorComponent (fn []
-                                             (r/as-element [:> rn/View {:style {:height 1 :width "80%" :background-color :white}}]))
+                                             (r/as-element [:> rn/View {:style {:height 1
+                                                                                :width "80%"
+                                                                                :background-color :white
+                                                                                :align-self :center}}]))
                    :key-extractor (fn [js-item]
                                     (let [clj-item (clojure.walk/keywordize-keys (js->clj js-item))]
                                       (:id clj-item)))
@@ -168,7 +184,7 @@
                                        (function list))
                                      items
                                      full-fn-list))]
-    [:> rn/View {:style {:width "100%"}}
+    [:> rn/View {:style {:width "100%" :padding 10}}
      ((if (empty? sort-fns) FlatList SectionList)
       list-header
       reduced-items

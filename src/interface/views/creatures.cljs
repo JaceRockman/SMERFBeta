@@ -48,9 +48,8 @@ like their name, gender, race, and description. Below that will be a section for
 (defn skillbility
   [title skill-value ability-value]
   [:> rn/View {:style {:width "25%" :align-items :center}}
-   (buttons/tertiary-button (str title "\n" skill-value "d" ability-value)
-                            #(println title "button pressed")
-                            false)])
+   (buttons/tertiary-button {:text (str title "\n" skill-value "d" ability-value)
+                             :on-press #(println title "button pressed")})])
 
 (defn damage-severity-tracker
   [db domain-id {:keys [severity-title damage-quantity]}]
@@ -95,18 +94,18 @@ like their name, gender, race, and description. Below that will be a section for
   [:> rn/View {:style {:background-color :lavender :width "80%" :height 2 :align-self :center}}])
 
 (defn stats-section-style []
-  {:padding 10 :width (screen-width) :gap 10 :border-radius 10})
+  {:padding 10 :width (screen-width) :gap 10})
 
 (defn stats [db {:keys [:creature/domains]}]
   (let [domain-details (map #(domains/get-domain-by-id db %) domains)]
-    [:> rn/View {:style (stats-section-style)}
+    [:> rn/ScrollView {:style (stats-section-style)}
      (text/default-text {:style {:font-size 32} :text "Stats"})
      (interpose (section-divider)
                 (map stats-domain (repeat db) domain-details))]))
 
 (defn resources [db {:keys [:creature/resources]}]
   (let [resource-details (ds/pull-many db ["*"] resources)]
-    [:> rn/View {:style {:width (screen-width)}}
+    [:> rn/ScrollView {:style {:width (screen-width)}}
      (resources-view/resource-list {:resources resource-details
                                     :quantities (reduce (fn [qtys res]
                                                           (assoc qtys (:db/id res) (rand-int 3)))
@@ -116,7 +115,7 @@ like their name, gender, race, and description. Below that will be a section for
 
 (defn actions [db {:keys [:db/id :creature/actions]}]
   (let [action-details (ds/pull-many db ["*"] actions)]
-    [:> rn/View {:style {:width (screen-width)}}
+    [:> rn/ScrollView {:style {:width (screen-width)}}
      (actions-view/action-list {:db db :creature-id id :actions action-details :show-header? true})]))
 
 (defn info [db creature-details]
@@ -125,8 +124,8 @@ like their name, gender, race, and description. Below that will be a section for
         gender (:creature/gender creature-details)
         races (str "Races: " (apply str (interpose " " (creatures/race-titles db (:creature/race creature-details)))))
         description (:creature/description creature-details)]
-    [:> rn/View {:style {:width (screen-width)
-                         :align-items :center}}
+    [:> rn/ScrollView {:style {:width (screen-width)}
+                       :content-container-style {:align-items :center}}
      [:> rn/Image {:style {:width "50%" :aspect-ratio 1}
                    :source (if portrait
                              {:uri portrait}
@@ -136,7 +135,7 @@ like their name, gender, race, and description. Below that will be a section for
      (text/default-text {:text description})]))
 
 (defn notes [{:keys [:creature/notes]}]
-  [:> rn/View {:style {:width (screen-width)}}
+  [:> rn/ScrollView {:style {:width (screen-width)}}
    (text/default-text {:text notes})])
 
 (defn creature [db creature-details]
@@ -152,13 +151,13 @@ like their name, gender, race, and description. Below that will be a section for
 
 (defn creatures-details [db]
   (let [creature-info (creatures/creature-info db "aleksander")]
-    [:> rn/ScrollView {:style {:width "100%" :text-align :center}}
+    [:> rn/View {:style {:width "100%" :height "90%" :text-align :center}}
      [:> rn/View {:style {:flex-direction :row :width "100%" :justify-content :space-between :align-items :center}}
       (navigation/creature-list-nav-button)
       (text/default-text {:text (str/capitalize (:creature/name creature-info))})
       (buttons/button {:style {:background-color :inherit}
-               :on-press (fn [] (println "button pressed"))}
-              [:> FontAwesome5 {:name :ellipsis-v :color :white :size 18}])]
+                       :on-press (fn [] (println "button pressed"))}
+                      [:> FontAwesome5 {:name :ellipsis-v :color :white :size 18}])]
      (creature db creature-info)]))
 
 (defn creatures [db ^js props]
