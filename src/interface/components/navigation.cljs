@@ -104,8 +104,10 @@
            [:> FontAwesome5 {:name :search :color :white :size 14}]]))
 
 (defn SectionList
-  [sections headers flex-vals row-constructor]
+  [list-header sections headers flex-vals row-constructor]
   [:> rn/SectionList {:sections (clj->js sections)
+                      :ListHeaderComponent (fn []
+                                             (r/as-element list-header))
                       :render-section-header (fn [section]
                                                (let [clj-section (clojure.walk/keywordize-keys (js->clj section))
                                                      clj-section-title (-> clj-section :section :title)]
@@ -122,25 +124,43 @@
                       :render-item (fn [js-item]
                                      (let [clj-item (js->clj (.-item js-item))]
                                        (r/as-element (row-constructor (clojure.walk/keywordize-keys clj-item)))))
+                      :SectionSeparatorComponent (fn []
+                                                   (r/as-element [:> rn/View {:style {:height 2 :width "90%" :background-color :white}}]))
+                      :ItemSeparatorComponent (fn []
+                                                (r/as-element [:> rn/View {:style {:height 1 :width "80%" :background-color :white}}]))
+                      :key-extractor (fn [js-item]
+                                       (let [clj-item (clojure.walk/keywordize-keys (js->clj js-item))]
+                                         (:id clj-item)))
+                      :listEmptyComponent (fn []
+                                            (r/as-element [:> rn/Text {:style {:color :white}} "No Items"]))
                       :sticky-section-headers-enabled true}])
 
 (defn FlatList
-  [items headers flex-vals row-constructor]
+  [list-header items headers flex-vals row-constructor]
   [:> rn/FlatList {:data (clj->js items)
+                   :ListHeaderComponent (fn []
+                                          (r/as-element list-header))
                    :list-header-component (fn []
                                             (r/as-element
                                              [:> rn/View {:style {:flex-direction :row}}
                                               (map (fn [header flex]
                                                      (text/default-text {:style {:flex flex}
-                                                                               :text header}))
+                                                                         :text header}))
                                                    headers
                                                    flex-vals)]))
                    :render-item (fn [js-item]
                                   (let [clj-item (js->clj (.-item js-item))]
-                                    (r/as-element (row-constructor (clojure.walk/keywordize-keys clj-item)))))}])
+                                    (r/as-element (row-constructor (clojure.walk/keywordize-keys clj-item)))))
+                   :ItemSeparatorComponent (fn []
+                                             (r/as-element [:> rn/View {:style {:height 1 :width "80%" :background-color :white}}]))
+                   :key-extractor (fn [js-item]
+                                    (let [clj-item (clojure.walk/keywordize-keys (js->clj js-item))]
+                                      (:id clj-item)))
+                   :ListEmptyComponent (fn []
+                                         (r/as-element [:> rn/Text {:style {:color :white}} "No Items"]))}])
 
 (defn search-filter-sort-list
-  [{:keys [items column-headers column-flex-vals item-format-fn search-fns filter-fns sort-fns]}]
+  [{:keys [list-header items column-headers column-flex-vals item-format-fn search-fns filter-fns sort-fns]}]
   (let [full-fn-list (concat search-fns filter-fns sort-fns)
         reduced-items (if (empty? full-fn-list)
                              items
@@ -150,6 +170,7 @@
                                      full-fn-list))]
     [:> rn/View {:style {:width "100%"}}
      ((if (empty? sort-fns) FlatList SectionList)
+      list-header
       reduced-items
       column-headers
       column-flex-vals

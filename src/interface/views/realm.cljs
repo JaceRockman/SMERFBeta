@@ -35,9 +35,10 @@
    [button {:on-press (fn [] (realms/create-new-realm))} "Create Realm"]])
 
 (defn realm-select-list
-  [realms-data]
+  [{:keys [realms-data show-header?]}]
   (navigation/search-filter-sort-list
-   {:items realms-data
+   {:list-header (when show-header? (text/view-header-text {:style {:color :white} :text "Select a Realm"}))
+    :items realms-data
     :column-headers ["Realm Title" "Realm Owner"]
     :column-flex-vals [1 1]
     :item-format-fn (fn [{:keys [owner id title]}]
@@ -48,14 +49,12 @@
                        (text/default-text {:style {:flex 1}
                                            :text title})
                        (text/default-text {:style {:flex 1}
-                                           :text (or owner "Unknown")})])
-    :sort-fns [(fn [items] [{:title "Realms" :data items}])]}))
+                                           :text (or owner "Unknown")})])}))
 
 (defn realm-select
   [realms-data]
   [:> rn/View
-   (text/view-header-text {:style {:color :white} :text "Select a Realm"})
-   (realm-select-list realms-data)])
+   (realm-select-list {:realms-data realms-data :show-header? true})])
 
 (defn realm-summary
   [realm-data]

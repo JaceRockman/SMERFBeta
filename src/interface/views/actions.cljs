@@ -38,18 +38,10 @@
    [:> rn/Pressable {:style {:flex 1 :font-size 16 :align-self :center}
                      :on-press #(println "Rolled dice!")} (text/default-text {:text "Roll!"})]])
 
-(defn action-list [db creature-id actions]
-  [:> rn/View {:style {:width "100%"}}
-   [:> rn/View {:style {:flex-direction :row}}
-    (text/default-text {:style {:flex 3 :font-size 16} :text "Title"})
-    (text/default-text {:style {:flex 2 :font-size 16} :text "Roll Value"})
-    (text/default-text {:style {:flex 1 :font-size 16} :text "Start Roll"})]
-   (section-divider)
-   (interpose (section-divider) (map (fn [action-data] (action-constructor action-data)) actions))
-   (section-divider)]
-  (println actions)
+(defn action-list [{:keys [db creature-id actions show-header?]}]
   (navigation/search-filter-sort-list
-   {:items actions
+   {:list-header (when show-header? (text/view-header-text {:style {:color :white} :text "Actions"}))
+    :items actions
     :column-headers ["Title" "Roll Value" "Start Roll"]
     :column-flex-vals [3 2 1]
     :item-format-fn action-constructor
@@ -58,7 +50,7 @@
 (defn actions-details [db]
   (let [actions (actions/get-all-actions db)]
     [:> rn/View {:style {:flex :1 :width (screen-width) :align-items :center :align-text :center}}
-     (action-list db nil actions)]))
+     (action-list {:db db :actions actions})]))
 
 (defn actions [db ^js props]
   (organization/view-frame db (actions-details db)))

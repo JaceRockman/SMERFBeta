@@ -33,10 +33,10 @@
         items (type-section-from-resources "Items" resources)]
     (remove nil? [equipment traits expertise affiliations items])))
 
-(defn resource-list [resources quantities]
-  (println (sort-resources-by-type resources))
+(defn resource-list [{:keys [resources quantities show-header?]}]
   (navigation/search-filter-sort-list
-   {:items resources
+   {:list-header (when show-header? (text/view-header-text {:style {:color :white} :text "Resources"})) 
+    :items resources
     :column-headers ["Title" "Quality" "Power" "Quantity"]
     :column-flex-vals [3 1 1 2]
     :item-format-fn #(resource % (get quantities (:db/id resource)))
@@ -45,7 +45,7 @@
 (defn resources-main-page [db]
   (let [resources (resources/get-all-resources db)]
     [:> rn/View {:style {:flex :1 :width (screen-width) :align-items :center}}
-     (resource-list resources {})]))
+     (resource-list {:resources resources})]))
 
 (defn resources [db ^js props]
   (organization/view-frame db (resources-main-page db)))

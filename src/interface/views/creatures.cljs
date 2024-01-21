@@ -107,17 +107,17 @@ like their name, gender, race, and description. Below that will be a section for
 (defn resources [db {:keys [:creature/resources]}]
   (let [resource-details (ds/pull-many db ["*"] resources)]
     [:> rn/View {:style {:width (screen-width)}}
-     (text/default-text {:style {:font-size 24} :text "Resources"})
-     [resources-view/resource-list resource-details (reduce (fn [qtys res]
-                                                              (assoc qtys (:db/id res) (rand-int 3)))
-                                                            {}
-                                                            resource-details)]]))
+     (resources-view/resource-list {:resources resource-details
+                                    :quantities (reduce (fn [qtys res]
+                                                          (assoc qtys (:db/id res) (rand-int 3)))
+                                                        {}
+                                                        resource-details)
+                                    :show-header? true})]))
 
 (defn actions [db {:keys [:db/id :creature/actions]}]
   (let [action-details (ds/pull-many db ["*"] actions)]
     [:> rn/View {:style {:width (screen-width)}}
-     (text/default-text {:style {:font-size 24} :text "Actions"})
-     (actions-view/action-list db id action-details)]))
+     (actions-view/action-list {:db db :creature-id id :actions action-details :show-header? true})]))
 
 (defn info [db creature-details]
   (let [name (:creature/name creature-details)
