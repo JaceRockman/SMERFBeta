@@ -30,22 +30,24 @@
      {:title "Mental" :data mental-actions}
      {:title "Social" :data social-actions}]))
 
-(defn action-constructor [action-data]
-  (println action-data)
-  [:> rn/View {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}}
-   (text/default-text {:style {:flex 3 :font-size 16 :align-self :center} :text (:title action-data)})
-   (text/default-text {:style {:flex 2 :font-size 16 :align-self :center} :text (actions/dummy-roll-value)})
-   [:> rn/Pressable {:style {:flex 1 :font-size 16 :align-self :center}
-                     :on-press #(println "Rolled dice!")} (text/default-text {:text "Roll!"})]])
+(defn action-constructor [flex-vals]
+  (fn [action-data] [:> rn/View {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}}
+                    (text/default-text {:style {:flex (nth flex-vals 0) :font-size 16 :align-self :center}
+                                        :text (:title action-data)})
+                    (text/default-text {:style {:flex (nth flex-vals 1) :font-size 16 :align-self :center}
+                                        :text (actions/dummy-roll-value)})
+                    [:> rn/Pressable {:style {:flex (nth flex-vals 2) :font-size 16 :align-self :center}
+                                      :on-press #(println "Rolled dice!")}
+                     (text/default-text {:text "Roll!"})]]))
 
 (defn action-list [{:keys [db creature-id actions show-header?]}]
-  (navigation/search-filter-sort-list
+  (let [flex-vals [2 1 1]](navigation/search-filter-sort-list
    {:list-header (when show-header? "Actions")
     :items actions
     :column-headers ["Title" "Roll Value" "Start Roll"]
-    :column-flex-vals [3 2 1]
-    :item-format-fn action-constructor
-    :sort-fns [sort-by-domain]}))
+    :column-flex-vals flex-vals
+    :item-format-fn (action-constructor flex-vals)
+    :sort-fns [sort-by-domain]})))
 
 (defn actions-details [db]
   (let [actions (actions/get-all-actions db)]
