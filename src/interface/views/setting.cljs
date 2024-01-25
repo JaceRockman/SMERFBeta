@@ -12,11 +12,22 @@
             [interface.widgets.buttons :refer [button]]
             [interface.styles.markdown :as markdown]))
 
+(defn setting-category-select
+  [db]
+  (let [flex-vals [2 1]]
+    (navigation/search-filter-sort-list
+     {:list-header "Categories"
+      :items []
+      :column-headers ["Title" "Author"]
+      :column-flex-vals flex-vals
+      :item-format-fn #()})))
+
 (defn setting-details [db sub-nav]
-  (let [kalashar (settings/setting-details db "Kalashar")]
+  (let [{:keys [setting/territories]} (settings/setting-details db "Kalashar")
+        kalashar {}]
+    (println territories)
     [:> rn/ScrollView {:style {:flex :1}}
-     (case (first sub-nav)
-       :territories (markdown/default-markdown (:setting/home kalashar))
+     (case sub-nav
        :commonlands (markdown/default-markdown (:setting/commonlands kalashar))
        :outwilds (markdown/default-markdown (:setting/outwilds kalashar))
        :humans (markdown/default-markdown (:setting/humans kalashar))
@@ -24,6 +35,11 @@
        :dwarves (markdown/default-markdown (:setting/dwarves kalashar))
        :goblins (markdown/default-markdown (:setting/goblins kalashar))
        (markdown/default-markdown (:setting/home kalashar)))]))
+
+(defn setting-home [db]
+  (if-let [sub-nav (first (app-state/sub-nav-state db))]
+    (setting-details db sub-nav)
+    (setting-category-select db)))
 
 (defn setting [db ^js props]
   (let [sub-nav (app-state/sub-nav-state db)]
