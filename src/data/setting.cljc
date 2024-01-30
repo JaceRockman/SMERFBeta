@@ -8,31 +8,76 @@
                   :where [?e :setting/title ?setting-title]]
                 db setting-title)))
 
+(defn recursively-get-children-entities
+  ([db ids]
+   (let [children (map :db/id (flatten (map :setting/children-entities (flatten (ds/pull-many db '[:setting/children-entities] ids)))))]
+     (if (empty? children)
+       ids
+       (recursively-get-children-entities db (distinct (concat ids children)) children))))
+  ([db old-ids new-ids]
+   (let [new-children (remove nil? (map :db/id (flatten (map :setting/children-entities (flatten (ds/pull-many db '[:setting/children-entities] new-ids))))))]
+     (if (empty? new-children)
+       old-ids
+       (recursively-get-children-entities db (distinct (concat old-ids new-children)) new-children)))))
+
+(defn recursive-setting-entity-details
+  [db setting-id]
+  (let [all-entities (recursively-get-children-entities db (flatten [setting-id]))]
+    (ds/pull-many db '[*] all-entities)))
+
+(defn get-descendents-of-setting-entity
+  [db setting-entity-id]
+  (ds/q '[:find ?e
+          :where [?e :_setting/children-entities setting-entity-id]]
+        db))
+
 (defn setting-details
   [db setting-title]
   (ds/pull db '[*] (setting-eid-by-title db setting-title)))
 
+(defn setting-details-by-id
+  [db setting-id]
+  (ds/pull db '[*] setting-id))
+
+(defn get-active-setting
+  [db]
+  (ffirst (ds/q '[:find ?e
+                 :where [?e :active/realm-setting]]
+               db)))
+
+(defn get-active-subsetting
+  [db]
+  (ffirst (ds/q '[:find ?e
+                 :where [_ :active/realm-subsetting ?e]]
+               db)))
+
+(def example-empty-setting
+  [{:setting/title "Nowhere"}])
+
 (def example-fantasy-setting
   [{:db/id "kalashar"
     :setting/title "Kalashar"
-    :setting/territories ["commonlands" "outwilds"]}
+    :setting/children-entities ["commonlands" "outwilds"]}
    {:db/id "commonlands"
-    :setting/territory-title "Commonlands"
-    :setting/territory-races ["humans" "elves" "dwarves"]
-    :setting/territory-details "# The Commonlands
+    :setting/entity-title "Commonlands"
+    :setting/entity-type "Territory"
+    :setting/children-entities ["humans" "elves" "dwarves"]
+    :setting/entity-details "# The Commonlands
 Surrounded by the fraught Outwilds, the Commonlands are home to the civilized races: Humans, Elves, and Dwarves. While each of these groups have carved out areas of this land for themself, Kairinith, often simply referred to as The Capital, is shared by all. It is here that the social engineering of the Humans meets the work ethic of the Dwarves and the elegance of the Elves. While The Capital is not free from divisive issues, it is rife with opportunity and is therefore a wellspring of new ideas, technologies, and art. Beyond the walls of The Capital, you will find that the Humans squabble over land and power, the Elves content themselves with tending their forests, and the Dwarves delve deep into their mountains seeking ever more valuable gems. War has not touched the lives of the common folk for decades while the gods continue their centuries-long slumber.
 [Humans](humans) [Elves](elves) [Dwarves](dwarves)"}
 
    {:db/id "outwilds"
-    :setting/territory-title "Outwilds"
-    :setting/territory-races ["goblins"]
-    :setting/territory-details "# The Outwilds
+    :setting/entity-title "Outwilds"
+    :setting/entity-type "Territory"
+    :setting/children-entities ["goblins"]
+    :setting/entity-details "# The Outwilds
 Encircling the tranquil lands of the civilized races are The Outwilds. Deadly swamps bubble and hiss in the North, jungles teem with ferocious beasts and verdure to the East just beyond the Greyiron Mountains, and eternal dark subsumes the Elderwoods if one dares travel West of the Eldari ruins. In many of the old tales, The Outwilds act as the crucible for heroes and the resting place of great treasures from forgotten ages. Many adventurers have attempted to claim their place in the annals of history by venturing into these lands. Many adventurers have died in that attempt. There is little that can be said for certain about these wild lands apart from this: death sleeps lightly there.
 [Goblins](goblins)"}
 
    {:db/id "humans"
-    :setting/race-title "Humans"
-    :setting/race-description "# Humans
+    :setting/entity-title "Humans"
+    :setting/entity-type "Race"
+    :setting/entity-details "# Humans
 ## Religion
 In The Four Duchies, there is a general adherence to the edicts of the four Gods and only a slightly greater deference to Ijarda. This largely stems from the farming communities in Nidia who are her most fervent worshipers. This observance manifests mostly in the rituals of birth, marriage, and death and the celebrations of the vernal equinox, which is said to be the day of Ijarda's emergence from Kalashar. Among Humans, especially those in Erstead, a far greater observance is given to King Erdith who was the first ruler of man and the uniter of the disparate tribes millenia ago. Though it has been long, it is said that the spirit of Erdith has been reborn whenever mankind was in greatest need. This is why the rulers of Erstead are known as the Regents, for they only rule while Erdith rests. The stories say that the Erdithstone, which rests above the throne in the Kairinith palace, will shine once more when the soul of the king again takes breath. This is understood to mean that when the soul of Erdith has been reborn, the stone reacts to this rebirth and that it will illuminate to herald the coming of its lord. Those who worship King Erdith as more than just a man call themselves the Sons and Daughters of Erdith. This is the source of the tradition of the Kingsday celebration, where noble children are brought to stand in the throne room to test for the presence of King Erdith’s soul.
 ## Society
@@ -45,8 +90,9 @@ While Dukes and Duchesses rule in Kleth, Umaeria, and Nidia, it is the Regents w
 The Four Duchies was once a fairly militant society, but since the relationships with both the Dwarves and Elves have been relatively stable for the past few centuries, this aspect of their culture has abated. Umaeria possesses very little in the way of an official militia, though it has significant forces to call upon in ways of mercenaries and private militias employed by merchants and guilds. The mercenaries and militias are some of the most competent bowmen in The Four Duchies. Kleth has a dedicated military force that is well trained and well equipped. This is necessitated by the invading forces of Goblins that frequently make it through the passes of The Greyiron Mountains. It is often that they work side by side with the Dwarves in driving these fell creatures back. Erstead's military presence is most often occupied with policing the streets of its many cities. Most notably, Erstead employs the Kairinith University in providing training to the nobles who often serve in the upper ranks of its military."}
 
    {:db/id "elves"
-    :setting/race-title "Elves"
-    :setting/race-details "# Elves
+    :setting/entity-title "Elves"
+    :setting/entity-type "Race"
+    :setting/entity-details "# Elves
 ## Religion
 Elves who dedicate their lives to the study and worship of Ishiq are called Seers. They are well respected in Elven society since most Elves have at least a passing faith in Ishiq. They believe that the highest form of divination is conveying visual scenes and so they consider it blasphemy to attempt to record these visions with words. The only exception they make to this tenet is that they give some credence to The Tears of Ishiq, however, they still often lament that the Eldari lacked the modern methods of preserving and projecting visual memories. This distrust of written doctrine has left the Seers with a fairly vague theology which has in turn caused many conflicts and religious upheavals throughout the Elves’ long history. The most violent of these occurred some 1,000 years ago and culminated in the banning of the Seers from the Elven Council. At the time, the Seers held much more direct power in Elven society as they were permitted to hold positions on the various Elven Councils. This eventually lead to corruption on the part of both the church and the body of councils. False visions were crafted in order to suggest that Ishiq was calling for a holy war against their human neighbors. The devout followers of Ishiq were baffled by this revelation and, however, there was no other option but for the Elves to begin mobilizing their armies. Many Humans and Elves died in the ensuing years and they are remembered by the Elves as the False War. It wasn't until a young prodigious Seer named Elheim uncovered the plot and the war was quickly abandoned though it left a great rift between Humans and Elves as well as eroded the trust in the Seers for centuries to come. It is said that centuries ago, Ishiq fell into a deep slumber alongside her deific counterparts and while there is still great observance of the faith, there are now those who doubt the authority of the Seers.
 ## Society
@@ -59,8 +105,9 @@ The Viër Elen is the lord or lady ruler of the Elves, however, they do not have
 The Elven Military is lead by the Auth Arato who is the Speaker for the Council of Fasfontan. They command the Elven armies in times of war and organize the Elven guard in times of peace. Beneath the Auth Arato are the Commanders and then the Captains. Any citizen of an Elven Realm, common or noble, may become a Captain, however, to attain the rank of Commander or the Auth Arato you must forego any noble titles or position as an Overseer. The bulk of the Elven military force resides in the Eastern Realms patrolling the borders to deter the logging operations of Humans and attempting to crack down on the black market that is taking root."}
 
    {:db/id "dwarves"
-    :setting/race-title "Dwarves"
-    :setting/race-details "# Dwarves
+    :setting/entity-title "Dwarves"
+    :setting/entity-type "Race"
+    :setting/entity-details "# Dwarves
 ## Religion
 The Dwarves worship Heilm first and foremost. There is a straightforward hierarchy of leadership amongst the Order of Heilm which is determined by the Crucible of Heilm. The Crucible of Heilm is a series of tournaments and competitions held every four years. Those who wish to join the ranks of the Paladins must complete the Trial of the Gauntlet, a grueling and dangerous series of tasks and challenges. Those who wish to rise in the hierarchy and attain greater status as a Paladin may partake in the competitions where they are pitted against one another. Should they manage to defeat two contenders of their own rank and one of a higher rank, they will be evaluated for their deeds throughout the past four years. Should their might and vigilance be deemed worthy, they will attain the next rank. While there are many ways to serve as a Paladin of Heilm, the most common path is as follows. First they become an Initiate where they serve minor functions during court trials of the Paladins and learn the Dwarven fighting style. Then they become a Disciple studying under a higher ranked Paladin and acting as a scribe to them. Then they become a Sentinel where they join a patrol and serve under a Warden at the borders fending off Goblins and Orcs and their ilk. Then they become a Warden and they continue to serve as a leader of a patrol at the borders. Then they become a Witness where they work alongside and Arbiter assisting them in their endeavors. Finally, they become an Arbiter themself, free to enforce the will of Heilm as they see fit. The Dwarven traditions involving Heilm have been unwavering in the face of the Gods’ slumber that began centuries ago.
 ## Society
@@ -73,6 +120,7 @@ The King of the Dwarves is largely a figurehead where most of the ruling is rese
 The bulk of the Dwarven military is comprised of Sentinels and Wardens of the Paladins of Heilm. They serve faithfully at the border to The Outwilds repelling the ever violent tribes of Goblins and Trolls. The standard militia largely defend the trade routes and act as city guards serving under Witnesses and Arbiters within the Dwarven towns and cities. Aside from the constant skirmishes with the creatures at the border, the Dwarves live a mostly peaceful existence with very little internal conflict and not much more with humans."}
 
    {:db/id "goblins"
-    :setting/race-title "Goblins"
-    :setting/race-details "# Goblins
+    :setting/entity-title "Goblins"
+    :setting/entity-type "Race"
+    :setting/entity-details "# Goblins
 Ew, goblins are gross. Why would you want to learn about them?"}])

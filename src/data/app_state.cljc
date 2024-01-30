@@ -16,9 +16,12 @@
                               ;; [:db/add 1 :navigator/sub :none]
                               ])
         _ (ds/transact! conn settings/example-fantasy-setting)
+        _ (ds/transact! conn settings/example-empty-setting)
         _ (ds/transact! conn creatures/creature-races)
         _ (ds/transact! conn domains/default-domains)
-        _ (ds/transact! conn realms/init-realms)
+        _ (ds/transact! conn (realms/init-realms (vec (map first (ds/q '[:find ?e
+                                                                         :where [?e :setting/title]]
+                                                                       @conn)))))
         _ (ds/transact! conn rules/simple-ruleset)
         _ (ds/transact! conn actions/example-actions)
         _ (ds/transact! conn resources/resource-properties)

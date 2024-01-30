@@ -2,9 +2,11 @@
   (:require [datascript.core :as ds]
             [data.conn :refer [conn]]))
 
-(def init-realms
+(defn init-realms
+  [example-settings]
   [{:realm/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
-    :realm/title "Fantasy"}
+    :realm/title "Fantasy"
+    :realm/settings example-settings}
    {:realm/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
     :realm/title "Science Fiction"}
    {:realm/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
@@ -38,6 +40,18 @@
                               db)]
     (when-not (empty? active-realm-id)
       (get-realm-details db (ffirst active-realm-id)))))
+
+(defn set-realm-setting
+  [setting-id]
+  (ds/transact! conn [{:active/realm-setting setting-id}]))
+
+(defn set-realm-sub-setting
+  [subsetting-id]
+  (ds/transact! conn [{:active/realm-subsetting subsetting-id}]))
+
+(defn get-active-realm-settings
+  [db]
+  (ds/pull-many db '[*] (:realm/settings (get-active-realm-data db))))
 
 (defn create-new-realm []
   (ds/transact! conn [{:realm/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))

@@ -10,37 +10,52 @@
             [interface.components.navigation :as navigation]
             [interface.components.organization :as organization]
             [interface.widgets.buttons :refer [button]]
+            [interface.widgets.text :as text]
             [interface.styles.markdown :as markdown]))
 
+(defn realm-setting-select
+  [settings]
+  (let [flex-vals [1 1]]
+    (navigation/search-filter-sort-list
+     {:list-header "Realm Settings"
+      :items settings
+      :column-headers ["Title" "Complexity"]
+      :column-flex-vals flex-vals
+      :item-format-fn (fn [setting-data]
+                        [:> rn/Pressable {:style {:flex-direction :row}
+                                          :on-press (fn [] (realms/set-realm-setting (:id setting-data)))}
+                         (text/default-text {:style {:flex (nth flex-vals 0)} :text (:title setting-data)})
+                         (text/default-text {:style {:flex (nth flex-vals 1)} :text "Simple"})])})))
+
 (defn setting-category-select
-  [db]
+  [db setting]
   (let [flex-vals [2 1]]
     (navigation/search-filter-sort-list
      {:list-header "Categories"
-      :items []
+      :items (settings/recursive-setting-entity-details db (:active/realm-setting setting))
       :column-headers ["Title" "Author"]
       :column-flex-vals flex-vals
-      :item-format-fn #()})))
+      :item-format-fn (fn [setting-entity]
+                        [:> rn/Pressable {:style {:flex-direction :row} :on-press (fn [] (realms/set-realm-sub-setting (:id setting-entity)))}
+                         (text/default-text {:style {:flex (nth flex-vals 0)} :text (:entity-title setting-entity)})
+                         (text/default-text {:style {:flex (nth flex-vals 0)} :text "System"})])})))
 
-(defn setting-details [db sub-nav]
-  (let [{:keys [setting/territories]} (settings/setting-details db "Kalashar")
-        kalashar {}]
-    (println territories)
-    [:> rn/ScrollView {:style {:flex :1}}
-     (case sub-nav
-       :commonlands (markdown/default-markdown (:setting/commonlands kalashar))
-       :outwilds (markdown/default-markdown (:setting/outwilds kalashar))
-       :humans (markdown/default-markdown (:setting/humans kalashar))
-       :elves (markdown/default-markdown (:setting/elves kalashar))
-       :dwarves (markdown/default-markdown (:setting/dwarves kalashar))
-       :goblins (markdown/default-markdown (:setting/goblins kalashar))
-       (markdown/default-markdown (:setting/home kalashar)))]))
+(defn setting-details [db setting-id]
+  (println setting-id)
+  [:> rn/ScrollView {:style {:flex :1}}
+   (markdown/default-markdown (:setting/entity-details (settings/setting-details-by-id db setting-id)))])
 
 (defn setting-home [db]
-  (if-let [sub-nav (first (app-state/sub-nav-state db))]
-    (setting-details db sub-nav)
-    (setting-category-select db)))
+  (if-let [setting-id (settings/get-active-setting db)]
+    (let [setting-data (settings/setting-details-by-id db setting-id)]
+      (if-let [subsetting (settings/get-active-subsetting db)]
+        (setting-details db subsetting)
+        (setting-category-select db setting-data)))
+    (let [realm-settings (realms/get-active-realm-settings db)]
+      (if (< 1 (count realm-settings))
+        (realm-setting-select realm-settings)
+        (realms/set-realm-setting (:id (first realm-settings)))))))
 
 (defn setting [db ^js props]
   (let [sub-nav (app-state/sub-nav-state db)]
-    (organization/view-frame db (setting-details db sub-nav))))
+    (organization/view-frame db (setting-home db))))
