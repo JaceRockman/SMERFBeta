@@ -1,8 +1,7 @@
 (ns interface.views.setting
   (:require ["react-native" :as rn]
             [reagent.core :as r]
-            ;; [nextjournal.markdown :refer [parse ->hiccup]]
-            [nextjournal.markdown.parser :as md.parser] ;; I'd like to find some way to parse the markdown into a structured document for transformation and storage and stuff. It's not working though, not sure why.
+            [nextjournal.markdown.parser :as md.parser]
             [nextjournal.markdown.transform :as md.transform]
             [data.app-state :as app-state]
             [data.realms :as realms]
@@ -13,7 +12,7 @@
             [interface.widgets.text :as text]
             [interface.styles.markdown :as markdown]))
 
-(defn realm-setting-select
+(defn setting-select
   [settings]
   (let [flex-vals [1 1]]
     (navigation/search-filter-sort-list
@@ -27,34 +26,44 @@
                          (text/default-text {:style {:flex (nth flex-vals 0)} :text (:title setting-data)})
                          (text/default-text {:style {:flex (nth flex-vals 1)} :text "Simple"})])})))
 
-(defn setting-category-select
-  [db setting]
+(defn subsetting-sort
+  [setting-entities]
+  (let [entity-type-groups (group-by :setting/entity-type setting-entities)]
+    (mapv (fn [[entity-type entity-data-list]]
+            {:title entity-type :data entity-data-list})
+          entity-type-groups)))
+
+(defn subsetting-select
+  [db setting-data]
   (let [flex-vals [2 1]]
     (navigation/search-filter-sort-list
      {:list-header "Categories"
-      :items (settings/recursive-setting-entity-details db (:active/realm-setting setting))
+      :items (remove #(nil? (:setting/entity-title %)) (settings/recursive-setting-entity-details db (:db/id setting-data)))
       :column-headers ["Title" "Author"]
       :column-flex-vals flex-vals
       :item-format-fn (fn [setting-entity]
-                        [:> rn/Pressable {:style {:flex-direction :row} :on-press (fn [] (realms/set-realm-sub-setting (:id setting-entity)))}
-                         (text/default-text {:style {:flex (nth flex-vals 0)} :text (:entity-title setting-entity)})
-                         (text/default-text {:style {:flex (nth flex-vals 0)} :text "System"})])})))
+                        [:> rn/Pressable {:style {:flex-direction :row}
+                                          :on-press (fn []
+                                                      (realms/set-realm-sub-setting (:id setting-entity)))}
+                         (text/default-text {:style {:flex (nth flex-vals 0)}
+                                             :text (:entity-title setting-entity)})
+                         (text/default-text {:style {:flex (nth flex-vals 0)}
+                                             :text "System"})])
+      :sort-fns [subsetting-sort]})))
 
-(defn setting-details [db setting-id]
-  (println setting-id)
+(defn setting-details [db subsetting-data]
   [:> rn/ScrollView {:style {:flex :1}}
-   (markdown/default-markdown (:setting/entity-details (settings/setting-details-by-id db setting-id)))])
+   (markdown/default-markdown (:setting/entity-details subsetting-data))])
 
 (defn setting-home [db]
-  (if-let [setting-id (settings/get-active-setting db)]
-    (let [setting-data (settings/setting-details-by-id db setting-id)]
-      (if-let [subsetting (settings/get-active-subsetting db)]
-        (setting-details db subsetting)
-        (setting-category-select db setting-data)))
-    (let [realm-settings (realms/get-active-realm-settings db)]
-      (if (< 1 (count realm-settings))
-        (realm-setting-select realm-settings)
-        (realms/set-realm-setting (:id (first realm-settings)))))))
+  (let [active-realm-data (realms/get-active-realm-data db)
+        active-setting-data (settings/get-active-setting-data db)
+        active-subsetting-data (settings/get-active-subsetting-data db)]
+    (cond
+      active-subsetting-data (setting-details db active-subsetting-data)
+      active-setting-data (subsetting-select db active-setting-data)
+      active-realm-data (setting-select (realms/get-active-realm-settings db))
+      :else (setting-select (settings/get-all-setting-data db)))))
 
 (defn setting [db ^js props]
   (let [sub-nav (app-state/sub-nav-state db)]

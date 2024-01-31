@@ -1,6 +1,17 @@
 (ns data.setting
   (:require [datascript.core :as ds]))
 
+(defn get-all-setting-ids
+  [db]
+  (map first (ds/q '[:find ?e
+                     :where [?e :setting/title]]
+                   db)))
+
+(defn get-all-setting-data
+  [db]
+  (when-let [settings (get-all-setting-ids db)]
+    (ds/pull-many db '[*] settings)))
+
 (defn setting-eid-by-title
   [db setting-title]
   (ffirst (ds/q '[:find ?e
@@ -39,17 +50,27 @@
   [db setting-id]
   (ds/pull db '[*] setting-id))
 
-(defn get-active-setting
+(defn get-active-setting-id
   [db]
   (ffirst (ds/q '[:find ?e
-                 :where [?e :active/realm-setting]]
-               db)))
+                  :where [_ :active/realm-setting ?e]]
+                db)))
 
-(defn get-active-subsetting
+(defn get-active-setting-data
+  [db]
+  (when-let [active-setting (get-active-setting-id db)]
+    (ds/pull db '[*] active-setting)))
+
+(defn get-active-subsetting-id
   [db]
   (ffirst (ds/q '[:find ?e
                  :where [_ :active/realm-subsetting ?e]]
                db)))
+
+(defn get-active-subsetting-data
+  [db]
+  (when-let [active-subsetting (get-active-subsetting-id db)]
+    (ds/pull db '[*] active-subsetting)))
 
 (def example-empty-setting
   [{:setting/title "Nowhere"}])
