@@ -184,7 +184,7 @@
                                        (function list))
                                      items
                                      full-fn-list))]
-    [:> rn/View {:style {:width "100%" :height "90%" :padding 10}}
+    [:> rn/View {:style {:width "100%" :padding 10}}
      ((if (empty? sort-fns) FlatList SectionList)
       list-header
       reduced-items
