@@ -151,7 +151,7 @@ like their name, gender, race, and description. Below that will be a section for
 
 (defn creatures-details [db]
   (let [creature-info (creatures/creature-info db "aleksander")]
-    [:> rn/View {:style {:width "100%" :height "90%" :text-align :center}}
+    [:> rn/View {:style {:width "100%" :height "100%" :text-align :center}}
      [:> rn/View {:style {:flex-direction :row :width "100%" :justify-content :space-between :align-items :center}}
       (navigation/creature-list-nav-button)
       (text/default-text {:text (str/capitalize (:creature/name creature-info))})
