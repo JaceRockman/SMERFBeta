@@ -18,10 +18,6 @@
     (map #(text/view-header-text {:text %}) headers)]
    (navigation/menu)])
 
-(defn card [contents]
-  [:> rn/View {:style {:background-color :red}}
-   contents])
-
 (defn screen-height [] (.-height js/screen))
 (defn screen-width [] (.-width js/screen))
 
@@ -35,7 +31,7 @@
                          :color :white
                          :height (screen-height)}}
      (view-header [(:realm/title active-realm-data) view-title])
-     content 
+     [:> rn/View {:style {:height "90%" :width "100%"}} content] 
      (navigation/tab-bar)]))
 
 

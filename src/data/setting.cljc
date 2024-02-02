@@ -1,5 +1,6 @@
 (ns data.setting
-  (:require [datascript.core :as ds]))
+  (:require [datascript.core :as ds]
+            [data.conn :refer [conn]]))
 
 (defn get-all-setting-ids
   [db]
@@ -11,13 +12,6 @@
   [db]
   (when-let [settings (get-all-setting-ids db)]
     (ds/pull-many db '[*] settings)))
-
-(defn setting-eid-by-title
-  [db setting-title]
-  (ffirst (ds/q '[:find ?e
-                  :in $ ?setting-title
-                  :where [?e :setting/title ?setting-title]]
-                db setting-title)))
 
 (defn recursively-get-children-entities
   ([db ids]
@@ -36,24 +30,12 @@
   (let [all-entities (recursively-get-children-entities db (flatten [setting-id]))]
     (ds/pull-many db '[*] all-entities)))
 
-(defn get-descendents-of-setting-entity
-  [db setting-entity-id]
-  (ds/q '[:find ?e
-          :where [?e :_setting/children-entities setting-entity-id]]
-        db))
 
-(defn setting-details
-  [db setting-title]
-  (ds/pull db '[*] (setting-eid-by-title db setting-title)))
-
-(defn setting-details-by-id
-  [db setting-id]
-  (ds/pull db '[*] setting-id))
 
 (defn get-active-setting-id
   [db]
   (ffirst (ds/q '[:find ?e
-                  :where [_ :active/realm-setting ?e]]
+                  :where [_ :active/setting ?e]]
                 db)))
 
 (defn get-active-setting-data
@@ -61,16 +43,66 @@
   (when-let [active-setting (get-active-setting-id db)]
     (ds/pull db '[*] active-setting)))
 
+(defn get-setting-id-by-name
+  [db setting-name]
+  (ffirst (ds/q '[:find ?e
+          :in $ ?setting-name
+          :where [?e :setting/title ?setting-name]]
+        db setting-name)))
+
+(defn get-active-setting-tracker
+  []
+  (ffirst (ds/q '[:find ?e
+                  :where [?e :active/setting]]
+                @conn)))
+
+(defn set-active-setting
+  [setting-id]
+  (if-let [active-setting-tracker (get-active-setting-tracker)]
+    (ds/transact! conn [{:db/id active-setting-tracker
+                         :active/setting setting-id}])
+    (ds/transact! conn [{:active/setting setting-id}])))
+
+(defn set-active-setting-by-name
+  [setting-name]
+  (set-active-setting (get-setting-id-by-name @conn setting-name)))
+
+
+
 (defn get-active-subsetting-id
   [db]
   (ffirst (ds/q '[:find ?e
-                 :where [_ :active/realm-subsetting ?e]]
-               db)))
+                  :where [_ :active/subsetting ?e]]
+                db)))
 
 (defn get-active-subsetting-data
   [db]
   (when-let [active-subsetting (get-active-subsetting-id db)]
     (ds/pull db '[*] active-subsetting)))
+
+(defn get-subsetting-id-by-name
+  [db subsetting-name]
+  (ffirst (ds/q '[:find ?e
+                  :in $ ?subsetting-name
+                  :where [?e :setting/entity-title ?subsetting-name]]
+                db subsetting-name)))
+
+(defn get-active-subsetting-tracker
+  []
+  (ffirst (ds/q '[:find ?e
+                  :where [?e :active/subsetting]]
+                @conn)))
+
+(defn set-active-subsetting
+  [subsetting-id]
+  (if-let [active-subsetting-tracker (get-active-subsetting-tracker)]
+    (ds/transact! conn [{:db/id active-subsetting-tracker
+                         :active/subsetting subsetting-id}])
+    (ds/transact! conn [{:active/subsetting subsetting-id}])))
+
+(defn set-active-subsetting-by-name
+  [subsetting-name]
+  (set-active-subsetting (get-subsetting-id-by-name @conn subsetting-name)))
 
 (def example-empty-setting
   [{:setting/title "Nowhere"}])

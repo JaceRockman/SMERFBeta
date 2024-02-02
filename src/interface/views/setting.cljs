@@ -8,7 +8,7 @@
             [data.setting :as settings]
             [interface.components.navigation :as navigation]
             [interface.components.organization :as organization]
-            [interface.widgets.buttons :refer [button]]
+            [interface.widgets.buttons :as buttons]
             [interface.widgets.text :as text]
             [interface.styles.markdown :as markdown]))
 
@@ -22,7 +22,8 @@
       :column-flex-vals flex-vals
       :item-format-fn (fn [setting-data]
                         [:> rn/Pressable {:style {:flex-direction :row}
-                                          :on-press (fn [] (realms/set-realm-setting (:id setting-data)))}
+                                          :on-press (fn [] (settings/set-active-setting-by-name
+                                                           (:title setting-data)))}
                          (text/default-text {:style {:flex (nth flex-vals 0)} :text (:title setting-data)})
                          (text/default-text {:style {:flex (nth flex-vals 1)} :text "Simple"})])})))
 
@@ -43,8 +44,8 @@
       :column-flex-vals flex-vals
       :item-format-fn (fn [setting-entity]
                         [:> rn/Pressable {:style {:flex-direction :row}
-                                          :on-press (fn []
-                                                      (realms/set-realm-sub-setting (:id setting-entity)))}
+                                          :on-press (fn [] (settings/set-active-subsetting-by-name
+                                                           (:entity-title setting-entity)))}
                          (text/default-text {:style {:flex (nth flex-vals 0)}
                                              :text (:entity-title setting-entity)})
                          (text/default-text {:style {:flex (nth flex-vals 0)}
@@ -53,7 +54,7 @@
 
 (defn setting-details [db subsetting-data]
   [:> rn/ScrollView {:style {:flex :1}}
-   (markdown/default-markdown (:setting/entity-details subsetting-data))])
+   (markdown/default-setting-markdown (:setting/entity-details subsetting-data))])
 
 (defn setting-home [db]
   (let [active-realm-data (realms/get-active-realm-data db)
