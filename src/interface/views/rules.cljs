@@ -12,7 +12,7 @@
   (let [ruleset-data (rules-data/rule-details db "Simple Ruleset")]
     [:> rn/View
      {:style {:width "100%"
-              :height "90%"}}
+              :height "100%"}}
      [:> rn/ScrollView {:paging-enabled true
                         :horizontal :true
                         :shows-horizontal-scroll-indicator false
