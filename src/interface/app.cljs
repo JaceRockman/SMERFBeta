@@ -14,15 +14,15 @@
 (defn root [db]
   (let [main-nav (app-state/main-nav-state db)]
     (case main-nav
-      :settings (r/as-element [views/setting db {}])
+      :settings (r/as-element [views/no-page db {}])
       :asset-library (r/as-element [views/asset-library db {}])
-      :realm (r/as-element [views/realm db {}])
-      :setting (r/as-element [views/setting db {}])
+      :campaign (r/as-element [views/campaign db {}])
+      :realms (r/as-element [views/realm db {}])
       :rules (r/as-element [views/rules db {}])
       :creatures (r/as-element [views/creatures db {}])
       :resources (r/as-element [views/resources db {}])
       :actions (r/as-element [views/actions db {}])
-      (r/as-element [views/realm db {}]))))
+      (r/as-element [views/campaign db {}]))))
 
 (defn render
   {:dev/after-load true}

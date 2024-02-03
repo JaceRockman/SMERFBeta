@@ -2,7 +2,7 @@
   (:require [clojure.string :as str]
             ["react-native" :as rn]
             [data.app-state :as app-state]
-            [data.realms :as realms]
+            [data.campaigns :as campaigns]
             [interface.components.navigation :as navigation]
             [interface.widgets.text :as text]))
 
@@ -13,7 +13,7 @@
                        :height "5%"
                        :flex-direction :row
                        :justify-content :space-between}}
-   (navigation/realm-management-nav-button)
+   (navigation/campaign-management-nav-button)
    [:> rn/View
     (map #(text/view-header-text {:text %}) headers)]
    (navigation/menu)])
@@ -23,14 +23,14 @@
 
 (defn view-frame
   [db content]
-  (let [active-realm-data (first (realms/get-active-realm-data db))
+  (let [active-campaign-data (first (campaigns/get-active-campaign-data db))
         view-title (str/capitalize (name (first (app-state/navigation-state db))))]
     [:> rn/View {:style {:width (screen-width)
                          :align-items :center
                          :background-color "#121212"
                          :color :white
                          :height (screen-height)}}
-     (view-header [(:realm/title active-realm-data) view-title])
+     (view-header [(:campaign/title active-campaign-data) view-title])
      [:> rn/View {:style {:height "90%" :width "100%"}} content] 
      (navigation/tab-bar)]))
 

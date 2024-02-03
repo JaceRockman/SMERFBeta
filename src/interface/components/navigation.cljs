@@ -3,7 +3,6 @@
             ["react-native" :as rn]
             ["@expo/vector-icons" :refer [FontAwesome5 Ionicons]]
             [data.app-state :as app-state]
-            [data.realms :as realms]
             [interface.widgets.buttons :refer [button]]
             [interface.widgets.text :as text]
             [clojure.string :as str]))
@@ -26,10 +25,10 @@
                                   (app-state/navigate :home)))}
                "Home"))]))
 
-(defn realm-management-nav-button
+(defn campaign-management-nav-button
   []
   (button {:style {:background-color :inherit}
-           :on-press #(app-state/navigate :realm)}
+           :on-press #(app-state/navigate :campaign)}
           [:> FontAwesome5 {:name :home :color :black :size 24}]))
 
 (defn tab-bar-button [icon destination]
@@ -49,7 +48,7 @@
            [:> FontAwesome5 {:key 3 :name "users" :size 24 :color :black}]
            [:> FontAwesome5 {:key 4 :name "coins" :size 24 :color :black}]
            [:> FontAwesome5 {:key 5 :name "running" :size 24 :color :black}]]
-          [:setting :rules :creatures :resources :actions]))])
+          [:realms :rules :creatures :resources :actions]))])
 
 (defn ns-keys->strings [m]
   (reduce (fn [r [k v]] (into r {(str (symbol k)) v})) {} m))
@@ -87,7 +86,7 @@
     [:> rn/View
      ;; [:> rn/TextInput {:placeholder "search"}]
      [:> rn/SectionList {:style {:width "100%"}
-                         :sections [{:title "Realms" :data items}]
+                         :sections [{:title "Campaigns" :data items}]
                          ;; :render-section-header section-header
                          :render-item (fn [js-item]
                                         (let [item (js->clj js-item {:keywordize-keys true})]

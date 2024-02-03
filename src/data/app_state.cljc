@@ -1,8 +1,8 @@
 (ns data.app-state
   (:require [datascript.core :as ds]
             [data.conn :refer [conn]]
+            [data.campaigns :as campaigns]
             [data.realms :as realms]
-            [data.setting :as settings]
             [data.rules :as rules]
             [data.domains :as domains]
             [data.creatures :as creatures]
@@ -12,16 +12,16 @@
 
 (defn initialize-db
   [conn]
-  (let [_ (ds/transact! conn [[:db/add 1 :navigator/main "realm"]
+  (let [_ (ds/transact! conn [[:db/add 1 :navigator/main "campaign"]
                               ;; [:db/add 1 :navigator/sub :none]
                               ])
-        _ (ds/transact! conn settings/example-fantasy-setting)
-        _ (ds/transact! conn settings/example-empty-setting)
+        _ (ds/transact! conn realms/example-fantasy-realm)
+        _ (ds/transact! conn realms/example-empty-realm)
         _ (ds/transact! conn creatures/creature-races)
         _ (ds/transact! conn domains/default-domains)
-        _ (ds/transact! conn (realms/init-realms (vec (map first (ds/q '[:find ?e
-                                                                         :where [?e :setting/title]]
-                                                                       @conn)))))
+        _ (ds/transact! conn (campaigns/init-campaigns (vec (map first (ds/q '[:find ?e
+                                                                               :where [?e :campaign/title]]
+                                                                             @conn)))))
         _ (ds/transact! conn rules/simple-ruleset)
         _ (ds/transact! conn actions/example-actions)
         _ (ds/transact! conn resources/resource-properties)

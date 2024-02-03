@@ -1,61 +1,71 @@
 (ns interface.views.realm
-  (:require
-   [clojure.string :as str]
-   [reagent.core :as r]
-   ["react-native" :as rn]
-   ["expo-status-bar" :refer [StatusBar]]
-   ["@expo/vector-icons" :refer [FontAwesome5]]
-   [data.app-state :as app-state]
-   [data.realms :as realms]
-   [interface.components.organization :as organization]
-   [interface.components.navigation :as navigation]
-   [interface.widgets.buttons :refer [primary-button secondary-button]]
-   [interface.widgets.text :as text]))
-
-(def active-section (r/atom :setting))
-
-(defn realm-select-list
-  [{:keys [realms-data show-header?]}]
-  (navigation/search-filter-sort-list
-   {:list-header (when show-header? (text/view-header-text {:style {:color :white} :text "Select a Realm"}))
-    :items realms-data
-    :column-headers ["Realm Title" "Realm Owner"]
-    :column-flex-vals [1 1]
-    :item-format-fn (fn [{:keys [owner id title]}]
-                      [:> rn/Pressable {:style {:flex-direction :row
-                                                :margin-top 5
-                                                :margin-bottom 5}
-                                        :on-press #(doall
-                                                    (realms/set-active-realm id)
-                                                    (app-state/navigate [:realm]))}
-                       (text/default-text {:style {:flex 1}
-                                           :text title})
-                       (text/default-text {:style {:flex 1}
-                                           :text (or owner "Avis Industries")})])}))
+  (:require ["react-native" :as rn]
+            [reagent.core :as r]
+            [nextjournal.markdown.parser :as md.parser]
+            [nextjournal.markdown.transform :as md.transform]
+            [data.app-state :as app-state]
+            [data.campaigns :as campaigns]
+            [data.realms :as realms]
+            [interface.components.navigation :as navigation]
+            [interface.components.organization :as organization]
+            [interface.widgets.buttons :as buttons]
+            [interface.widgets.text :as text]
+            [interface.styles.markdown :as markdown]))
 
 (defn realm-select
-  [realms-data]
-  [:> rn/View {:style {:width "100%"}}
-   (realm-select-list {:realms-data realms-data :show-header? true})])
+  [realms]
+  (let [flex-vals [1 1]]
+    (navigation/search-filter-sort-list
+     {:list-header "Campaigns"
+      :items realms
+      :column-headers ["Title" "Complexity"]
+      :column-flex-vals flex-vals
+      :item-format-fn (fn [realm-data]
+                        [:> rn/Pressable {:style {:flex-direction :row}
+                                          :on-press (fn [] (realms/set-active-realm-by-name
+                                                           (:title realm-data)))}
+                         (text/default-text {:style {:flex (nth flex-vals 0)} :text (:title realm-data)})
+                         (text/default-text {:style {:flex (nth flex-vals 1)} :text "Simple"})])})))
 
-(defn realm-summary
-  [realm-data]
-  [:> rn/View
-   (text/view-header-text {:text (:realm/title realm-data)})
-   (text/default-text {:text (str realm-data)})])
+(defn subrealm-sort
+  [realm-entities]
+  (let [entity-type-groups (group-by :realm/entity-type realm-entities)]
+    (mapv (fn [[entity-type entity-data-list]]
+            {:title entity-type :data entity-data-list})
+          entity-type-groups)))
 
-(defn realm
-  [db ^js props]
-  (let [active-realm-data (realms/get-active-realm-data db)
-        all-realms-data (realms/get-details-for-all-realms db realms/simple-keys-pull-pattern)]
-    (organization/view-frame
-     db
-     [:> rn/ScrollView {:style {:flex 1 :width "100%"}
-                        :content-container-style {:align-items :center
-                                                  :justify-content :space-between
-                                                  :height "100%"
-                                                  :padding "5%"}}
-      (if (empty? active-realm-data)
-        (realm-select all-realms-data)
-        (realm-summary active-realm-data))
-      (primary-button {:text "Asset Library" :on-press #(app-state/navigate [:asset-library])})])))
+(defn subrealm-select
+  [db realm-data]
+  (let [flex-vals [2 1]]
+    (navigation/search-filter-sort-list
+     {:list-header "Categories"
+      :items (remove #(nil? (:realm/entity-title %)) (realms/recursive-realm-entity-details db (:db/id realm-data)))
+      :column-headers ["Title" "Author"]
+      :column-flex-vals flex-vals
+      :item-format-fn (fn [realm-entity]
+                        [:> rn/Pressable {:style {:flex-direction :row}
+                                          :on-press (fn [] (realms/set-active-subrealm-by-name
+                                                           (:entity-title realm-entity)))}
+                         (text/default-text {:style {:flex (nth flex-vals 0)}
+                                             :text (:entity-title realm-entity)})
+                         (text/default-text {:style {:flex (nth flex-vals 0)}
+                                             :text "System"})])
+      :sort-fns [subrealm-sort]})))
+
+(defn realm-details [db subrealm-data]
+  [:> rn/ScrollView {:style {:flex :1}}
+   (markdown/default-realm-markdown (:realm/entity-details subrealm-data))])
+
+(defn realm-home [db]
+  (let [active-campaign-data (campaigns/get-active-campaign-data db)
+        active-realm-data (realms/get-active-realm-data db)
+        active-subrealm-data (realms/get-active-subrealm-data db)]
+    (cond
+      active-subrealm-data (realm-details db active-subrealm-data)
+      active-realm-data (subrealm-select db active-realm-data)
+      active-campaign-data (realm-select (campaigns/get-active-campaign-realms db))
+      :else (realm-select (realms/get-all-realm-data db)))))
+
+(defn realm [db ^js props]
+  (let [sub-nav (app-state/sub-nav-state db)]
+    (organization/view-frame db (realm-home db))))

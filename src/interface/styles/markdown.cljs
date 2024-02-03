@@ -1,7 +1,7 @@
 (ns interface.styles.markdown
   (:require [reagent.core :as r]
             [data.app-state :as app-state]
-            [data.setting :as settings]
+            [data.realms :as realms]
             [interface.widgets.buttons :as buttons]
             [interface.styles.buttons :as button-styles]))
 
@@ -20,20 +20,20 @@
 
 (defn default-markdown
   [input & variant]
-  [:> Markdown {:style {:body {:color :white :padding-left 20 :padding-right 20}} :rules (rules :setting)}
+  [:> Markdown {:style {:body {:color :white :padding-left 20 :padding-right 20}} :rules (rules :realm)}
    input])
 
-(defn setting-nav-rules
+(defn realm-nav-rules
   []
   {:link (fn [node children parent styles]
            (let [button-text (-> node .-children first .-content)]
              (r/as-element
               (buttons/primary-button
                {:text button-text
-                :on-press #(settings/set-active-subsetting-by-name button-text)
+                :on-press #(realms/set-active-subrealm-by-name button-text)
                 :button-variant :small}))))})
 
-(defn default-setting-markdown
+(defn default-realm-markdown
   [input]
-  [:> Markdown {:style {:body {:color :white :padding-left 20 :padding-right 20}} :rules (setting-nav-rules)}
+  [:> Markdown {:style {:body {:color :white :padding-left 20 :padding-right 20}} :rules (realm-nav-rules)}
    input])

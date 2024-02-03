@@ -1,7 +1,7 @@
 (ns interface.views.home
   (:require
    [data.app-state :as app-state]
-   [data.realms :as realms]
+   [data.campaigns :as campaigns]
    [datascript.core :as ds]
    [interface.widgets.buttons :refer [button]]
    [interface.components.navigation :as navigation]
@@ -23,7 +23,7 @@
 
 
 (defn home [db ^js props]
-  (let [existing-realms (realms/get-details-for-all-realms db)]
+  (let [existing-campaigns (campaigns/get-details-for-all-campaigns db)]
     [:> rn/View {:style {:flex 1
                          :padding-vertical 50
                          :padding-horizontal 20

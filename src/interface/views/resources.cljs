@@ -1,6 +1,5 @@
 (ns interface.views.resources
   (:require ["react-native" :as rn]
-            [data.realms :as realms]
             [data.resources :as resources]
             [interface.components.navigation :as navigation]
             [interface.components.organization :as organization]

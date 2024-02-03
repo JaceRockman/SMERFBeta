@@ -1,7 +1,7 @@
 (ns interface.views.library
   (:require ["react-native" :as rn]
+            [interface.views.campaign :as campaign]
             [interface.views.realm :as realm]
-            [interface.views.setting :as setting]
             [interface.views.rules :as rules] 
             [interface.views.creatures :as creatures]
             [interface.views.resources :as resources]
@@ -19,11 +19,11 @@
 (defn asset-library [db ^js props]
   (asset-library/asset-library db props))
 
+(defn campaign [db ^js props]
+  (campaign/campaign db props))
+
 (defn realm [db ^js props]
   (realm/realm db props))
-
-(defn setting [db ^js props]
-  (setting/setting db props))
 
 (defn rules [db ^js props]
   (rules/rules db props))
