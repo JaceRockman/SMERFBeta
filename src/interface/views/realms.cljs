@@ -1,4 +1,4 @@
-(ns interface.views.realm
+(ns interface.views.realms
   (:require ["react-native" :as rn]
             [reagent.core :as r]
             [nextjournal.markdown.parser :as md.parser]

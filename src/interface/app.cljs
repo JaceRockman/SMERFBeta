@@ -16,7 +16,7 @@
     (case main-nav
       :settings (r/as-element [views/no-page db {}])
       :asset-library (r/as-element [views/asset-library db {}])
-      :campaign (r/as-element [views/campaign db {}])
+      :campaigns (r/as-element [views/campaign db {}])
       :realms (r/as-element [views/realm db {}])
       :rules (r/as-element [views/rules db {}])
       :creatures (r/as-element [views/creatures db {}])
