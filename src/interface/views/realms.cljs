@@ -18,14 +18,14 @@
     (navigation/search-filter-sort-list
      {:list-header "Campaigns"
       :items realms
-      :column-headers ["Title" "Complexity"]
+      :column-headers ["Title" "Owner"]
       :column-flex-vals flex-vals
       :item-format-fn (fn [realm-data]
                         [:> rn/Pressable {:style {:flex-direction :row}
                                           :on-press (fn [] (realms/set-active-realm-by-name
                                                            (:title realm-data)))}
                          (text/default-text {:style {:flex (nth flex-vals 0)} :text (:title realm-data)})
-                         (text/default-text {:style {:flex (nth flex-vals 1)} :text "Simple"})])})))
+                         (text/default-text {:style {:flex (nth flex-vals 1)} :text "Avis Industries"})])})))
 
 (defn subrealm-sort
   [realm-entities]
@@ -67,5 +67,4 @@
       :else (realm-select (realms/get-all-realm-data db)))))
 
 (defn realm [db ^js props]
-  (let [sub-nav (app-state/sub-nav-state db)]
-    (organization/view-frame db (realm-home db))))
+  (organization/view-frame db (realm-home db)))

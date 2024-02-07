@@ -1,5 +1,6 @@
 (ns data.rules
-  (:require [datascript.core :as ds]))
+  (:require [datascript.core :as ds]
+            [data.conn :refer [conn]]))
 
 #_"Skill Checks
 - base dice pool
@@ -22,6 +23,17 @@ Conditions (not conditional on other rules)
 
 Stats (not conditional on other rules)"
 
+(defn get-all-ruleset-ids
+  [db]
+  (map first (ds/q '[:find ?e
+                     :where [?e :ruleset/title]]
+                   db)))
+
+(defn get-all-ruleset-data
+  [db]
+  (when-let [ruleset-ids (get-all-ruleset-ids db)]
+    (ds/pull-many db '[*] ruleset-ids)))
+
 (defn ruleset-eid-by-title
   [db ruleset-title]
   (ffirst (ds/q '[:find ?e
@@ -32,6 +44,41 @@ Stats (not conditional on other rules)"
 (defn rule-details
   [db ruleset-title]
   (ds/pull db '[*] (ruleset-eid-by-title db ruleset-title)))
+
+(defn get-active-ruleset-id
+  [db]
+  (ffirst (ds/q '[:find ?e
+                  :where [_ :active/ruleset ?e]]
+                db)))
+
+(defn get-active-ruleset-data
+  [db]
+  (when-let [active-ruleset-id (get-active-ruleset-id db)]
+    (ds/pull db '[*] active-ruleset-id)))
+
+(defn get-ruleset-id-by-name
+  [db ruleset-name]
+  (ffirst (ds/q '[:find ?e
+          :in $ ?ruleset-name
+          :where [?e :ruleset/title ?ruleset-name]]
+        db ruleset-name)))
+
+(defn get-active-ruleset-tracker
+  []
+  (ffirst (ds/q '[:find ?e
+                  :where [?e :active/ruleset]]
+                @conn)))
+
+(defn set-active-ruleset
+  [ruleset-id]
+  (if-let [active-ruleset-tracker (get-active-ruleset-tracker)]
+    (ds/transact! conn [{:db/id active-ruleset-tracker
+                         :active/ruleset ruleset-id}])
+    (ds/transact! conn [{:active/ruleset ruleset-id}])))
+
+(defn set-active-ruleset-by-name
+  [ruleset-name]
+  (set-active-ruleset (get-ruleset-id-by-name @conn ruleset-name)))
 
 (defn skill-check-rules
   [base-dice-pool-example]
@@ -176,6 +223,7 @@ Connections represents how many relationships and affiliations a creature has, h
 
 (def simple-ruleset
   [{:ruleset/title "Simple Ruleset"
+    :ruleset/complexity "Simple"
     :ruleset/skill-check-overview (:overview (skill-check-rules nil))
     :ruleset/skill-check-base-dice-pool (:base-dice-pool (skill-check-rules nil))
     :ruleset/skill-check-benefits-and-detriments (:benefits-and-detriments (skill-check-rules nil))
@@ -201,3 +249,35 @@ Connections represents how many relationships and affiliations a creature has, h
     :ruleset/stats-spiritual (:spiritual stats-list)
     :ruleset/stats-mental (:mental stats-list)
     :ruleset/stats-social (:social stats-list)}])
+
+(def complex-ruleset
+  [{:ruleset/title "Complex Ruleset"
+    :ruleset/complexity "Complex"
+    :ruleset/skill-check-overview (:overview (skill-check-rules nil))
+    :ruleset/skill-check-base-dice-pool (:base-dice-pool (skill-check-rules nil))
+    :ruleset/skill-check-benefits-and-detriments (:benefits-and-detriments (skill-check-rules nil))
+    :ruleset/skill-check-passive-checks (:passive-checks (skill-check-rules nil))
+    :ruleset/encounter-overview (:overview encounter-rules)
+    :ruleset/encounter-actions (:actions encounter-rules)
+    :ruleset/encounter-moments (:moments encounter-rules)
+    :ruleset/encounter-rounds (:rounds encounter-rules)
+    :ruleset/damage-overview (:overview damage-rules)
+    :ruleset/damage-injuries (:injuries damage-rules)
+    :ruleset/damage-conditions (:conditions damage-rules)
+    :ruleset/damage-recover (:recovery damage-rules)
+    :ruleset/conditions-wounded (:wounded condition-list)
+    :ruleset/conditions-incapacitated (:incapacitated condition-list)
+    :ruleset/conditions-dead (:dead condition-list)
+    :ruleset/conditions-exhausted (:exhausted condition-list)
+    :ruleset/conditions-surprised (:surprised condition-list)
+    :ruleset/conditions-blinded (:blinded condition-list)
+    :ruleset/conditions-deafened (:deafened condition-list)
+    :ruleset/conditions-constrained (:constrained condition-list)
+    :ruleset/conditions-frightened (:frightened condition-list)
+    :ruleset/stats-physical (:physical stats-list)
+    :ruleset/stats-spiritual (:spiritual stats-list)
+    :ruleset/stats-mental (:mental stats-list)
+    :ruleset/stats-social (:social stats-list)}])
+
+(def example-rulesets
+  (concat simple-ruleset complex-ruleset))

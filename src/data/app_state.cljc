@@ -19,10 +19,13 @@
         _ (ds/transact! conn realms/example-empty-realm)
         _ (ds/transact! conn creatures/creature-races)
         _ (ds/transact! conn domains/default-domains)
+        _ (ds/transact! conn rules/example-rulesets)
         _ (ds/transact! conn (campaigns/init-campaigns (vec (map first (ds/q '[:find ?e
                                                                                :where [?e :realm/title]]
+                                                                             @conn)))
+                                                       (vec (map first (ds/q '[:find ?e
+                                                                               :where [?e :ruleset/title]]
                                                                              @conn)))))
-        _ (ds/transact! conn rules/simple-ruleset)
         _ (ds/transact! conn actions/example-actions)
         _ (ds/transact! conn resources/resource-properties)
         _ (ds/transact! conn resources/example-resources)

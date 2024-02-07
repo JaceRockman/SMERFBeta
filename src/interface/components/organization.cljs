@@ -23,7 +23,7 @@
 
 (defn view-frame
   [db content]
-  (let [active-campaign-data (first (campaigns/get-active-campaign-data db))
+  (let [active-campaign-data (campaigns/get-active-campaign-data db)
         view-title (str/capitalize (name (first (app-state/navigation-state db))))]
     [:> rn/View {:style {:width (screen-width)
                          :align-items :center
@@ -31,7 +31,7 @@
                          :color :white
                          :height (screen-height)}}
      (view-header [(:campaign/title active-campaign-data) view-title])
-     [:> rn/View {:style {:height "90%" :width "100%"}} content] 
+     [:> rn/View {:style {:height "90%" :width "100%"}} content]
      (navigation/tab-bar)]))
 
 

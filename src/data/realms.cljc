@@ -10,8 +10,8 @@
 
 (defn get-all-realm-data
   [db]
-  (when-let [realms (get-all-realm-ids db)]
-    (ds/pull-many db '[*] realms)))
+  (when-let [realm-ids (get-all-realm-ids db)]
+    (ds/pull-many db '[*] realm-ids)))
 
 (defn recursively-get-children-entities
   ([db ids]
@@ -40,8 +40,8 @@
 
 (defn get-active-realm-data
   [db]
-  (when-let [active-realm (get-active-realm-id db)]
-    (ds/pull db '[*] active-realm)))
+  (when-let [active-realm-id (get-active-realm-id db)]
+    (ds/pull db '[*] active-realm-id)))
 
 (defn get-realm-id-by-name
   [db realm-name]
