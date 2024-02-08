@@ -1,6 +1,43 @@
 (ns data.creatures
   (:require [datascript.core :as ds]
+            [data.conn :refer [conn]]
             [data.domains :as domains]))
+
+(defn get-all-creature-ids
+  [db]
+  (map first (ds/q '[:find ?e
+                     :where [?e :creature/title]]
+                   db)))
+
+(defn get-all-creatures-data
+  [db]
+  (when-let [realm-ids (get-all-creature-ids db)]
+    (ds/pull-many db '[*] realm-ids)))
+
+(defn get-active-creature-id
+  [db]
+  (ffirst (ds/q '[:find ?e
+                  :where [_ :active/creature ?e]]
+                db)))
+
+(defn get-active-creature-data
+  [db]
+  (when-let [active-creature-id (get-active-creature-id db)]
+    (println (ds/pull db '[*] active-creature-id))
+    (ds/pull db '[*] active-creature-id)))
+
+(defn get-active-creature-tracker
+  []
+  (ffirst (ds/q '[:find ?e
+                  :where [?e :active/creature]]
+                @conn)))
+
+(defn set-active-creature
+  [creature-id]
+  (if-let [active-creature-tracker (get-active-creature-tracker)]
+    (ds/transact! conn [{:db/id active-creature-tracker
+                         :active/creature creature-id}])
+    (ds/transact! conn [{:active/creature creature-id}])))
 
 
 (def creature-races [{:db/ident :race/elf
@@ -17,7 +54,7 @@
 (defn example-creatures
   [default-domain-entities example-resources default-actions]
   [{:creature/domains default-domain-entities
-    :creature/name "aleksander"
+    :creature/title "aleksander"
     :creature/portrait "https://i.pinimg.com/originals/d8/30/bc/d830bc587482ed8af3639903c5d406b4.png"
     :creature/gender "Male"
     :creature/race [:race/elf :race/human]
@@ -29,11 +66,26 @@
     :creature/notes "Notes about Aleksander"
     :creature/rolls []}
    {:creature/domains default-domain-entities
-    :creature/name "eilonwey"
-    :creature/race :race/elf}
+    :creature/title "eilonwey"
+    :creature/gender "Female"
+    :creature/race [:race/elf]
+    :creature/description "Eilonwey is a badass."
+    :creature/experience 0
+    :creature/damage []
+    :creature/resources example-resources
+    :creature/actions default-actions
+    :creature/notes "Notes about Eilonwey"
+    :creature/rolls []}
    {:creature/domains default-domain-entities
-    :creature/name "durflag"
-    :creature/race :race/dwarf}])
+    :creature/title "durflag"
+    :creature/race [:race/dwarf]
+    :creature/description "Durflag is a badass as well."
+    :creature/experience 0
+    :creature/damage []
+    :creature/resources example-resources
+    :creature/actions default-actions
+    :creature/notes "Notes about Durflag"
+    :creature/rolls []}])
 
 (defn new-creature-defaults
   "A transaction schema for a new creature"

@@ -8,7 +8,7 @@
                      :where [?e :realm/title]]
                    db)))
 
-(defn get-all-realm-data
+(defn get-all-realms-data
   [db]
   (when-let [realm-ids (get-all-realm-ids db)]
     (ds/pull-many db '[*] realm-ids)))

@@ -74,7 +74,7 @@
     (cond
       active-ruleset-data (ruleset-details active-ruleset-data)
       active-campaign-data (ruleset-select (campaigns/get-active-campaign-rulesets db))
-      :else (ruleset-select (rules/get-all-ruleset-data db)))))
+      :else (ruleset-select (rules/get-all-rulesets-data db)))))
 
 (defn rules [db ^js props]
   (organization/view-frame db (rules-home db)))

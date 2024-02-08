@@ -23,15 +23,15 @@ Conditions (not conditional on other rules)
 
 Stats (not conditional on other rules)"
 
-(defn get-all-ruleset-ids
+(defn get-all-rulesets-ids
   [db]
   (map first (ds/q '[:find ?e
                      :where [?e :ruleset/title]]
                    db)))
 
-(defn get-all-ruleset-data
+(defn get-all-rulesets-data
   [db]
-  (when-let [ruleset-ids (get-all-ruleset-ids db)]
+  (when-let [ruleset-ids (get-all-rulesets-ids db)]
     (ds/pull-many db '[*] ruleset-ids)))
 
 (defn ruleset-eid-by-title

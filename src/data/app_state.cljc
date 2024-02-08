@@ -25,6 +25,9 @@
                                                                              @conn)))
                                                        (vec (map first (ds/q '[:find ?e
                                                                                :where [?e :ruleset/title]]
+                                                                             @conn)))
+                                                       (vec (map first (ds/q '[:find ?e
+                                                                               :where [?e :creature/title]]
                                                                              @conn)))))
         _ (ds/transact! conn actions/example-actions)
         _ (ds/transact! conn resources/resource-properties)

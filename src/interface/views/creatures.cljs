@@ -4,6 +4,7 @@
    [datascript.core :as ds]
    ["react-native" :as rn]
    ["@expo/vector-icons" :refer [FontAwesome5 Ionicons]]
+   [data.campaigns :as campaigns]
    [data.creatures :as creatures]
    [data.domains :as domains]
    [interface.components.organization :as organization]
@@ -17,6 +18,22 @@
 like their name, gender, race, and description. Below that will be a section for their stats in each domain and their damage trackers. Below that will be a search bar for viewing their resources that automatically shows their favorites and has a button to show all and a plus button to add a new resource which takes you to the resources tab of the app. Each of the resources will list their name, their quality, their power, and their quantity with the ability to increase or decrease. Below that will be another search bar for viewing their actions that automatically shows their favorites and has a button to show all and a plus button to add a new action which takes you to the action tab of the app. Each of the actions will list their name, their quality, their power, and a button to start a roll with that action."
 
 (defn screen-width [] (.-width js/screen))
+
+(defn creature-select
+  [creatures]
+  (let [flex-vals [1 1]]
+    (navigation/search-filter-sort-list
+     {:list-header "Creatures"
+      :items creatures
+      :column-headers ["Name" "Creator"]
+      :column-flex-vals flex-vals
+      :item-format-fn (fn [creature-data]
+                        [:> rn/Pressable {:style {:flex-direction :row}
+                                          :on-press (fn []
+                                                      (creatures/set-active-creature
+                                                       (:id creature-data)))}
+                         (text/default-text {:style {:flex (nth flex-vals 0)} :text (:title creature-data)})
+                         (text/default-text {:style {:flex (nth flex-vals 1)} :text "Avis Industries"})])})))
 
 (def card-style
   {:background-color :gray
@@ -119,7 +136,7 @@ like their name, gender, race, and description. Below that will be a section for
      (actions-view/action-list {:db db :creature-id id :actions action-details :show-header? true})]))
 
 (defn info [db creature-details]
-  (let [name (:creature/name creature-details)
+  (let [title (:creature/title creature-details)
         portrait (:creature/portrait creature-details)
         gender (:creature/gender creature-details)
         races (str "Races: " (apply str (interpose " " (creatures/race-titles db (:creature/race creature-details)))))
@@ -138,27 +155,35 @@ like their name, gender, race, and description. Below that will be a section for
   [:> rn/ScrollView {:style {:width (screen-width)}}
    (text/default-text {:text notes})])
 
-(defn creature [db creature-details]
+(defn creature [db creature-data]
   [:> rn/ScrollView {:paging-enabled true
                      :horizontal :true
                      :shows-horizontal-scroll-indicator false
                      :shows-vertical-scroll-indicator false}
-   (stats db creature-details)
-   (resources db creature-details)
-   (actions db creature-details)
-   (info db creature-details)
-   (notes creature-details)])
+   (stats db creature-data)
+   (resources db creature-data)
+   (actions db creature-data)
+   (info db creature-data)
+   (notes creature-data)])
 
-(defn creatures-details [db]
-  (let [creature-info (creatures/creature-info db "aleksander")]
-    [:> rn/View {:style {:width "100%" :height "100%" :text-align :center}}
-     [:> rn/View {:style {:flex-direction :row :width "100%" :justify-content :space-between :align-items :center}}
-      (navigation/creature-list-nav-button)
-      (text/default-text {:text (str/capitalize (:creature/name creature-info))})
-      (buttons/button {:style {:background-color :inherit}
-                       :on-press (fn [] (println "button pressed"))}
-                      [:> FontAwesome5 {:name :ellipsis-v :color :white :size 18}])]
-     (creature db creature-info)]))
+(defn creature-details [db creature-data]
+  [:> rn/View {:style {:width "100%" :height "100%" :text-align :center}}
+   [:> rn/View {:style {:flex-direction :row :width "100%" :justify-content :space-between :align-items :center}}
+    (navigation/creature-list-nav-button)
+    (text/default-text {:text (str/capitalize (:creature/title creature-data))})
+    (buttons/button {:style {:background-color :inherit}
+                     :on-press (fn [] (println "button pressed"))}
+                    [:> FontAwesome5 {:name :ellipsis-v :color :white :size 18}])]
+   (creature db creature-data)])
+
+(defn creatures-home
+  [db]
+  (let [active-campaign-data (campaigns/get-active-campaign-data db)
+        active-creature-data (creatures/get-active-creature-data db)]
+    (cond
+      active-creature-data (creature-details db active-creature-data)
+      active-campaign-data (creature-select (campaigns/get-active-campaign-creatures db))
+      :else (creature-select (creatures/get-all-creatures-data db)))))
 
 (defn creatures [db ^js props]
-  (organization/view-frame db (creatures-details db)))
+  (organization/view-frame db (creatures-home db)))

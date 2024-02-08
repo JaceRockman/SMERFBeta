@@ -64,7 +64,7 @@
       active-subrealm-data (realm-details db active-subrealm-data)
       active-realm-data (subrealm-select db active-realm-data)
       active-campaign-data (realm-select (campaigns/get-active-campaign-realms db))
-      :else (realm-select (realms/get-all-realm-data db)))))
+      :else (realm-select (realms/get-all-realms-data db)))))
 
 (defn realm [db ^js props]
   (organization/view-frame db (realm-home db)))

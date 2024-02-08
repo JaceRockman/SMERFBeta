@@ -3,11 +3,12 @@
             [data.conn :refer [conn]]))
 
 (defn init-campaigns
-  [example-realms example-rulesets]
+  [example-realms example-rulesets example-creatures]
   [{:campaign/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
     :campaign/title "Fantasy"
     :campaign/realms example-realms
-    :campaign/rulesets example-rulesets}
+    :campaign/rulesets example-rulesets
+    :campaign/creatures example-creatures}
    {:campaign/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
     :campaign/title "Science Fiction"}
    {:campaign/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
@@ -52,9 +53,10 @@
   (when-let [active-campaign-data (get-active-campaign-data db)]
     (ds/pull-many db '[*] (:campaign/rulesets active-campaign-data))))
 
-(defn create-new-campaign []
-  (ds/transact! conn [{:campaign/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
-                       :campaign/title "New Campaign"}]))
+(defn get-active-campaign-creatures
+  [db]
+  (when-let [active-campaign-data (get-active-campaign-data db)]
+    (ds/pull-many db '[*] (:campaign/creatures active-campaign-data))))
 
 (defn set-active-campaign [campaign-id]
   (ds/transact! conn [{:db/id -1
