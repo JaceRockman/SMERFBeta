@@ -18,9 +18,9 @@
   [{:keys [campaigns-data show-header?]}]
   (navigation/search-filter-sort-list
    {:list-header (when show-header? (text/view-header-text {:style {:color :white} :text "Select a Campaign"}))
-    :items campaigns-data
     :column-headers ["Campaign Title" "Campaign Owner"]
     :column-flex-vals [1 1]
+    :items campaigns-data
     :item-format-fn (fn [{:keys [owner id title]}]
                       [:> rn/Pressable {:style {:flex-direction :row
                                                 :margin-top 5

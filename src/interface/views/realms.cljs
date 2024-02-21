@@ -16,7 +16,7 @@
   [realms]
   (let [flex-vals [1 1]]
     (navigation/search-filter-sort-list
-     {:list-header "Campaigns"
+     {:list-header "Realms"
       :items realms
       :column-headers ["Title" "Owner"]
       :column-flex-vals flex-vals

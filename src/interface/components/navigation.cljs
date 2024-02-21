@@ -103,11 +103,8 @@
            [:> FontAwesome5 {:name :search :color :white :size 14}]]))
 
 (defn SectionList
-  [list-title sections headers flex-vals row-constructor]
-  [:> rn/SectionList {:sections (clj->js sections)
-                      :ListHeaderComponent (fn []
-                                             (r/as-element [:> rn/Text {:style {:color :white :font-size 24}}
-                                                            list-title]))
+  [{:keys [items headers flex-vals row-constructor]}]
+  [:> rn/SectionList {:sections (clj->js items)
                       :render-section-header (fn [section]
                                                (let [clj-section (clojure.walk/keywordize-keys (js->clj section))
                                                      clj-section-title (-> clj-section :section :title)]
@@ -145,21 +142,16 @@
                       :sticky-section-headers-enabled true}])
 
 (defn FlatList
-  [list-title items headers flex-vals row-constructor]
+  [{:keys [items headers flex-vals row-constructor]}]
   [:> rn/FlatList {:data (clj->js items)
                    :ListHeaderComponent (fn []
                                           (r/as-element
-                                           [:> rn/View
-                                            (text/default-text {:style {:color :white
-                                                                        :font-size 24
-                                                                        :text-align :center}
-                                                                :text list-title})
-                                            [:> rn/View {:style {:flex-direction :row}}
+                                           [:> rn/View {:style {:flex-direction :row}}
                                             (map (fn [header flex]
                                                    (text/default-text {:style {:flex flex}
                                                                        :text header}))
                                                  headers
-                                                 flex-vals)]]))
+                                                 flex-vals)]))
                    :render-item (fn [js-item]
                                   (let [clj-item (js->clj (.-item js-item))]
                                     (r/as-element (row-constructor (clojure.walk/keywordize-keys clj-item)))))
@@ -175,8 +167,17 @@
                                          (r/as-element [:> rn/Text {:style {:color :white}} "No Items"]))}])
 
 (defn search-filter-sort-list
-  [{:keys [list-header items column-headers column-flex-vals item-format-fn search-fns filter-fns sort-fns]}]
-  (let [full-fn-list (concat search-fns filter-fns sort-fns)
+  [{:keys [list-header column-headers column-flex-vals
+           items item-format-fn
+           init-search-fns init-filter-fns init-sort-fns]}]
+  (println items)
+  (let [search-fns (r/atom (or init-search-fns []))
+        search-bar [:> rn/TextInput]
+        filter-fns (r/atom (or init-filter-fns []))
+        filter-select [:> rn/View]
+        sort-fns (r/atom (or init-sort-fns []))
+        sort-select [:> rn/View]
+        full-fn-list (concat @search-fns @filter-fns @sort-fns)
         reduced-items (if (empty? full-fn-list)
                              items
                              (reduce (fn [list function]
@@ -184,9 +185,15 @@
                                      items
                                      full-fn-list))]
     [:> rn/View {:style {:width "100%" :padding 10}}
-     ((if (empty? sort-fns) FlatList SectionList)
-      list-header
-      reduced-items
-      column-headers
-      column-flex-vals
-      item-format-fn)]))
+     (text/default-text {:style {:color :white
+                                 :font-size 24
+                                 :text-align :center}
+                         :text list-header})
+     search-bar
+     filter-select
+     sort-select
+     ((if (empty? @sort-fns) FlatList SectionList)
+      {:items reduced-items
+       :headers column-headers
+       :flex-vals column-flex-vals
+       :row-constructor item-format-fn})]))
