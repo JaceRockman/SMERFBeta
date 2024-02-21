@@ -23,16 +23,16 @@
    input])
 
 (defn realm-nav-rules
-  []
+  [conn]
   {:link (fn [node children parent styles]
            (let [button-text (-> node .-children first .-content)]
              (r/as-element
               (buttons/primary-button
                {:text button-text
-                :on-press #(realm-data/set-active-subrealm-by-name button-text)
+                :on-press #(realm-data/set-active-subrealm-by-name conn button-text)
                 :button-variant :small}))))})
 
 (defn default-realm-markdown
-  [input]
-  [:> Markdown {:style {:body {:color :white :padding-left 20 :padding-right 20}} :rules (realm-nav-rules)}
+  [conn input]
+  [:> Markdown {:style {:body {:color :white :padding-left 20 :padding-right 20}} :rules (realm-nav-rules conn)}
    input])

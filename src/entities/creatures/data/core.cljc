@@ -167,23 +167,3 @@
             @conn
             pattern
             creature-name)))
-
-;; Transactions
-;; Transactions accumulate datoms to the databse
-
-(defn create-creature
-  "Takes transaction data for a creature and adds a new creature to the database"
-  [transact conn creature-tx-data]
-  (transact conn {:tx-data [(merge creature-tx-data {:creature/id #?(:clj (java.util.UUID/randomUUID) :cljs random-uuid)
-                                                     :creature/domains domains/default-domains})]}))
-
-(defn update-creature
-  "Takes a creature uuid and updates it with the provided transaction data"
-  [transact conn creature-uuid creature-tx-data]
-  (transact conn {:tx-data [(merge creature-tx-data {:creature/id creature-uuid})]}))
-
-(defn retract-creature
-  "Retracts all datoms where the entity id or value is equal to the provided creature-id"
-  [transact conn creature-uuid]
-  (transact conn {:tx-data [[:db/retractEntity [:creature/id creature-uuid]]]}))
-

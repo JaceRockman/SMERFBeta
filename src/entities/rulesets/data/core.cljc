@@ -351,4 +351,4 @@ Connections represents how many relationships and affiliations a creature has, h
     :ruleset/stats-social (:social stats-list)}])
 
 (def example-rulesets
-  (concat simple-ruleset complex-ruleset))
+  simple-ruleset)

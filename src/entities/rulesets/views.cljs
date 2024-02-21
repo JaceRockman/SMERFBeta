@@ -8,7 +8,7 @@
 (defn screen-width [] (.-width js/screen))
 
 (defn ruleset-select
-  [rulesets]
+  [conn rulesets]
   (let [flex-vals [1 1]]
     (components/search-filter-sort-list
      {:list-header "Rulesets"
@@ -19,6 +19,7 @@
                         [:> rn/Pressable {:style {:flex-direction :row}
                                           :on-press (fn []
                                                       (ruleset-data/set-active-ruleset
+                                                       conn
                                                        (:id ruleset-data)))}
                          (components/default-text {:style {:flex (nth flex-vals 0)} :text (:title ruleset-data)})
                          (components/default-text {:style {:flex (nth flex-vals 1)} :text (:complexity ruleset-data)})])})))
@@ -70,8 +71,8 @@
         active-ruleset-data (ruleset-data/get-active-ruleset conn)]
     (cond
       active-ruleset-data (ruleset-details active-ruleset-data)
-      active-campaign-data (ruleset-select (campaign-data/get-active-campaign-rules conn))
-      :else (ruleset-select (ruleset-data/get-all-rulesets conn)))))
+      active-campaign-data (ruleset-select conn (campaign-data/get-active-campaign-rules conn))
+      :else (ruleset-select conn (ruleset-data/get-all-rulesets conn)))))
 
 (defn rules [conn ^js props]
   (components/view-frame conn (rules-home conn)))
