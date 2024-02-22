@@ -24,7 +24,8 @@
                          (components/default-text {:style {:flex (nth flex-vals 0)} :text (:title ruleset-data)})
                          (components/default-text {:style {:flex (nth flex-vals 1)} :text (:complexity ruleset-data)})])})))
 
-(defn ruleset-details [ruleset-data]
+(defn ruleset-details [conn ruleset-data]
+  (println (type (:ruleset/skill-check-overview ruleset-data)))
   [:> rn/View
    {:style {:width "100%"
             :height "100%"}}
@@ -33,10 +34,11 @@
                       :shows-horizontal-scroll-indicator false
                       :shows-vertical-scroll-indicator false}
     (map (fn [data-keys section-title]
+           (println (type (apply str (interpose "\n" (vals (select-keys ruleset-data data-keys))))))
            [:> rn/ScrollView {:style {:width (screen-width)
                                       :height :auto}}
             (components/default-text {:style {:font-size 24} :text section-title})
-            (components/default-markdown
+            (components/default-markdown conn
              (apply str (interpose "\n" (vals (select-keys ruleset-data data-keys)))))])
          [[:ruleset/skill-check-overview
            :ruleset/skill-check-base-dice-pool
@@ -70,7 +72,7 @@
   (let [active-campaign-data (campaign-data/get-active-campaign conn)
         active-ruleset-data (ruleset-data/get-active-ruleset conn)]
     (cond
-      active-ruleset-data (ruleset-details active-ruleset-data)
+      active-ruleset-data (ruleset-details conn active-ruleset-data)
       active-campaign-data (ruleset-select conn (campaign-data/get-active-campaign-rules conn))
       :else (ruleset-select conn (ruleset-data/get-all-rulesets conn)))))
 
