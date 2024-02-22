@@ -127,7 +127,7 @@ like their name, gender, race, and description. Below that will be a section for
                 (map stats-domain (repeat conn) domain-details))]))
 
 (defn resources [conn {:keys [:creature/resources]}]
-  (let [resource-details (ds/pull-many conn ["*"] resources)]
+  (let [resource-details (ds/pull-many @conn ["*"] resources)]
     [:> rn/ScrollView {:style {:width (screen-width)}}
      (resources-view/resource-list {:resources resource-details
                                     :quantities (reduce (fn [qtys res]
