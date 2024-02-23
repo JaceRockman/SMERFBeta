@@ -13,17 +13,17 @@
     :column-headers ["Campaign Title" "Campaign Owner"]
     :column-flex-vals [1 1]
     :items campaigns-data
-    :item-format-fn (fn [{:keys [owner id title]}]
+    :item-format-fn (fn [{:keys [title owner id]}]
                       [:> rn/Pressable {:style {:flex-direction :row
                                                 :margin-top 5
                                                 :margin-bottom 5}
                                         :on-press #(doall
-                                                    (campaign-data/set-active-campaign id)
+                                                    (campaign-data/set-active-campaign conn id)
                                                     (navigation/navigate! conn [:campaign]))}
                        (components/default-text {:style {:flex 1}
-                                           :text title})
+                                                 :text title})
                        (components/default-text {:style {:flex 1}
-                                           :text (or owner "Avis Industries")})])}))
+                                                 :text (or owner "Avis Industries")})])}))
 
 (defn campaign-select
   [conn campaigns-data]

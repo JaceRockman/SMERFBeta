@@ -3,18 +3,15 @@
 
 (defn init-campaigns
   [example-realms example-rulesets example-creatures]
-  [{:campaign/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
-    :campaign/title "Fantasy"
+  [{:campaign/title "Fantasy"
     :campaign/realms example-realms
     :campaign/rulesets example-rulesets
     :campaign/creatures example-creatures}
-   {:campaign/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
-    :campaign/title "Science Fiction"}
-   {:campaign/id #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))
-    :campaign/title "Lovecraftian Horror"}])
+   {:campaign/title "Science Fiction"}
+   {:campaign/title "Lovecraftian Horror"}])
 
 (defn get-ids-for-all-campaigns [conn]
-  (map first (ds/q '[:find ?e :where [?e :campaign/id]] @conn)))
+  (map first (ds/q '[:find ?e :where [?e :campaign/title]] @conn)))
 
 (defn get-all-campaigns
   ([conn]
