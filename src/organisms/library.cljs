@@ -9,7 +9,8 @@
             [organisms.molecules.lists :as lists]
             [organisms.compounds.search-filter-sort-list :as sfs-list]
             [organisms.compounds.nav-bar :refer [nav-bar]]
-            [organisms.compounds.tab-bar :refer [tab-bar]]))
+            [organisms.compounds.tab-bar :refer [tab-bar]]
+            [organisms.environments.modals :refer [modal]]))
 
 (defn view-frame
   [conn content & campaign-title]
@@ -21,7 +22,8 @@
                          :height (config/screen-height)}}
      (nav-bar conn [campaign-title view-title])
      [:> rn/View {:style {:height "90%" :width "100%"}} content]
-     (tab-bar conn)]))
+     (tab-bar conn)
+     (modal conn)]))
 
 (def button buttons/button)
 (def primary-button buttons/primary-button)

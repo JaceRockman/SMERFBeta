@@ -1,6 +1,7 @@
 (ns entities.resources.views
   (:require ["react-native" :as rn]
             [entities.resources.data.interface :as resource-data]
+            [systems.navigation :as navigation]
             [organisms.library :as components]))
 
 (defn screen-width [] (.-width js/screen))
@@ -8,10 +9,10 @@
 (defn section-divider []
   [:> rn/View {:style {:background-color :lavender :width "80%" :height 2 :align-self :center}}])
 
-(defn resource [flex-vals]
+(defn resource [conn flex-vals]
   (fn [{:keys [title quality-value power-value] :as resource} quantity]
     [:> rn/Pressable {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}
-                    :on-press #(println "button pressed")}
+                    :on-press #(navigation/set-modal-content conn [:> rn/Text title])}
    (components/default-text {:style {:flex (nth flex-vals 0) :font-size 16} :text title})
    (components/default-text {:style {:flex (nth flex-vals 1) :font-size 16} :text quality-value})
    (components/default-text {:style {:flex (nth flex-vals 2) :font-size 16} :text power-value})
@@ -31,20 +32,20 @@
         items (type-section-from-resources "Items" resources)]
     (remove nil? [equipment traits expertise affiliations items])))
 
-(defn resource-list [{:keys [resources quantities show-header?]}]
+(defn resource-list [conn {:keys [resources quantities show-header?]}]
   (let [flex-vals [3 1 1 2]]
     (components/search-filter-sort-list
      {:list-header (when show-header? "Resources") 
       :items resources
       :column-headers ["Title" "Quality" "Power" "Quantity"]
       :column-flex-vals flex-vals
-      :item-format-fn #((resource flex-vals) % (get quantities (:db/id resource)))
-      :sort-fns [sort-resources-by-type]})))
+      :item-format-fn #((resource conn flex-vals) % (get quantities (:db/id resource)))
+      :init-sort-fns [sort-resources-by-type]})))
 
 (defn resources-main-page [conn]
   (let [resources (resource-data/get-all-resources conn)]
     [:> rn/View {:style {:flex :1 :width (screen-width) :align-items :center}}
-     (resource-list {:resources resources})]))
+     (resource-list conn {:resources resources})]))
 
 (defn resources [conn ^js props]
   (components/view-frame conn (resources-main-page conn)))
