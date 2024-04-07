@@ -13,17 +13,15 @@
             [organisms.environments.modals :refer [modal]]))
 
 (defn view-frame
-  [conn content & campaign-title]
-  (let [view-title (str/capitalize (name (first (navigation/get-full-navigation-state conn))))]
-    [:> rn/View {:style {:width (config/screen-width)
-                         :align-items :center
-                         :background-color "#121212"
-                         :color :white
-                         :height (config/screen-height)}}
-     (nav-bar conn [campaign-title view-title])
-     [:> rn/View {:style {:height "90%" :width "100%"}} content]
-     (tab-bar conn)
-     (modal conn)]))
+  [conn content]
+  [:> rn/View {:style {:width (config/screen-width)
+                       :align-items :center
+                       :background-color "#121212"
+                       :color :white
+                       :height (config/screen-height)}}
+   [:> rn/View {:style {:height "95%" :width "100%"}} content]
+   (tab-bar conn)
+   (modal conn)])
 
 (def button buttons/button)
 (def primary-button buttons/primary-button)
