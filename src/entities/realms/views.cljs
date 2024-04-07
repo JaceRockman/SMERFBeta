@@ -34,20 +34,20 @@
   [conn realm-data]
   (let [flex-vals [2 1]]
     (components/search-filter-sort-list
-     {:list-header "Categories"
-      :items (remove #(nil? (:realm/entity-title %)) (realm-data/get-realm conn (:db/id realm-data)))
-      :column-headers ["Title" "Author"]
+     {:list-header      "Categories"
+      :items            (remove #(nil? (:realm/entity-title %)) (realm-data/get-realm conn (:db/id realm-data)))
+      :column-headers   ["Title" "Author"]
       :column-flex-vals flex-vals
-      :item-format-fn (fn [realm-entity]
-                        [:> rn/Pressable {:style {:flex-direction :row}
-                                          :on-press (fn [] (realm-data/set-active-subrealm
-                                                           conn
-                                                           (:id realm-entity)))}
-                         (components/default-text {:style {:flex (nth flex-vals 0)}
-                                             :text (:entity-title realm-entity)})
-                         (components/default-text {:style {:flex (nth flex-vals 0)}
-                                             :text "System"})])
-      :sort-fns [subrealm-sort]})))
+      :item-format-fn   (fn [realm-entity]
+                          [:> rn/Pressable {:style    {:flex-direction :row}
+                                            :on-press (fn [] (realm-data/set-active-subrealm
+                                                              conn
+                                                              (:id realm-entity)))}
+                           (components/default-text {:style {:flex (nth flex-vals 0)}
+                                                     :text  (:entity-title realm-entity)})
+                           (components/default-text {:style {:flex (nth flex-vals 0)}
+                                                     :text  "System"})])
+      :sort-fns         [subrealm-sort]})))
 
 (defn realm-details [conn subrealm-data]
   [:> rn/ScrollView {:style {:flex :1}}

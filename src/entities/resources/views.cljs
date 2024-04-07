@@ -35,12 +35,12 @@
 (defn resource-list [conn {:keys [resources quantities]}]
   (let [flex-vals [3 1 1 2]]
     (components/search-filter-sort-list
-     {:list-header "Resources"
-      :items resources
-      :column-headers ["Title" "Quality" "Power" "Quantity"]
+     {:list-header      "Resources"
+      :items            resources
+      :column-headers   ["Title" "Quality" "Power" "Quantity"]
       :column-flex-vals flex-vals
-      :item-format-fn #((resource conn flex-vals) % (get quantities (:db/id resource)))
-      :init-sort-fns [sort-resources-by-type]})))
+      :item-format-fn   #((resource conn flex-vals) % (get quantities (:db/id resource)))
+      :init-sort-fns    [sort-resources-by-type]})))
 
 (defn resources-main-page [conn]
   (let [resources (resource-data/get-all-resources conn)]
