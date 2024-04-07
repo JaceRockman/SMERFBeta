@@ -32,10 +32,10 @@
         items (type-section-from-resources "Items" resources)]
     (remove nil? [equipment traits expertise affiliations items])))
 
-(defn resource-list [conn {:keys [resources quantities show-header?]}]
+(defn resource-list [conn {:keys [resources quantities]}]
   (let [flex-vals [3 1 1 2]]
     (components/search-filter-sort-list
-     {:list-header (when show-header? "Resources") 
+     {:list-header "Resources"
       :items resources
       :column-headers ["Title" "Quality" "Power" "Quantity"]
       :column-flex-vals flex-vals
