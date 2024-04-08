@@ -2,23 +2,46 @@
   (:require [clojure.string :as str]
             [datascript.core :as ds]))
 
-(defn get-full-navigation-state
+(defn get-nav-history
   [conn]
-  (map keyword (str/split (ffirst (ds/q '[:find ?main
-                                          :where [1 :navigator/main ?main]]
-                                        @conn))
-                          #"/")))
+  (let [result (ffirst (ds/q '[:find ?history
+                       :where [1 :navigator/history ?history]]
+                     @conn))]
+    result))
 
 (defn get-main-nav-state
   [conn]
-  (first (get-full-navigation-state conn)))
+  (keyword (first (str/split (first (get-nav-history conn)) #"/"))))
+
+(defn get-main-nav-state-list
+  [conn]
+  (str/split (first (get-nav-history conn)) #"/"))
 
 (defn navigate!
- [conn keyword-url]
-  (let [url (if (vector? keyword-url)
-              (apply str (interpose "/" (map name keyword-url)))
-              (name keyword-url))]
-    (ds/transact! conn [[:db/add 1 :navigator/main url]])) )
+  [conn keyword-url]
+  (let [url (if (coll? keyword-url)
+              (apply str (interpose "/" keyword-url))
+              (name keyword-url))
+        history (get-nav-history conn)]
+    (when (not (= (first history) url))
+      (ds/transact! conn [[:db/add 1 :navigator/history (conj history url)]]))))
+
+(defn subnavigate
+  [conn subsection]
+  (let [main-state (name (get-main-nav-state conn))
+        new-state [main-state subsection]]
+    (navigate! conn new-state)))
+
+(defn subsubnavigate
+  [conn subsubsection]
+  (let [main-state (get-main-nav-state-list conn)
+        new-state (assoc main-state 2 subsubsection)]
+    (navigate! conn new-state)))
+
+(defn nav-back
+  [conn]
+  (let [history (get-nav-history conn)]
+    (ds/transact! conn [[:db/add 1 :navigator/history (rest history)]])))
 
 (defn get-modal-content
   [conn]

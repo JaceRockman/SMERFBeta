@@ -1,5 +1,6 @@
 (ns entities.realms.data.core
-  (:require [datascript.core :as ds]))
+  (:require [datascript.core :as ds]
+            [systems.navigation :as navigation]))
 
 (defn get-all-realm-ids
   [conn]
@@ -30,17 +31,17 @@
     (ds/pull-many @conn '[*] all-entities)))
 
 
-
 (defn get-active-realm-id
   [conn]
-  (ffirst (ds/q '[:find ?e
-                  :where [_ :active/realm ?e]]
-                @conn)))
+  (let [nav-state (navigation/get-main-nav-state-list conn)]
+    (when (= "realms" (first nav-state))
+      (first (rest nav-state)))))
 
 (defn get-active-realm
   [conn]
   (when-let [active-realm-id (get-active-realm-id conn)]
-    (ds/pull @conn '[*] active-realm-id)))
+    (ds/pull @conn '[*] (int active-realm-id))))
+
 
 (defn get-realm-id-by-name
   [conn realm-name]
@@ -60,18 +61,20 @@
   (if-let [active-realm-tracker (get-active-realm-tracker conn)]
     (ds/transact! conn [{:db/id active-realm-tracker
                          :active/realm realm-id}])
-    (ds/transact! conn [{:active/realm realm-id}])))
+    (ds/transact! conn [{:active/realm realm-id}]))
+  (navigation/subnavigate conn realm-id))
+
 
 (defn get-active-subrealm-id
   [conn]
-  (ffirst (ds/q '[:find ?e
-                  :where [_ :active/subrealm ?e]]
-                @conn)))
+  (let [nav-state (navigation/get-main-nav-state-list conn)]
+    (when (and (= 3 (count nav-state)) (= "realms" (first nav-state)))
+      (last nav-state))))
 
 (defn get-active-subrealm
   [conn]
   (when-let [active-subrealm (get-active-subrealm-id conn)]
-    (ds/pull @conn '[*] active-subrealm)))
+    (ds/pull @conn '[*] (int active-subrealm))))
 
 (defn get-subrealm-id-by-name
   [conn subrealm-name]
@@ -91,7 +94,8 @@
   (if-let [active-subrealm-tracker (get-active-subrealm-tracker conn)]
     (ds/transact! conn [{:db/id active-subrealm-tracker
                          :active/subrealm subrealm-id}])
-    (ds/transact! conn [{:active/subrealm subrealm-id}])))
+    (ds/transact! conn [{:active/subrealm subrealm-id}]))
+  (navigation/subsubnavigate conn subrealm-id))
 
 (defn set-active-subrealm-by-name
   [conn subrealm-name]
@@ -108,8 +112,7 @@
     :realm/entity-title "Commonlands"
     :realm/entity-type "Territory"
     :realm/children-entities ["humans" "elves" "dwarves"]
-    :realm/entity-details "# The Commonlands
-Surrounded by the fraught Outwilds, the Commonlands are home to the civilized races: Humans, Elves, and Dwarves. While each of these groups have carved out areas of this land for themself, Kairinith, often simply referred to as The Capital, is shared by all. It is here that the social engineering of the Humans meets the work ethic of the Dwarves and the elegance of the Elves. While The Capital is not free from divisive issues, it is rife with opportunity and is therefore a wellspring of new ideas, technologies, and art. Beyond the walls of The Capital, you will find that the Humans squabble over land and power, the Elves content themselves with tending their forests, and the Dwarves delve deep into their mountains seeking ever more valuable gems. War has not touched the lives of the common folk for decades while the gods continue their centuries-long slumber.
+    :realm/entity-details "Surrounded by the fraught Outwilds, the Commonlands are home to the civilized races: Humans, Elves, and Dwarves. While each of these groups have carved out areas of this land for themself, Kairinith, often simply referred to as The Capital, is shared by all. It is here that the social engineering of the Humans meets the work ethic of the Dwarves and the elegance of the Elves. While The Capital is not free from divisive issues, it is rife with opportunity and is therefore a wellspring of new ideas, technologies, and art. Beyond the walls of The Capital, you will find that the Humans squabble over land and power, the Elves content themselves with tending their forests, and the Dwarves delve deep into their mountains seeking ever more valuable gems. War has not touched the lives of the common folk for decades while the gods continue their centuries-long slumber.
 [Humans](humans) [Elves](elves) [Dwarves](dwarves)"}
 
    {:db/id "outwilds"

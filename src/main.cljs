@@ -11,7 +11,8 @@
 
 (def conn (ds/create-conn {:realm/children-entities {:db/cardinality :db.cardinality/many
                                                      :db/valueType :db.type/ref
-                                                     :db/isComponent true}}))
+                                                     :db/isComponent true}
+                            }))
 
 (defn root [conn]
   (let [main-nav (navigation/get-main-nav-state conn)]

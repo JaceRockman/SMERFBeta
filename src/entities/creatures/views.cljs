@@ -129,12 +129,12 @@ like their name, gender, race, and description. Below that will be a section for
 (defn resources [conn {:keys [:creature/resources]}]
   (let [resource-details (ds/pull-many @conn ["*"] resources)]
     [:> rn/ScrollView {:style {:width (screen-width)}}
-     (resources-view/resource-list {:resources resource-details
-                                    :quantities (reduce (fn [qtys res]
-                                                          (assoc qtys (:db/id res) (rand-int 3)))
-                                                        {}
-                                                        resource-details)
-                                    :show-header? true})]))
+     (resources-view/resource-list conn {:resources resource-details
+                                         :quantities (reduce (fn [qtys res]
+                                                               (assoc qtys (:db/id res) (rand-int 3)))
+                                                             {}
+                                                             resource-details)
+                                         :show-header? true})]))
 
 (defn actions [conn {:keys [:db/id :creature/actions]}]
   (let [action-details (action-data/get-all-actions conn)]

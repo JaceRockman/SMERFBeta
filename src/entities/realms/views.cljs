@@ -3,6 +3,7 @@
             [reagent.core :as r]
             [nextjournal.markdown.parser :as md.parser]
             [nextjournal.markdown.transform :as md.transform]
+            [systems.navigation :as navigation]
             [entities.campaigns.data.interface :as campaign-data]
             [entities.realms.data.interface :as realm-data]
             [organisms.library :as components]))
@@ -49,8 +50,18 @@
                                                      :text  "System"})])
       :sort-fns         [subrealm-sort]})))
 
+(defn realm-entity-header
+  [conn realm-entity-title]
+  [:> rn/View {:style {:flex-direction :row :color :white}}
+   [:> rn/Pressable {
+                     :on-press #(navigation/nav-back conn)}
+    [:> rn/Text {:style {:color :white}} "<"]]
+   [:> rn/Text realm-entity-title]
+   [:> rn/Text "..."]])
+
 (defn realm-details [conn subrealm-data]
   [:> rn/ScrollView {:style {:flex :1}}
+   (realm-entity-header conn (:realm/entity-title subrealm-data))
    (components/default-realm-markdown conn (:realm/entity-details subrealm-data))])
 
 (defn realm-home [conn]
