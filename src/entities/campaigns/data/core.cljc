@@ -3,15 +3,18 @@
 
 (defn init-campaigns
   [example-realms example-rulesets example-creatures]
-  [{:campaign/title "Fantasy"
+  [{:entity-type "campaign"
+    :title "Fantasy"
     :campaign/realms example-realms
     :campaign/rulesets example-rulesets
     :campaign/creatures example-creatures}
-   {:campaign/title "Science Fiction"}
-   {:campaign/title "Lovecraftian Horror"}])
+   {:entity-type "campaign"
+    :title "Science Fiction"}
+   {:entity-type "campaign"
+    :title "Lovecraftian Horror"}])
 
 (defn get-ids-for-all-campaigns [conn]
-  (map first (ds/q '[:find ?e :where [?e :campaign/title]] @conn)))
+  (map first (ds/q '[:find ?e :where [?e :entity-type "campaign"]] @conn)))
 
 (defn get-all-campaigns
   ([conn]
@@ -27,7 +30,7 @@
 
 (defn get-campaign-titles
   [conn]
-  (ds/pull-many @conn '[[:campaign/title :as :title]] (get-ids-for-all-campaigns conn)))
+  (ds/pull-many @conn '[[:title :as :title]] (get-ids-for-all-campaigns conn)))
 
 (defn get-active-campaign [conn]
   (let [active-campaign-id (ds/q '[:find ?campaign 

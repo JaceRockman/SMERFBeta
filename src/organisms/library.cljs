@@ -1,6 +1,7 @@
 (ns organisms.library
   (:require [clojure.string :as str]
             ["react-native" :as rn]
+            ["@expo/vector-icons" :refer [FontAwesome5]]
             [systems.navigation :as navigation]
             [organisms.config :as config]
             [organisms.atoms.buttons :as buttons]
@@ -12,6 +13,25 @@
             [organisms.compounds.tab-bar :refer [tab-bar]]
             [organisms.environments.modals :refer [modal]]))
 
+(defn back-button
+  [conn]
+  [:> rn/Pressable {:style {:width "5%"}
+                    :on-press #(navigation/nav-back conn)}
+   [:> FontAwesome5 {:name :chevron-left :color :white :size 20}]])
+
+(defn settings-button
+  [conn]
+  [:> rn/Pressable {:style {:width "5%"}}
+   [:> FontAwesome5 {:name :ellipsis-v :color :white :size 18}]])
+
+(defn view-frame-header
+  [conn]
+  (let [title (navigation/get-current-nav-state-title conn)]
+    [:> rn/View {:style {:flex-direction :row :width "100%" :height "5%" :padding 10 :align-items :center}}
+   (back-button conn)
+   (text/view-header-text {:text title :style {:width "90%" :color :white}})
+   (settings-button conn)]))
+
 (defn view-frame
   [conn content]
   [:> rn/View {:style {:width (config/screen-width)
@@ -19,7 +39,8 @@
                        :background-color "#121212"
                        :color :white
                        :height (config/screen-height)}}
-   [:> rn/View {:style {:height "95%" :width "100%"}} content]
+   (view-frame-header conn)
+   [:> rn/View {:style {:height "90%" :width "100%"}} content]
    (tab-bar conn)
    (modal conn)])
 

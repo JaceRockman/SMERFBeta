@@ -217,7 +217,8 @@ Connections represents how many relationships and affiliations a creature has, h
    :poise "# Poise"})
 
 (def default-domains [{:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
-                       :domain/name "Physical"
+                       :title "Physical"
+                       :entity-type "domain"
                        :domain/resource-type-title "Equipment"
                        :domain/initiation-title "Coordination"
                        :domain/initiation-value 1
@@ -236,7 +237,8 @@ Connections represents how many relationships and affiliations a creature has, h
                        :domain/major-wounds 0}
 
                       {:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
-                       :domain/name "Spiritual"
+                       :title "Spiritual"
+                       :entity-type "domain"
                        :domain/resource-type-title "Trait"
                        :domain/initiation-title "Exertion"
                        :domain/initiation-value 1
@@ -255,7 +257,8 @@ Connections represents how many relationships and affiliations a creature has, h
                        :domain/major-wounds 0}
 
                       {:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
-                       :domain/name "Mental"
+                       :title "Mental"
+                       :entity-type "domain"
                        :domain/resource-type-title "Expertise"
                        :domain/initiation-title "Concentration"
                        :domain/initiation-value 1
@@ -274,7 +277,8 @@ Connections represents how many relationships and affiliations a creature has, h
                        :domain/major-wounds 0}
 
                       {:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
-                       :domain/name "Social"
+                       :title "Social"
+                       :entity-type "domain"
                        :domain/resource-type-title "Affiliation"
                        :domain/initiation-title "Persuasion"
                        :domain/initiation-value 1
@@ -293,7 +297,8 @@ Connections represents how many relationships and affiliations a creature has, h
                        :domain/major-wounds 0}])
 
 (def simple-ruleset
-  [{:ruleset/title "Simple Ruleset"
+  [{:title "Simple Ruleset"
+    :entity-type "ruleset"
     :ruleset/complexity "Simple"
     :ruleset/skill-check-overview (:overview (skill-check-rules nil))
     :ruleset/skill-check-base-dice-pool (:base-dice-pool (skill-check-rules nil))
@@ -322,7 +327,8 @@ Connections represents how many relationships and affiliations a creature has, h
     :ruleset/stats-social (:social stats-list)}])
 
 (def complex-ruleset
-  [{:ruleset/title "Complex Ruleset"
+  [{:title "Complex Ruleset"
+    :entity-type "ruleset"
     :ruleset/complexity "Complex"
     :ruleset/skill-check-overview (:overview (skill-check-rules nil))
     :ruleset/skill-check-base-dice-pool (:base-dice-pool (skill-check-rules nil))

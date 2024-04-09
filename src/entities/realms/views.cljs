@@ -1,6 +1,7 @@
 (ns entities.realms.views
   (:require ["react-native" :as rn]
             [reagent.core :as r]
+            ["@expo/vector-icons" :refer [FontAwesome5]]
             [nextjournal.markdown.parser :as md.parser]
             [nextjournal.markdown.transform :as md.transform]
             [systems.navigation :as navigation]
@@ -36,7 +37,7 @@
   (let [flex-vals [2 1]]
     (components/search-filter-sort-list
      {:list-header      "Categories"
-      :items            (remove #(nil? (:realm/entity-title %)) (realm-data/get-realm conn (:db/id realm-data)))
+      :items            (remove #(nil? (:title %)) (realm-data/get-realm conn (:db/id realm-data)))
       :column-headers   ["Title" "Author"]
       :column-flex-vals flex-vals
       :item-format-fn   (fn [realm-entity]
@@ -45,23 +46,21 @@
                                                               conn
                                                               (:id realm-entity)))}
                            (components/default-text {:style {:flex (nth flex-vals 0)}
-                                                     :text  (:entity-title realm-entity)})
+                                                     :text  (:title realm-entity)})
                            (components/default-text {:style {:flex (nth flex-vals 0)}
                                                      :text  "System"})])
       :sort-fns         [subrealm-sort]})))
 
 (defn realm-entity-header
   [conn realm-entity-title]
-  [:> rn/View {:style {:flex-direction :row :color :white}}
-   [:> rn/Pressable {
-                     :on-press #(navigation/nav-back conn)}
-    [:> rn/Text {:style {:color :white}} "<"]]
-   [:> rn/Text realm-entity-title]
-   [:> rn/Text "..."]])
+  [:> rn/View {:style {:flex-direction :row :color :white :align-items :center :padding 10}}
+   [:> rn/Text {:style {:width "90%" :color :white :font-size 24 :margin-left "5%"}} realm-entity-title]
+   [:> rn/Pressable {:style {:width "5%"}}
+    [:> FontAwesome5 {:name :ellipsis-v :color :white :size 18}]]])
 
 (defn realm-details [conn subrealm-data]
   [:> rn/ScrollView {:style {:flex :1}}
-   (realm-entity-header conn (:realm/entity-title subrealm-data))
+   (realm-entity-header conn (:title subrealm-data))
    (components/default-realm-markdown conn (:realm/entity-details subrealm-data))])
 
 (defn realm-home [conn]

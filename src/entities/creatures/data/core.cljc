@@ -6,7 +6,7 @@
 (defn get-all-creature-ids
   [conn]
   (map first (ds/q '[:find ?e
-                     :where [?e :creature/title]]
+                     :where [?e :entity-type "creature"]]
                    @conn)))
 
 (defn get-all-creatures
@@ -70,7 +70,8 @@
 (defn example-creatures
   [default-domain-entities example-resources default-actions]
   [{:creature/domains default-domain-entities
-    :creature/title "aleksander"
+    :title "aleksander"
+    :entity-type "creature"
     :creature/portrait "https://i.pinimg.com/originals/d8/30/bc/d830bc587482ed8af3639903c5d406b4.png"
     :creature/gender "Male"
     :creature/race [:race/elf :race/human]
@@ -82,7 +83,8 @@
     :creature/notes "Notes about Aleksander"
     :creature/rolls []}
    {:creature/domains default-domain-entities
-    :creature/title "eilonwey"
+    :title "eilonwey"
+    :entity-type "creature"
     :creature/gender "Female"
     :creature/race [:race/elf]
     :creature/description "Eilonwey is a badass."
@@ -93,7 +95,8 @@
     :creature/notes "Notes about Eilonwey"
     :creature/rolls []}
    {:creature/domains default-domain-entities
-    :creature/title "durflag"
+    :entity-type "creature"
+    :title "durflag"
     :creature/race [:race/dwarf]
     :creature/description "Durflag is a badass as well."
     :creature/experience 0

@@ -2,7 +2,7 @@
   (:require [datascript.core :as ds]))
 
 (def example-actions
-  [{:action/title "Physical Health Check"
+  [{:title "Physical Health Check"
     :action/description ""
     :action/skill "Endurance"
     :action/ability ""
@@ -13,7 +13,7 @@
     :action/combinations ""
     :action/target-number 0}
 
-   {:action/title "Spiritual Health Check"
+   {:title "Spiritual Health Check"
     :action/description ""
     :action/skill "Perseverance"
     :action/ability ""
@@ -24,7 +24,7 @@
     :action/combinations ""
     :action/target-number 0}
 
-   {:action/title "Mental Health Check"
+   {:title "Mental Health Check"
     :action/description ""
     :action/skill "Comprehension"
     :action/ability ""
@@ -35,7 +35,7 @@
     :action/combinations ""
     :action/target-number 0}
 
-   {:action/title "Social Health Check"
+   {:title "Social Health Check"
     :action/description ""
     :action/skill "Connections"
     :action/ability ""
@@ -50,7 +50,7 @@
 
 (defn get-all-actions [conn]
   (let [action-eids (map first (ds/q '[:find ?eid
-                                       :where [?eid :action/title]]
+                                       :where [?eid :action/skill]]
                                      @conn))]
     (ds/pull-many @conn '[*] action-eids)))
 

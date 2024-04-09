@@ -5,8 +5,8 @@
 (defn get-nav-history
   [conn]
   (let [result (ffirst (ds/q '[:find ?history
-                       :where [1 :navigator/history ?history]]
-                     @conn))]
+                               :where [1 :navigator/history ?history]]
+                             @conn))]
     result))
 
 (defn get-main-nav-state
@@ -16,6 +16,16 @@
 (defn get-main-nav-state-list
   [conn]
   (str/split (first (get-nav-history conn)) #"/"))
+
+(defn get-current-nav-state-title
+  [conn]
+  (let [current-nav-state (last (get-main-nav-state-list conn))]
+    (str/capitalize (if (re-matches #"\d+" current-nav-state)
+                      (ffirst (ds/q '[:find ?title
+                                      :in $ ?eid
+                                      :where [?eid :title ?title]]
+                                    @conn (int current-nav-state)))
+                      current-nav-state))))
 
 (defn navigate!
   [conn keyword-url]
@@ -40,8 +50,11 @@
 
 (defn nav-back
   [conn]
-  (let [history (get-nav-history conn)]
-    (ds/transact! conn [[:db/add 1 :navigator/history (rest history)]])))
+  (let [history (get-nav-history conn)
+        updated-history (if (< 1 (count history))
+                      (rest history)
+                      history)]
+    (ds/transact! conn [[:db/add 1 :navigator/history updated-history]])))
 
 (defn get-modal-content
   [conn]
