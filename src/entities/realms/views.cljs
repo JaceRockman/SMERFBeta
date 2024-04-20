@@ -50,17 +50,8 @@
                            (components/default-text {:style {:flex (nth flex-vals 0)}
                                                      :text  "System"})])
       :sort-fns         [subrealm-sort]})))
-
-(defn realm-entity-header
-  [conn realm-entity-title]
-  [:> rn/View {:style {:flex-direction :row :color :white :align-items :center :padding 10}}
-   [:> rn/Text {:style {:width "90%" :color :white :font-size 24 :margin-left "5%"}} realm-entity-title]
-   [:> rn/Pressable {:style {:width "5%"}}
-    [:> FontAwesome5 {:name :ellipsis-v :color :white :size 18}]]])
-
 (defn realm-details [conn subrealm-data]
   [:> rn/ScrollView {:style {:flex :1}}
-   (realm-entity-header conn (:title subrealm-data))
    (components/default-realm-markdown conn (:realm/entity-details subrealm-data))])
 
 (defn realm-home [conn]
