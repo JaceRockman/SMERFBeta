@@ -1,6 +1,7 @@
 (ns entities.creatures.data.core
   (:require [clojure.string :as str]
             [datascript.core :as ds]
+            [systems.navigation :as navigation]
             [entities.rulesets.data.interface :as domains]))
 
 (defn get-all-creature-ids
@@ -16,9 +17,8 @@
 
 (defn get-active-creature-id
   [conn]
-  (ffirst (ds/q '[:find ?e
-                  :where [_ :active/creature ?e]]
-                @conn)))
+  (when-let [creature-id (second (navigation/get-main-nav-state-list conn))]
+    (int creature-id)))
 
 (defn get-active-creature
   [conn]
@@ -36,7 +36,8 @@
   (if-let [active-creature-tracker (get-active-creature-tracker conn)]
     (ds/transact! conn [{:db/id active-creature-tracker
                          :active/creature creature-id}])
-    (ds/transact! conn [{:active/creature creature-id}])))
+    (ds/transact! conn [{:active/creature creature-id}]))
+  (navigation/subnavigate conn creature-id))
 
 
 (def creature-races [{:db/ident :race/elf
