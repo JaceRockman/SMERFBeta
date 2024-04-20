@@ -142,8 +142,7 @@ like their name, gender, race, and description. Below that will be a section for
      (actions-view/action-list {:conn conn :creature-id id :actions action-details :show-header? true})]))
 
 (defn info [conn creature-details]
-  (let [title (:title creature-details)
-        portrait (:creature/portrait creature-details)
+  (let [portrait (:creature/portrait creature-details)
         gender (:creature/gender creature-details)
         races (str "Races: " (apply str (interpose " " (creature-data/get-creature-races conn creature-details))))
         description (:creature/description creature-details)]
@@ -174,12 +173,6 @@ like their name, gender, race, and description. Below that will be a section for
 
 (defn creature-details [conn creature-data]
   [:> rn/View {:style {:width "100%" :height "100%" :text-align :center}}
-   [:> rn/View {:style {:flex-direction :row :width "100%" :justify-content :space-between :align-items :center}}
-    (creature-list-nav-button)
-    (components/default-text {:text (str/capitalize (:title creature-data))})
-    (components/button {:style {:background-color :inherit}
-                     :on-press (fn [] (println "button pressed"))}
-                    [:> FontAwesome5 {:name :ellipsis-v :color :white :size 18}])]
    (creature conn creature-data)])
 
 (defn creatures-home
