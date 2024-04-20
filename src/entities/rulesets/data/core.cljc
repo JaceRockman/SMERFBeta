@@ -1,31 +1,11 @@
 (ns entities.rulesets.data.core
-  (:require [datascript.core :as ds]))
-
-#_"Skill Checks
-- base dice pool
-- bonuses and penalties
-- complex actions
-- careful and reckless actions
-- passive checks
-
-Encounters (conditional on skill checks)
-- Actions (not conditional)
-- Moments (conditional on complex, careful, and reckless actions)
-- Rounds (not conditional)
-
-Damage (not conditional on other rules aside from how to roll a health check)
-- Injuries
-- Conditions
-- Recovery
-
-Conditions (not conditional on other rules)
-
-Stats (not conditional on other rules)"
+  (:require [datascript.core :as ds]
+            [systems.navigation :as navigation]))
 
 (defn get-all-rulesets-ids
   [conn]
   (map first (ds/q '[:find ?e
-                     :where [?e :ruleset/title]]
+                     :where [?e :entity-type "ruleset"]]
                    @conn)))
 
 (defn get-all-rulesets
@@ -37,7 +17,7 @@ Stats (not conditional on other rules)"
   [conn ruleset-title]
   (ffirst (ds/q '[:find ?e
                   :in $ ?ruleset-title
-                  :where [?e :ruleset/title ?ruleset-title]]
+                  :where [?e :title ?ruleset-title]]
                 @conn ruleset-title)))
 
 (defn rule-details
@@ -46,34 +26,29 @@ Stats (not conditional on other rules)"
 
 (defn get-active-ruleset-id
   [conn]
-  (ffirst (ds/q '[:find ?e
-                  :where [_ :active/ruleset ?e]]
-                @conn)))
+  (let [nav-state (navigation/get-main-nav-state-list conn)]
+    (println nav-state)
+    (when (and (= "rulesets" (first nav-state))
+               (< 1 (count nav-state)))
+      (int (second nav-state)))))
 
 (defn get-active-ruleset
   [conn]
+  (println (when-let [active-ruleset-id (get-active-ruleset-id conn)]
+             (ds/pull @conn '[*] active-ruleset-id)))
   (when-let [active-ruleset-id (get-active-ruleset-id conn)]
     (ds/pull @conn '[*] active-ruleset-id)))
 
 (defn get-ruleset-id-by-name
   [conn ruleset-name]
   (ffirst (ds/q '[:find ?e
-          :in $ ?ruleset-name
-          :where [?e :ruleset/title ?ruleset-name]]
+                  :in $ ?ruleset-name
+                  :where [?e :title ?ruleset-name]]
         @conn ruleset-name)))
-
-(defn get-active-ruleset-tracker
-  [conn]
-  (ffirst (ds/q '[:find ?e
-                  :where [?e :active/ruleset]]
-                @conn)))
 
 (defn set-active-ruleset
   [conn ruleset-id]
-  (if-let [active-ruleset-tracker (get-active-ruleset-tracker conn)]
-    (ds/transact! conn [{:db/id active-ruleset-tracker
-                         :active/ruleset ruleset-id}])
-    (ds/transact! conn [{:active/ruleset ruleset-id}])))
+  (navigation/subnavigate conn ruleset-id))
 
 (defn skill-check-rules
   [base-dice-pool-example]

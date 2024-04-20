@@ -13,8 +13,7 @@
   [conn realms]
   (let [flex-vals [1 1]]
     (components/search-filter-sort-list
-     {:list-header "Realms"
-      :items realms
+     {:items realms
       :column-headers ["Title" "Owner"]
       :column-flex-vals flex-vals
       :item-format-fn (fn [realm-data]
@@ -36,8 +35,7 @@
   [conn realm-data]
   (let [flex-vals [2 1]]
     (components/search-filter-sort-list
-     {:list-header      "Categories"
-      :items            (remove #(nil? (:title %)) (realm-data/get-realm conn (:db/id realm-data)))
+     {:items            (remove #(nil? (:title %)) (realm-data/get-realm conn (:db/id realm-data)))
       :column-headers   ["Title" "Author"]
       :column-flex-vals flex-vals
       :item-format-fn   (fn [realm-entity]

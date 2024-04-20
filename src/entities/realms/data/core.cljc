@@ -42,7 +42,6 @@
   (when-let [active-realm-id (get-active-realm-id conn)]
     (ds/pull @conn '[*] (int active-realm-id))))
 
-
 (defn get-realm-id-by-name
   [conn realm-name]
   (ffirst (ds/q '[:find ?e
@@ -50,18 +49,8 @@
           :where [?e :title ?realm-name]]
         @conn realm-name)))
 
-(defn get-active-realm-tracker
-  [conn]
-  (ffirst (ds/q '[:find ?e
-                  :where [?e :active/realm]]
-                @conn)))
-
 (defn set-active-realm
   [conn realm-id]
-  (if-let [active-realm-tracker (get-active-realm-tracker conn)]
-    (ds/transact! conn [{:db/id active-realm-tracker
-                         :active/realm realm-id}])
-    (ds/transact! conn [{:active/realm realm-id}]))
   (navigation/subnavigate conn realm-id))
 
 

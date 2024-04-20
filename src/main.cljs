@@ -11,8 +11,7 @@
 
 (def conn (ds/create-conn {:realm/children-entities {:db/cardinality :db.cardinality/many
                                                      :db/valueType :db.type/ref
-                                                     :db/isComponent true}
-                            }))
+                                                     :db/isComponent true}}))
 
 (defn root [conn]
   (let [main-nav (navigation/get-main-nav-state conn)]
@@ -21,7 +20,7 @@
       :asset-library (r/as-element [views/asset-library conn {}])
       :campaigns (r/as-element [views/campaign conn {}])
       :realms (r/as-element [views/realm conn {}])
-      :rules (r/as-element [views/rules conn {}])
+      :rulesets (r/as-element [views/rules conn {}])
       :creatures (r/as-element [views/creatures conn {}])
       :resources (r/as-element [views/resources conn {}])
       :actions (r/as-element [views/actions conn {}])

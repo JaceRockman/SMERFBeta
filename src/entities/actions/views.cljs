@@ -37,19 +37,20 @@
                                       :on-press #(println "Rolled dice!")}
                      (components/default-text {:text "Roll!"})]]))
 
-(defn action-list [{:keys [conn creature-id actions]}]
-  (let [flex-vals [2 1 1]] (components/search-filter-sort-list
-                            {:list-header      "Actions"
-                             :items            actions
-                             :column-headers   ["Title" "Roll Value" "Start Roll"]
-                             :column-flex-vals flex-vals
-                             :item-format-fn   (action-constructor flex-vals)
-                             :sort-fns         [sort-by-domain]})))
+(defn action-list [conn {:keys [creature-id actions header]}]
+  (let [flex-vals [2 1 1]]
+    (components/search-filter-sort-list
+     {:list-header      header
+      :items            actions
+      :column-headers   ["Title" "Roll Value" "Start Roll"]
+      :column-flex-vals flex-vals
+      :item-format-fn   (action-constructor flex-vals)
+      :sort-fns         [sort-by-domain]})))
 
 (defn actions-details [conn]
   (let [actions (action-data/get-all-actions conn)]
     [:> rn/View {:style {:flex :1 :width (screen-width) :align-items :center :align-text :center}}
-     (action-list {:conn conn :actions actions})]))
+     (action-list conn {:actions actions})]))
 
 (defn actions [conn ^js props]
   (components/view-frame conn (actions-details conn)))

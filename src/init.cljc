@@ -11,7 +11,7 @@
 
 (defn initialize-db
   [conn]
-  (let [_ (ds/transact! conn [[:db/add 1 :navigator/history '("campaign")]
+  (let [_ (ds/transact! conn [[:db/add 1 :navigator/history '("campaigns")]
                               ;; [:db/add 1 :navigator/sub :none]
                               ])
         _ (ds/transact! conn realm-data/example-realms)

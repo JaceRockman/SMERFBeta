@@ -28,8 +28,7 @@ like their name, gender, race, and description. Below that will be a section for
   [conn creatures]
   (let [flex-vals [1 1]]
     (components/search-filter-sort-list
-     {:list-header "Creatures"
-      :items creatures
+     {:items creatures
       :column-headers ["Name" "Creator"]
       :column-flex-vals flex-vals
       :item-format-fn (fn [creature-data]
@@ -134,12 +133,15 @@ like their name, gender, race, and description. Below that will be a section for
                                                                (assoc qtys (:db/id res) (rand-int 3)))
                                                              {}
                                                              resource-details)
-                                         :show-header? true})]))
+                                         :header "Resources"})]))
 
 (defn actions [conn {:keys [:db/id :creature/actions]}]
   (let [action-details (action-data/get-all-actions conn)]
     [:> rn/ScrollView {:style {:width (screen-width)}}
-     (actions-view/action-list {:conn conn :creature-id id :actions action-details :show-header? true})]))
+     (actions-view/action-list conn
+                               {:creature-id id
+                                :actions action-details
+                                :header "Actions"})]))
 
 (defn info [conn creature-details]
   (let [portrait (:creature/portrait creature-details)
@@ -179,6 +181,7 @@ like their name, gender, race, and description. Below that will be a section for
   [conn]
   (let [active-campaign-data (campaign-data/get-active-campaign conn)
         active-creature-data (creature-data/get-active-creature conn)]
+    (println active-creature-data)
     (cond
       active-creature-data (creature-details conn active-creature-data)
       active-campaign-data (creature-select conn (campaign-data/get-active-campaign-creatures conn))

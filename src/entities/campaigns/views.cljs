@@ -9,8 +9,7 @@
 (defn campaign-select-list
   [conn {:keys [campaigns-data show-header?]}]
   (components/search-filter-sort-list
-   {:list-header (when show-header? (components/view-header-text {:style {:color :white} :text "Select a Campaign"}))
-    :column-headers ["Campaign Title" "Campaign Owner"]
+   {:column-headers ["Campaign Title" "Campaign Owner"]
     :column-flex-vals [1 1]
     :items campaigns-data
     :item-format-fn (fn [{:keys [title owner id]}]

@@ -11,8 +11,7 @@
   [conn rulesets]
   (let [flex-vals [1 1]]
     (components/search-filter-sort-list
-     {:list-header "Rulesets"
-      :items rulesets
+     {:items rulesets
       :column-headers ["Title" "Complexity"]
       :column-flex-vals flex-vals
       :item-format-fn (fn [ruleset-data]
@@ -25,7 +24,6 @@
                          (components/default-text {:style {:flex (nth flex-vals 1)} :text (:complexity ruleset-data)})])})))
 
 (defn ruleset-details [conn ruleset-data]
-  (println (type (:ruleset/skill-check-overview ruleset-data)))
   [:> rn/View
    {:style {:width "100%"
             :height "100%"}}

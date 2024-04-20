@@ -21,7 +21,7 @@
           [:> FontAwesome5 {:key 3 :name "users" :size 24 :color :black}]
           [:> FontAwesome5 {:key 4 :name "coins" :size 24 :color :black}]
           [:> FontAwesome5 {:key 5 :name "running" :size 24 :color :black}]]
-         [:realms :rules :creatures :resources :actions])])
+         [:realms :rulesets :creatures :resources :actions])])
   ([conn icons destinations]
    [:> rn/View {:style {:display :grid :grid-auto-flow :column :background-color :lavender :justify-content :space-evenly :width "100%" :height "5%" :align-self :flex-end}}
     (map tab-bar-button (repeat conn) icons destinations)]))

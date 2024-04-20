@@ -17,11 +17,15 @@
 
 (defn get-active-creature-id
   [conn]
-  (when-let [creature-id (second (navigation/get-main-nav-state-list conn))]
-    (int creature-id)))
+  (let [nav-state (navigation/get-main-nav-state-list conn)]
+    (when (and (= "creatures" (first nav-state))
+               (< 1 (count nav-state)))
+      (int (second nav-state)))))
 
 (defn get-active-creature
   [conn]
+  (println (when-let [active-creature-id (get-active-creature-id conn)]
+    (ds/pull @conn '[*] active-creature-id)))
   (when-let [active-creature-id (get-active-creature-id conn)]
     (ds/pull @conn '[*] active-creature-id)))
 
