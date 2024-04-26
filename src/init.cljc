@@ -34,10 +34,10 @@
                                                 :where [?e :domain/id]]
                                               @conn))
         init-resources (map first (ds/q '[:find ?e
-                                          :where [?e :resource/title]]
+                                          :where [?e :entity-type "resource"]]
                                         @conn))
         init-actions (map first (ds/q '[:find ?e
-                                        :where [?e :action/title]]
+                                        :where [?e :entity-type "action"]]
                                       @conn))
         _ (ds/transact! conn (creature-data/example-creatures init-domain-entities init-resources init-actions))]
     :success))

@@ -3,6 +3,7 @@
 
 (def example-actions
   [{:title "Physical Health Check"
+    :entity-type "action"
     :action/description ""
     :action/skill "Endurance"
     :action/ability ""
@@ -14,6 +15,7 @@
     :action/target-number 0}
 
    {:title "Spiritual Health Check"
+    :entity-type "action"
     :action/description ""
     :action/skill "Perseverance"
     :action/ability ""
@@ -25,6 +27,7 @@
     :action/target-number 0}
 
    {:title "Mental Health Check"
+    :entity-type "action"
     :action/description ""
     :action/skill "Comprehension"
     :action/ability ""
@@ -36,6 +39,7 @@
     :action/target-number 0}
 
    {:title "Social Health Check"
+    :entity-type "action"
     :action/description ""
     :action/skill "Connections"
     :action/ability ""
