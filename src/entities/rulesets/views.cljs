@@ -32,7 +32,6 @@
                       :shows-horizontal-scroll-indicator false
                       :shows-vertical-scroll-indicator false}
     (map (fn [data-keys section-title]
-           (println (type (apply str (interpose "\n" (vals (select-keys ruleset-data data-keys))))))
            [:> rn/ScrollView {:style {:width (screen-width)
                                       :height :auto}}
             (components/default-text {:style {:font-size 24} :text section-title})

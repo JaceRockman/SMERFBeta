@@ -27,15 +27,12 @@
 (defn get-active-ruleset-id
   [conn]
   (let [nav-state (navigation/get-main-nav-state-list conn)]
-    (println nav-state)
     (when (and (= "rulesets" (first nav-state))
                (< 1 (count nav-state)))
       (int (second nav-state)))))
 
 (defn get-active-ruleset
   [conn]
-  (println (when-let [active-ruleset-id (get-active-ruleset-id conn)]
-             (ds/pull @conn '[*] active-ruleset-id)))
   (when-let [active-ruleset-id (get-active-ruleset-id conn)]
     (ds/pull @conn '[*] active-ruleset-id)))
 

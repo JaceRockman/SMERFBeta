@@ -181,7 +181,6 @@ like their name, gender, race, and description. Below that will be a section for
   [conn]
   (let [active-campaign-data (campaign-data/get-active-campaign conn)
         active-creature-data (creature-data/get-active-creature conn)]
-    (println active-creature-data)
     (cond
       active-creature-data (creature-details conn active-creature-data)
       active-campaign-data (creature-select conn (campaign-data/get-active-campaign-creatures conn))

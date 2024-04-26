@@ -9,8 +9,6 @@
   (let [current-nav-state (keyword (first (navigation/get-main-nav-state-list conn)))
         deselect (= current-nav-state destination)
         final-destination (if deselect :campaigns destination)]
-    (println current-nav-state)
-    (println final-destination)
     (button {:key destination
              :style (if deselect
                       {:width "100%" :height "100%" :background-color :black :align-self :center

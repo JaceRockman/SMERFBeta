@@ -27,7 +27,7 @@
 
 (defn recursive-realm-entity-details
   [conn realm-id]
-  (let [all-entities (recursively-get-children-entities conn (flatten [realm-id]))]
+  (let [all-entities (filter #(not (= realm-id %)) (recursively-get-children-entities conn (flatten [realm-id])))]
     (ds/pull-many @conn '[*] all-entities)))
 
 

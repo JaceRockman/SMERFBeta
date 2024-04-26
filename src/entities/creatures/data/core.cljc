@@ -24,8 +24,6 @@
 
 (defn get-active-creature
   [conn]
-  (println (when-let [active-creature-id (get-active-creature-id conn)]
-    (ds/pull @conn '[*] active-creature-id)))
   (when-let [active-creature-id (get-active-creature-id conn)]
     (ds/pull @conn '[*] active-creature-id)))
 
