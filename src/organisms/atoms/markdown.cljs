@@ -19,7 +19,6 @@
 
 (defn default-markdown
   [conn input & variant]
-  (println (type input))
   [:> Markdown {:style {:body {:color :white :padding-left 20 :padding-right 20}} :rules (rules conn :realm)}
    input])
 
