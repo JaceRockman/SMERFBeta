@@ -2,6 +2,48 @@
   (:require [datascript.core :as ds]
             [systems.navigation :as navigation]))
 
+(def ^:private test-schema
+  {:realm/children-entities {:db/cardinality :db.cardinality/many
+                       :db/valueType :db.type/ref
+                       :db/isComponent true}})
+
+(def test-datoms
+  (->>
+   [[1 :title "Commonlands"]
+    [2 :title "Humans"]
+    [3 :title "Dwarves"]
+    [4 :title "Elves"]
+    [1 :realm/children-entities [2 3]]]
+   (map #(apply ds/datom %))))
+
+(def string-ids
+  [{
+    :title "Commonlands"
+    :realm/children-entities ["humans" "dwarves"]}
+   {:title "Outwilds"
+    :realm/children-entities ["elves"]}
+   {:db/id "humans"
+    :title "Humans"}
+   {:db/id "dwarves"
+    :title "Dwarves"}
+   {:db/id "elves"
+    :title "Elves"}])
+
+(def test-conn (ds/create-conn test-schema))
+
+(def test-db (:db-after (ds/transact! test-conn string-ids)))
+(def test-db-2 (ds/init-db test-datoms test-schema))
+
+(println test-db)
+(println test-db-2)
+(println (ds/pull-many test-db '[:realm/_children-entities] [2 3]))
+
+
+
+
+
+
+
 (defn get-all-realm-ids
   [conn]
   (map first (ds/q '[:find ?e
@@ -25,11 +67,30 @@
        old-ids
        (recursively-get-children-entities conn (distinct (concat old-ids new-children)) new-children)))))
 
+
+(defn recursively-get-parent-entities
+  ([conn ids]
+   (let [parents (remove nil? (map #(get-in % [:realm/_children-entities :db/id]) (ds/pull-many @conn '[:realm/_children-entities] ids)))]
+     (println (concat ids parents))
+     (if (empty? parents)
+       ids
+       (recursively-get-parent-entities conn (distinct (concat ids parents)) parents))))
+  ([conn old-ids new-ids]
+   (let [new-parents (remove nil? (map #(get-in % [:realm/_children-entities :db/id]) (ds/pull-many @conn '[:realm/_children-entities] new-ids)))]
+     (if (empty? new-parents)
+       old-ids
+       (recursively-get-parent-entities conn (distinct (concat old-ids new-parents)) new-parents)))))
+
 (defn recursive-realm-entity-details
   [conn realm-id]
   (let [all-entities (filter #(not (= realm-id %)) (recursively-get-children-entities conn (flatten [realm-id])))]
     (ds/pull-many @conn '[*] all-entities)))
 
+(defn recursive-realm-parent-details
+  [conn realm-entity-id]
+  (let [all-entities (filter #(not (= realm-entity-id %)) (recursively-get-parent-entities conn [realm-entity-id]))]
+    (println all-entities)
+    (ds/pull-many @conn '[*] all-entities)))
 
 (defn get-active-realm-id
   [conn]

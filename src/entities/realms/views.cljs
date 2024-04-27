@@ -52,21 +52,43 @@
 (defn realm-details [conn subrealm-data]
   [:> rn/ScrollView {:style {:flex :1}}
    (components/default-realm-markdown conn (:realm/entity-details subrealm-data))
-   (when (not (empty? (:realm/children-entities subrealm-data)))
-     (let [flex-vals [1 1 1]
-           children (:realm/children-entities subrealm-data)]
-       (components/search-filter-sort-list
-        {:items children
-         :column-headers ["Title" "Category" "Owner"]
-         :column-flex-vals flex-vals
-         :item-format-fn (fn [realm-data]
-                           [:> rn/Pressable {:style {:flex-direction :row}
-                                             :on-press (fn [] (realm-data/set-active-subrealm
-                                                               conn
-                                                               (:id realm-data)))}
-                            (components/default-text {:style {:flex (nth flex-vals 0)} :text (:title realm-data)})
-                            (components/default-text {:style {:flex (nth flex-vals 0)} :text (:entity-type realm-data)})
-                            (components/default-text {:style {:flex (nth flex-vals 1)} :text "Avis Industries"})])})))])
+   (let [flex-vals [1 1 1]
+         children (:realm/children-entities subrealm-data)
+         parents (realm-data/get-realm-entity-parents conn (:db/id subrealm-data))]
+     [:> rn/View
+      (when-not (empty? parents)
+        (components/search-filter-sort-list
+         {:list-header "Parents"
+          :items parents
+          :column-headers ["Title" "Category" "Owner"]
+          :column-flex-vals flex-vals
+          :item-format-fn (fn [realm-data]
+                            [:> rn/Pressable {:style {:flex-direction :row}
+                                              :on-press (fn [] (if (= "realm" (:entity-type realm-data))
+                                                                 (realm-data/set-active-realm
+                                                                  conn
+                                                                  (:id realm-data))
+                                                                 (realm-data/set-active-subrealm
+                                                                  conn
+                                                                  (:id realm-data))))}
+                             (components/default-text {:style {:flex (nth flex-vals 0)} :text (:title realm-data)})
+                             (components/default-text {:style {:flex (nth flex-vals 0)} :text (:entity-type realm-data)})
+                             (components/default-text {:style {:flex (nth flex-vals 1)} :text "Avis Industries"})])}))
+      
+      (when-not (empty? children)
+        (components/search-filter-sort-list
+         {:list-header "Children"
+          :items children
+          :column-headers ["Title" "Category" "Owner"]
+          :column-flex-vals flex-vals
+          :item-format-fn (fn [realm-data]
+                            [:> rn/Pressable {:style {:flex-direction :row}
+                                              :on-press (fn [] (realm-data/set-active-subrealm
+                                                                conn
+                                                                (:id realm-data)))}
+                             (components/default-text {:style {:flex (nth flex-vals 0)} :text (:title realm-data)})
+                             (components/default-text {:style {:flex (nth flex-vals 0)} :text (:entity-type realm-data)})
+                             (components/default-text {:style {:flex (nth flex-vals 1)} :text "Avis Industries"})])}))])])
 
 (defn realm-home [conn]
   (let [active-campaign-data (campaign-data/get-active-campaign conn)
