@@ -34,14 +34,15 @@
   (reset! collapse-state {}))
 
 (defn navigate!
-  [conn keyword-url]
+  [conn keyword-url & dont-return?]
   (reset-temp-state)
   (let [url (if (coll? keyword-url)
               (apply str (interpose "/" keyword-url))
               (name keyword-url))
-        history (get-nav-history conn)]
+        history (get-nav-history conn)
+        return-url (when-not dont-return? (some #(if (= (subs % 0 (count url)) url) % false) history))]
     (when (not (= (first history) url))
-      (ds/transact! conn [[:db/add 1 :navigator/history (conj history url)]]))))
+      (ds/transact! conn [[:db/add 1 :navigator/history (conj history (or return-url url))]]))))
 
 (defn subnavigate
   [conn subsection]
@@ -62,6 +63,14 @@
                       (rest history)
                       history)]
     (ds/transact! conn [[:db/add 1 :navigator/history updated-history]])))
+
+(defn nav-out
+  [conn]
+  (let [nav-state-list (get-main-nav-state-list conn)
+        navigation-collection (if (= 1 (count nav-state-list))
+                                "campaigns"
+                                (butlast nav-state-list))]
+    (navigate! conn navigation-collection true)))
 
 (defn get-modal-content
   [conn]

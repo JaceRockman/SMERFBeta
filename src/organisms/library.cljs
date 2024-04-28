@@ -13,6 +13,12 @@
             [organisms.compounds.tab-bar :refer [tab-bar]]
             [organisms.environments.modals :refer [modal]]))
 
+(defn out-button
+  [conn]
+  [:> rn/Pressable {:style {:width "5%"}
+                    :on-press #(navigation/nav-out conn)}
+   [:> FontAwesome5 {:name :arrow-up :color :white :size 20}]])
+
 (defn back-button
   [conn]
   [:> rn/Pressable {:style {:width "5%"}
@@ -28,9 +34,10 @@
   [conn]
   (let [title (navigation/get-current-nav-state-title conn)]
     [:> rn/View {:style {:flex-direction :row :width "100%" :height "5%" :padding 10 :align-items :center}}
-   (back-button conn)
-   (text/view-header-text {:text title :style {:width "90%" :color :white}})
-   (settings-button conn)]))
+     (back-button conn)
+     (out-button conn)
+     (text/view-header-text {:text title :style {:width "90%" :color :white}})
+     (settings-button conn)]))
 
 (defn view-frame
   [conn content]
