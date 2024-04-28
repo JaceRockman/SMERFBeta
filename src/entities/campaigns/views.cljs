@@ -22,7 +22,8 @@
                        (components/default-text {:style {:flex 1}
                                                  :text title})
                        (components/default-text {:style {:flex 1}
-                                                 :text (or owner "Avis Industries")})])}))
+                                                 :text (or owner "Avis Industries")})])}
+   (str "campaigns")))
 
 (defn campaign-select
   [conn campaigns-data]

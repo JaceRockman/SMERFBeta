@@ -45,7 +45,8 @@
       :column-headers   ["Title" "Roll Value" "Start Roll"]
       :column-flex-vals flex-vals
       :item-format-fn   (action-constructor flex-vals)
-      :sort-fns         [sort-by-domain]})))
+      :sort-fns         [sort-by-domain]}
+     (str creature-id "actions"))))
 
 (defn actions-details [conn]
   (let [actions (action-data/get-all-actions conn)]

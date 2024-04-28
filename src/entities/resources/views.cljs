@@ -40,7 +40,8 @@
       :column-headers   ["Title" "Quality" "Power" "Quantity"]
       :column-flex-vals flex-vals
       :item-format-fn   #((resource conn flex-vals) % (get quantities (:db/id resource)))
-      :init-sort-fns    [sort-resources-by-type]})))
+      :init-sort-fns    [sort-resources-by-type]}
+     "resources")))
 
 (defn resources-main-page [conn]
   (let [resources (resource-data/get-all-resources conn)]

@@ -38,7 +38,8 @@ like their name, gender, race, and description. Below that will be a section for
                                                        conn
                                                        (:id creature-data)))}
                          (components/default-text {:style {:flex (nth flex-vals 0)} :text (:title creature-data)})
-                         (components/default-text {:style {:flex (nth flex-vals 1)} :text "Avis Industries"})])})))
+                         (components/default-text {:style {:flex (nth flex-vals 1)} :text "Avis Industries"})])}
+     "creatures")))
 
 (def card-style
   {:background-color :gray

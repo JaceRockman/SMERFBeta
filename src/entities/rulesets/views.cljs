@@ -21,7 +21,8 @@
                                                        conn
                                                        (:id ruleset-data)))}
                          (components/default-text {:style {:flex (nth flex-vals 0)} :text (:title ruleset-data)})
-                         (components/default-text {:style {:flex (nth flex-vals 1)} :text (:complexity ruleset-data)})])})))
+                         (components/default-text {:style {:flex (nth flex-vals 1)} :text (:complexity ruleset-data)})])}
+     "rulesets")))
 
 (defn ruleset-details [conn ruleset-data]
   [:> rn/View

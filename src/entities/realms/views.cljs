@@ -22,7 +22,8 @@
                                                            conn
                                                            (:id realm-data)))}
                          (components/default-text {:style {:flex (nth flex-vals 0)} :text (:title realm-data)})
-                         (components/default-text {:style {:flex (nth flex-vals 1)} :text "Avis Industries"})])})))
+                         (components/default-text {:style {:flex (nth flex-vals 1)} :text "Avis Industries"})])}
+     "realms")))
 
 (defn subrealm-sort
   [realm-entities]
@@ -47,7 +48,8 @@
                                                      :text  (:title realm-entity)})
                            (components/default-text {:style {:flex (nth flex-vals 0)}
                                                      :text  "System"})])
-      :sort-fns         [subrealm-sort]})))
+      :sort-fns         [subrealm-sort]}
+     "subrealm")))
 
 (defn realm-details [conn subrealm-data]
   [:> rn/ScrollView {:style {:flex :1}}
@@ -59,6 +61,7 @@
       (when-not (empty? parents)
         (components/search-filter-sort-list
          {:list-header "Parents"
+          :collapsed? true
           :items parents
           :column-headers ["Title" "Category" "Owner"]
           :column-flex-vals flex-vals
@@ -73,11 +76,12 @@
                                                                   (:id realm-data))))}
                              (components/default-text {:style {:flex (nth flex-vals 0)} :text (:title realm-data)})
                              (components/default-text {:style {:flex (nth flex-vals 0)} :text (:entity-type realm-data)})
-                             (components/default-text {:style {:flex (nth flex-vals 1)} :text "Avis Industries"})])}))
+                             (components/default-text {:style {:flex (nth flex-vals 1)} :text "Avis Industries"})])} (str (:title subrealm-data) "Parents")))
       
       (when-not (empty? children)
         (components/search-filter-sort-list
          {:list-header "Children"
+          :collapsed? true
           :items children
           :column-headers ["Title" "Category" "Owner"]
           :column-flex-vals flex-vals
@@ -88,7 +92,7 @@
                                                                 (:id realm-data)))}
                              (components/default-text {:style {:flex (nth flex-vals 0)} :text (:title realm-data)})
                              (components/default-text {:style {:flex (nth flex-vals 0)} :text (:entity-type realm-data)})
-                             (components/default-text {:style {:flex (nth flex-vals 1)} :text "Avis Industries"})])}))])])
+                             (components/default-text {:style {:flex (nth flex-vals 1)} :text "Avis Industries"})])} (str (:title subrealm-data) "Children")))])])
 
 (defn realm-home [conn]
   (let [active-campaign-data (campaign-data/get-active-campaign conn)

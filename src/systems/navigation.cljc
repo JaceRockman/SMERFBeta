@@ -1,6 +1,7 @@
 (ns systems.navigation
   (:require [clojure.string :as str]
-            [datascript.core :as ds]))
+            [datascript.core :as ds]
+            [organisms.compounds.search-filter-sort-list :refer [external-search-text collapse-state]]))
 
 (defn get-nav-history
   [conn]
@@ -27,8 +28,14 @@
                                     @conn (int current-nav-state)))
                       current-nav-state))))
 
+(defn reset-temp-state
+  []
+  (reset! external-search-text {})
+  (reset! collapse-state {}))
+
 (defn navigate!
   [conn keyword-url]
+  (reset-temp-state)
   (let [url (if (coll? keyword-url)
               (apply str (interpose "/" keyword-url))
               (name keyword-url))

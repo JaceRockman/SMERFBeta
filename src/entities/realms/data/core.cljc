@@ -2,48 +2,6 @@
   (:require [datascript.core :as ds]
             [systems.navigation :as navigation]))
 
-(def ^:private test-schema
-  {:realm/children-entities {:db/cardinality :db.cardinality/many
-                       :db/valueType :db.type/ref
-                       :db/isComponent true}})
-
-(def test-datoms
-  (->>
-   [[1 :title "Commonlands"]
-    [2 :title "Humans"]
-    [3 :title "Dwarves"]
-    [4 :title "Elves"]
-    [1 :realm/children-entities [2 3]]]
-   (map #(apply ds/datom %))))
-
-(def string-ids
-  [{
-    :title "Commonlands"
-    :realm/children-entities ["humans" "dwarves"]}
-   {:title "Outwilds"
-    :realm/children-entities ["elves"]}
-   {:db/id "humans"
-    :title "Humans"}
-   {:db/id "dwarves"
-    :title "Dwarves"}
-   {:db/id "elves"
-    :title "Elves"}])
-
-(def test-conn (ds/create-conn test-schema))
-
-(def test-db (:db-after (ds/transact! test-conn string-ids)))
-(def test-db-2 (ds/init-db test-datoms test-schema))
-
-(println test-db)
-(println test-db-2)
-(println (ds/pull-many test-db '[:realm/_children-entities] [2 3]))
-
-
-
-
-
-
-
 (defn get-all-realm-ids
   [conn]
   (map first (ds/q '[:find ?e
