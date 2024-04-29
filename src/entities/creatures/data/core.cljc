@@ -70,6 +70,14 @@
     (ds/transact! conn [{:db/id domain-id
                               wound-type-keyword new-wound-quantity}])))
 
+(defn get-creature-domain-damage
+  [conn domain-id wound-severity]
+  (let [wound-type-keyword (keyword (str "domain/" (str/lower-case wound-severity) "-wounds"))]
+    (ffirst (ds/q '[:find ?wound-quantity
+                    :in $ ?id ?key
+                    :where [?id ?key ?wound-quantity]]
+                  @conn domain-id wound-type-keyword))))
+
 (defn example-creatures
   [default-domain-entities example-resources default-actions]
   [{:creature/domains default-domain-entities

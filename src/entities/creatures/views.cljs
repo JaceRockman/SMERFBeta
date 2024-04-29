@@ -2,27 +2,22 @@
   (:require
    [clojure.string :as str]
    [datascript.core :as ds]
+   [reagent.core :as r]
    ["react-native" :as rn]
    ["@expo/vector-icons" :refer [FontAwesome5]]
+   [systems.navigation :as navigation]
    [entities.campaigns.data.interface :as campaign-data]
    [entities.actions.data.interface :as action-data]
    [entities.creatures.data.interface :as creature-data]
    [entities.resources.views :as resources-view]
    [entities.actions.views :as actions-view]
-   [organisms.library :as components]))
+   [organisms.library :as components]
+   [organisms.environments.modals :as modals]))
 
 #_"The Creature page will show the portrait and main details of the creature at the top
 like their name, gender, race, and description. Below that will be a section for their stats in each domain and their damage trackers. Below that will be a search bar for viewing their resources that automatically shows their favorites and has a button to show all and a plus button to add a new resource which takes you to the resources tab of the app. Each of the resources will list their name, their quality, their power, and their quantity with the ability to increase or decrease. Below that will be another search bar for viewing their actions that automatically shows their favorites and has a button to show all and a plus button to add a new action which takes you to the action tab of the app. Each of the actions will list their name, their quality, their power, and a button to start a roll with that action."
 
 (defn screen-width [] (.-width js/screen))
-
-(defn creature-list-nav-button
-  []
-  (components/button {:style {:background-color :inherit}
-           :on-press #(println "navigate to creature list")}
-          [:> rn/View {:style {:flex-direction :row}}
-           [:> FontAwesome5 {:name :chevron-left :color :white :size 16}]
-           [:> FontAwesome5 {:name :search :color :white :size 14}]]))
 
 (defn creature-select
   [conn creatures]
@@ -77,21 +72,39 @@ like their name, gender, race, and description. Below that will be a section for
 (defn damage-severity-tracker
   [conn domain-id {:keys [severity-title damage-quantity]}]
   [:> rn/View {:style {:flex 1}}
-   (components/default-text {:style {:flex 1} :text (str severity-title " Wounds")})
+   (components/default-text {:style {:flex 1 :color :black} :text (str severity-title " Wounds")})
    [:> rn/View {:style {:flex-direction :row :align-items :center}}
     [:> rn/Image {:style {:flex 1}}]
-    (components/button {:style {:color :white :padding 2 :background-color :inherit} :on-press #(creature-data/update-wound-value conn domain-id severity-title dec)} "-")
-    (components/default-text {:text damage-quantity})
-    (components/button {:style {:color :white :padding 2 :background-color :inherit} :on-press #(creature-data/update-wound-value conn domain-id severity-title inc)} "+")
+    (components/button {:style {:padding 2 :background-color :inherit}
+                        :text-style {:color :black}
+                        :on-press #(creature-data/update-wound-value conn domain-id severity-title dec)} "-")
+    (components/default-text {:style {:color :black} :text damage-quantity})
+    (components/button {:style {:padding 2 :background-color :inherit}
+                        :text-style {:color :black}
+                        :on-press #(creature-data/update-wound-value conn domain-id severity-title inc)} "+")
     [:> rn/Image {:style {:flex 1}}]]])
 
-(defn domain-damage [conn domain-id minor-wounds major-wounds]
-  [:> rn/View
-   [:> rn/View {:style {:flex-direction :row}}
-    (damage-severity-tracker conn domain-id {:severity-title "Minor" :damage-quantity minor-wounds})
-    (damage-severity-tracker conn domain-id {:severity-title "Major" :damage-quantity major-wounds})]
-   [:> rn/View {:style {:flex 1}}
-    (components/default-text {:style {:flex 1} :text (str "Total Damage: " (+ minor-wounds (* 2 major-wounds)))})]])
+(defn domain-damage-modal
+  [conn domain-id minor-wounds major-wounds]
+  [:> rn/View {:style {:flex-direction :row}}
+   (damage-severity-tracker
+    conn
+    domain-id
+    {:severity-title "Minor" :damage-quantity (creature-data/get-creature-domain-damage conn domain-id "minor")})
+   (damage-severity-tracker
+    conn
+    domain-id
+    {:severity-title "Major" :damage-quantity (creature-data/get-creature-domain-damage conn domain-id "major")})])
+
+(defn domain-damage [conn domain-id]
+  (let [minor-wounds (creature-data/get-creature-domain-damage conn domain-id "minor")
+        major-wounds (creature-data/get-creature-domain-damage conn domain-id "major")]
+    [:> rn/View
+     [:> rn/View {:style {:flex 1}}
+      (components/button {:style {:flex 1}
+                          :on-press #(reset! modals/modal-content {:fn domain-damage-modal :args [conn domain-id]})}
+                         (str "Damage: " (+ minor-wounds (* 2 major-wounds))))]]))
+
 
 (defn stats-domain
   [conn
@@ -111,7 +124,7 @@ like their name, gender, race, and description. Below that will be a section for
     [skillbility "Initiation" initiation-value dominance-value]
     [skillbility "Reaction" reaction-value competence-value]
     [skillbility "Continuation" continuation-value resilience-value]]
-   (domain-damage conn id minor-wounds major-wounds)])
+   (domain-damage conn id)])
 
 (defn section-divider []
   [:> rn/View {:style {:background-color :lavender :width "80%" :height 2 :align-self :center}}])

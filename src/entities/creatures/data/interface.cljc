@@ -8,6 +8,7 @@
 (def get-active-creature core/get-active-creature)
 (def get-creature-races core/get-creature-races)
 (def get-creature-domains core/get-creature-domains)
+(def get-creature-domain-damage core/get-creature-domain-damage)
 
 (def update-creature)
 (def update-wound-value core/update-wound-value)

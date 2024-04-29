@@ -49,7 +49,7 @@
    (view-frame-header conn)
    [:> rn/View {:style {:height "90%" :width "100%"}} content]
    (tab-bar conn)
-   (modal conn)])
+   (modal)])
 
 (def button buttons/button)
 (def primary-button buttons/primary-button)
@@ -63,4 +63,3 @@
 (def default-realm-markdown markdown/default-realm-markdown)
 
 (def search-filter-sort-list sfs-list/search-filter-sort-list)
-
