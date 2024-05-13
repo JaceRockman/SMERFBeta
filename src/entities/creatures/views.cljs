@@ -101,7 +101,7 @@ like their name, gender, race, and description. Below that will be a section for
         major-wounds (creature-data/get-creature-domain-damage conn domain-id "major")]
     [:> rn/View
      [:> rn/View {:style {:flex 1}}
-      (components/button {:style {:flex 1}
+      (components/button {:style {:flex 1 :background-color :blue}
                           :on-press #(reset! modals/modal-content {:fn domain-damage-modal :args [conn domain-id]})}
                          (str "Damage: " (+ minor-wounds (* 2 major-wounds))))]]))
 
