@@ -1,7 +1,8 @@
 (ns systems.navigation
   (:require [clojure.string :as str]
             [datascript.core :as ds]
-            [organisms.compounds.search-filter-sort-list :refer [external-search-text collapse-state]]))
+            [organisms.compounds.search-filter-sort-list :refer [external-search-text collapse-state]]
+            [organisms.molecules.scroll-position-indicator :refer [ruleset-horizontal-position creature-horizontal-position]]))
 
 (defn get-nav-history
   [conn]
@@ -31,7 +32,9 @@
 (defn reset-temp-state
   []
   (reset! external-search-text {})
-  (reset! collapse-state {}))
+  (reset! collapse-state {})
+  (reset! ruleset-horizontal-position 0)
+  (reset! creature-horizontal-position 0))
 
 (defn navigate!
   [conn keyword-url & dont-return?]

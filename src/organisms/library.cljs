@@ -8,6 +8,7 @@
             [organisms.atoms.markdown :as markdown]
             [organisms.atoms.text :as text]
             [organisms.molecules.lists :as lists]
+            [organisms.molecules.scroll-position-indicator :as spi]
             [organisms.compounds.search-filter-sort-list :as sfs-list]
             [organisms.compounds.nav-bar :refer [nav-bar]]
             [organisms.compounds.tab-bar :refer [tab-bar]]
@@ -63,3 +64,7 @@
 (def default-realm-markdown markdown/default-realm-markdown)
 
 (def search-filter-sort-list sfs-list/search-filter-sort-list)
+
+(def scroll-position-indicator spi/scroll-position-indicator)
+(def ruleset-horizontal-position spi/ruleset-horizontal-position)
+(def creature-horizontal-position spi/creature-horizontal-position)

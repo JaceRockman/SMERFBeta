@@ -5,7 +5,7 @@
    [datascript.core :as ds]
    [reagent.core :as r]
    ["react-native" :as rn]
-   ["@expo/vector-icons" :refer [FontAwesome5 Entypo]]
+   ["@expo/vector-icons" :refer [FontAwesome5]]
    [systems.navigation :as navigation]
    [entities.campaigns.data.interface :as campaign-data]
    [entities.actions.data.interface :as action-data]
@@ -177,34 +177,30 @@ like their name, gender, race, and description. Below that will be a section for
   [:> rn/ScrollView {:style {:width (screen-width)}}
    (components/default-text {:text notes})])
 
-(def creature-horizontal-position (r/atom 0))
-
 (defn creature [conn creature-data]
-  (let [creature-sections ["Stats" "Resources" "Actions" "Info" "Notes"]]
-    [:> rn/View {:style {:width  "100%"
-                         :height "100%"}}
-     [:> rn/View {:style {:width "100%" :align-items :center :justify-content :center :flex-direction :row :gap 3}}
-      (doall (map (fn [section]
-                    [:> Entypo {:name "dot-single" :color (if (= section (get creature-sections @creature-horizontal-position)) :white "rgba(255, 255, 255, 0.5)") :size 20}])
-                  creature-sections))]
-     [:> rn/ScrollView {:on-scroll
-                        (fn [scroll-data]
-                          (reset! creature-horizontal-position
-                                  (math/round (/
-                                               (get-in (js->clj scroll-data)
-                                                       ["nativeEvent" "contentOffset" "x"])
-                                               412))))
-                        :scrollEventThrottle             32
-                        :paging-enabled                  true
-                        :horizontal                      :true
-                        :showsHorizontalScrollIndicator  true
-                        :shows-vertical-scroll-indicator false}
+  [:> rn/View {:style {:width  "100%"
+                       :height "100%"}}
+   (components/scroll-position-indicator
+    components/creature-horizontal-position
+    ["Stats" "Resources" "Actions" "Info" "Notes"])
+   [:> rn/ScrollView {:on-scroll
+                      (fn [scroll-data]
+                        (reset! components/creature-horizontal-position
+                                (math/round (/
+                                             (get-in (js->clj scroll-data)
+                                                     ["nativeEvent" "contentOffset" "x"])
+                                             412))))
+                      :scrollEventThrottle             32
+                      :paging-enabled                  true
+                      :horizontal                      true
+                      :showsHorizontalScrollIndicator  false
+                      :shows-vertical-scroll-indicator false}
 
-      (stats conn creature-data)
-      (resources conn creature-data)
-      (actions conn creature-data)
-      (info conn creature-data)
-      (notes creature-data)]]))
+    (stats conn creature-data)
+    (resources conn creature-data)
+    (actions conn creature-data)
+    (info conn creature-data)
+    (notes creature-data)]])
 
 (defn creature-details [conn creature-data]
   [:> rn/View {:style {:width "100%" :height "100%" :text-align :center}}
