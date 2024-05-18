@@ -12,7 +12,7 @@
             [organisms.compounds.search-filter-sort-list :as sfs-list]
             [organisms.compounds.nav-bar :refer [nav-bar]]
             [organisms.compounds.tab-bar :refer [tab-bar]]
-            [organisms.environments.modals :refer [modal]]))
+            [organisms.environments.modals :as modals]))
 
 (defn out-button
   [conn]
@@ -50,7 +50,9 @@
    (view-frame-header conn)
    [:> rn/View {:style {:height "90%" :width "100%"}} content]
    (tab-bar conn)
-   (modal)])
+   (modals/modal)])
+
+(def modal-content modals/modal-content)
 
 (def button buttons/button)
 (def primary-button buttons/primary-button)

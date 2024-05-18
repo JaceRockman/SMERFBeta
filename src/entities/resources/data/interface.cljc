@@ -3,7 +3,7 @@
 
 (def create-resource)
 
-(def get-resource)
+(def get-resource core/get-resource-by-id)
 (def get-all-resources core/get-all-resources)
 
 (def update-resource)

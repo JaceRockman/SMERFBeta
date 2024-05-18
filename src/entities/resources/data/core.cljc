@@ -57,7 +57,11 @@
     :resource/description "Membership in the Mercenary's Guild can gain you access to quests, equipment, training, assistance, etc."}])
 
 (defn get-all-resources [conn]
-  (let [resource-ids (map first(ds/q '[:find ?eid
+  (let [resource-ids (map first (ds/q '[:find ?eid
                                        :where [?eid :entity-type "resource"]]
                                      @conn))]
     (ds/pull-many @conn '[*] resource-ids)))
+
+(defn get-resource-by-id
+  [conn resource-id]
+  (ds/pull @conn '[*] resource-id))
