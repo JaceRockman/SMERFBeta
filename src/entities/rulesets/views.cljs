@@ -36,7 +36,6 @@
               :height "100%"}}
      [:> rn/View {:style {:width "100%" :align-items :center :justify-content :center :flex-direction :row :gap 3}}
       (doall (map (fn [section]
-                    (println @ruleset-horizontal-position)
                     [:> Entypo {:name "dot-single" :color (if (= section (get ruleset-sections @ruleset-horizontal-position)) :white "rgba(255, 255, 255, 0.5)") :size 20}])
                   ruleset-sections))]
      [:> rn/ScrollView {:on-scroll                       #(reset! ruleset-horizontal-position (math/round (/ (get-in (js->clj %) ["nativeEvent" "contentOffset" "x"]) 412)))
