@@ -42,7 +42,7 @@
                                                 :text-align :center
                                                 :padding-right 10}
                                         :text list-header})]
-    [:> rn/View {:style {:width "100%" :padding 10}}
+    [:> rn/View {:style {:width "100%" :height "100%" :padding 10}}
      (if (not (nil? collapsed?))
        (buttons/button {:style {:background-color :inherit :align-items :center :justify-content :center}
                         :on-press #(swap! collapse-state (fn [collapse-map]

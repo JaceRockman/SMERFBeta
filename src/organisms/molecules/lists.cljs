@@ -1,7 +1,23 @@
 (ns organisms.molecules.lists
   (:require [reagent.core :as r]
             ["react-native" :as rn]
+            [organisms.config :as config]
             [organisms.atoms.text :as text]))
+
+(defn section-separator
+  []
+  [:> rn/View {:style {:height           2
+                       :width            "90%"
+                       :background-color :white
+                       :align-self       :center}}])
+
+(defn item-separator
+  []
+  (fn []
+    (r/as-element [:> rn/View {:style {:height           1
+                                       :width            "80%"
+                                       :background-color :white
+                                       :align-self       :center}}])))
 
 (defn SectionList
   [{:keys [items headers flex-vals row-constructor]}]
@@ -14,7 +30,7 @@
       (let [clj-section       (clojure.walk/keywordize-keys (js->clj section))
             clj-section-title (-> clj-section :section :title)]
         (r/as-element
-         [:> rn/View
+         [:> rn/View {:style {:background-color (:color-surface-100 config/default-palette)}}
           (text/default-text {:style {:font-size  24
                                       :text-align :center
                                       :padding    10}
@@ -25,19 +41,20 @@
                                               :font-size 16}
                                       :text  header}))
                 headers
-                flex-vals)]])))
+                flex-vals)]
+          (section-separator)])))
 
     :render-item
     (fn [js-item]
       (let [clj-item (js->clj (.-item js-item))]
         (r/as-element (row-constructor (clojure.walk/keywordize-keys clj-item)))))
 
-    :SectionSeparatorComponent
-    (fn []
-      (r/as-element [:> rn/View {:style {:height           2
-                                         :width            "90%"
-                                         :background-color :white
-                                         :align-self       :center}}]))
+    #_:SectionSeparatorComponent
+    #_(fn []
+        (r/as-element [:> rn/View {:style {:height           2
+                                           :width            "90%"
+                                           :background-color :white
+                                           :align-self       :center}}]))
 
     :ItemSeparatorComponent
     (fn []
@@ -67,7 +84,7 @@
     :ListHeaderComponent
     (fn []
       (r/as-element
-       [:> rn/View {:style {:flex-direction :row}}
+       [:> rn/View {:style {:flex-direction :row :background-color (:color-surface-100 config/default-palette)}}
         (map (fn [header flex]
                (text/default-text {:style {:flex flex}
                                    :text  header}))
