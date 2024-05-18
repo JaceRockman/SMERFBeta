@@ -106,9 +106,7 @@
                                               disabled-style))
                     :on-press on-press
                     :disabled disabled?}
-   [:> rn/Text {:style (cond-> {:padding-left  12
-                                :padding-right 12
-                                :font-weight   :bold
+   [:> rn/Text {:style (cond-> {:font-weight   :bold
                                 :font-size     18
                                 :color         :white}
                          :always (merge text-style)

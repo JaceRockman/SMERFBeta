@@ -99,19 +99,22 @@ like their name, gender, race, and description. Below that will be a section for
 
 (defn domain-damage [conn domain-id]
   (let [minor-wounds (creature-data/get-creature-domain-damage conn domain-id "minor")
-        major-wounds (creature-data/get-creature-domain-damage conn domain-id "major")]
-    [:> rn/View
-     [:> rn/View {:style {:flex 1}}
-      (components/button {:style {:flex 1 :background-color :blue}
-                          :on-press #(reset! modals/modal-content {:fn domain-damage-modal :args [conn domain-id]})}
-                         (str "Damage: " (+ minor-wounds (* 2 major-wounds))))]]))
+        major-wounds (creature-data/get-creature-domain-damage conn domain-id "major")
+        update-damage-fn #(reset! modals/modal-content {:fn domain-damage-modal :args [conn domain-id]})]
+    [:> rn/View {:style {:flex-direction :row :align-items :center}}
+     (components/button {:style {:background-color :none}
+                         :on-press update-damage-fn}
+                        (str "Damage: " (+ minor-wounds (* 2 major-wounds))))
+     [:> rn/Pressable {:style {:top -6}
+                       :on-press update-damage-fn}
+      [:> FontAwesome5 {:name :edit :color :white :size 12}]]]))
 
 
 (defn stats-domain
   [conn
    {:keys
     [:db/id
-     :domain/name
+     :title
      :domain/initiation-title :domain/initiation-value
      :domain/reaction-title :domain/reaction-value
      :domain/continuation-title :domain/continuation-value
@@ -119,13 +122,29 @@ like their name, gender, race, and description. Below that will be a section for
      :domain/competence-title :domain/competence-value
      :domain/resilience-title :domain/resilience-value
      :domain/minor-wounds :domain/moderate-wounds :domain/major-wounds]}]
-  [:> rn/View
-   (components/default-text {:style {:font-size 24} :text name})
-   [:> rn/View {:style {:flex-direction :row :gap 5 :padding 5 :justify-content :space-evenly}}
-    [skillbility "Initiation" initiation-value dominance-value]
-    [skillbility "Reaction" reaction-value competence-value]
-    [skillbility "Continuation" continuation-value resilience-value]]
-   (domain-damage conn id)])
+  #_[:> rn/View
+     (components/default-text {:style {:font-size 24} :text name})
+     [:> rn/View {:style {:flex-direction :row :gap 5 :padding 5 :justify-content :space-evenly}}
+      [skillbility "Initiation" initiation-value dominance-value]
+      [skillbility "Reaction" reaction-value competence-value]
+      [skillbility "Continuation" continuation-value resilience-value]]
+     (domain-damage conn id)]
+  (let [flex-vals [3 1 1]
+        initiation-item {:title initiation-title :quality initiation-value :power dominance-value}
+        reaction-item {:title reaction-title :quality reaction-value :power competence-value}
+        continuation-item {:title continuation-title :quality continuation-value :power resilience-value}]
+    [:> rn/View {:style {:padding "0px 10px 0px 10px"}}
+     (components/default-text {:style {:font-size 24} :text title})
+     (components/flat-list {:items [initiation-item reaction-item continuation-item]
+                            :headers ["Title" "Quality" "Power"]
+                            :flex-vals flex-vals
+                            :row-constructor (fn [item]
+                                               [:> rn/Pressable {:style {:flex-direction :row}
+                                                                 :on-press (fn [])}
+                                                (components/default-text {:style {:flex (nth flex-vals 0)} :text (:title item)})
+                                                (components/default-text {:style {:flex (nth flex-vals 1)} :text (:quality item)})
+                                                (components/default-text {:style {:flex (nth flex-vals 1)} :text (str "d" (:power item))})])})
+     (domain-damage conn id)]))
 
 (defn section-divider []
   [:> rn/View {:style {:background-color :lavender :width "80%" :height 2 :align-self :center}}])

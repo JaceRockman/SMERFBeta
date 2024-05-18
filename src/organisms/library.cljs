@@ -63,6 +63,7 @@
 (def default-markdown markdown/default-markdown)
 (def default-realm-markdown markdown/default-realm-markdown)
 
+(def flat-list lists/FlatList)
 (def search-filter-sort-list sfs-list/search-filter-sort-list)
 
 (def scroll-position-indicator spi/scroll-position-indicator)
