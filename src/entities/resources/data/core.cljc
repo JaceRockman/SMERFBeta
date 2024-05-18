@@ -57,7 +57,13 @@
     :resource/description   "Membership in the Mercenary's Guild can gain you access to quests, equipment, training, assistance, etc."}
    {:entity-type "resource"
     :resource/quality-title "Quality"
-    :resource/properties [], :resource/power-title "Power" :resource/description "" :title "Dagger", :resource/power-value 0, :resource/type "Equipment" :resource/quality-value 3}
+    :resource/properties []
+    :resource/power-title "Power"
+    :resource/description ""
+    :title "Dagger"
+    :resource/power-value 0
+    :resource/type "Equipment"
+    :resource/quality-value 3}
    {:entity-type "resource" :resource/quality-title "Quality" :resource/properties [], :resource/power-title "Power" :resource/description "" :title "Shortsword", :resource/power-value 1, :resource/type "Equipment" :resource/quality-value 2}
    {:entity-type "resource" :resource/quality-title "Quality" :resource/properties [], :resource/power-title "Power" :resource/description "" :title "Greatsword", :resource/power-value 3, :resource/type "Equipment" :resource/quality-value 0}
    {:entity-type "resource" :resource/quality-title "Quality" :resource/properties [], :resource/power-title "Power" :resource/description "" :title "Handaxe", :resource/power-value 1, :resource/type "Equipment" :resource/quality-value 2}
@@ -76,28 +82,310 @@
    {:entity-type "resource" :resource/quality-title "Quality" :resource/properties [], :resource/power-title "Power" :resource/description "" :title "Buckler", :resource/power-value 1, :resource/type "Equipment" :resource/quality-value 3}
    {:entity-type "resource" :resource/quality-title "Quality" :resource/properties [], :resource/power-title "Power" :resource/description "" :title "Plate Armor", :resource/power-value 4, :resource/type "Equipment" :resource/quality-value -1}
    {:entity-type "resource" :resource/quality-title "Quality" :resource/properties [], :resource/power-title "Power" :resource/description "" :title "Chain Maille", :resource/power-value 3, :resource/type "Equipment" :resource/quality-value 0}
-   {:entity-type "resource" :resource/quality-title "Quality" :resource/properties [], :resource/power-title "Power" :resource/description "" :title "Leather Armor", :resource/power-value 2, :resource/type "Equipment" :resource/quality-value 1}])
+   {:entity-type "resource" :resource/quality-title "Quality" :resource/properties [], :resource/power-title "Power" :resource/description "" :title "Leather Armor", :resource/power-value 2, :resource/type "Equipment" :resource/quality-value 1}
+   {:title "Climber's Kit"
+    :entity-type "resource"
+    :resource/type "Equipment"
+    :resource/properties []
+    :resource/quality-title "Quality"
+    :resource/quality-value 1
+    :resource/power-title "Power"
+    :resource/power-value 2
+    :resource/description ""}
+   {:title "Climber's Kit"
+    :entity-type "resource"
+    :resource/type "Equipment"
+    :resource/properties []
+    :resource/quality-title "Quality"
+    :resource/quality-value 1
+    :resource/power-title "Power"
+    :resource/power-value 2
+    :resource/description ""}
+   {:title "Thieves' Kit"
+    :entity-type "resource"
+    :resource/type "Equipment"
+    :resource/properties []
+    :resource/quality-title "Quality"
+    :resource/quality-value 2
+    :resource/power-title "Power"
+    :resource/power-value 1
+    :resource/description ""}
+   {:title "Mediker's Kit"
+    :entity-type "resource"
+    :resource/type "Equipment"
+    :resource/properties []
+    :resource/quality-title "Quality"
+    :resource/quality-value 1
+    :resource/power-title "Power"
+    :resource/power-value 2
+    :resource/description ""}
+   {:title "Rites and Runes of the Eldari"
+    :entity-type "resource"
+    :resource/type "Equipment"
+    :resource/properties []
+    :resource/quality-title "Quality"
+    :resource/quality-value 1
+    :resource/power-title "Power"
+    :resource/power-value 1
+    :resource/description ""}
 
-(defn make-resource
-  [title type properties q-value p-value description]
-  {:title title
-   :entity-type "\"resource\""
-   :resource/type type
-   :resource/properties properties
-   :resource/quality-title "\"Quality\""
-   :resource/quality-value q-value
-   :resource/power-title "\"Power\""
-   :resource/power-value p-value
-   :resource/description description})
+   {:title "Bravery"
+    :entity-type "resource"
+    :resource/type "Trait"
+    :resource/properties [:virtue]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Life"
+    :entity-type "resource"
+    :resource/type "Trait"
+    :resource/properties [:ideal]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Knowledge"
+    :entity-type "resource"
+    :resource/type "Trait"
+    :resource/properties [:virtue]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Protective"
+    :entity-type "resource"
+    :resource/type "Trait"
+    :resource/properties [:virtue]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Greedy"
+    :entity-type "resource"
+    :resource/type "Trait"
+    :resource/properties [:vice]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Alcoholic"
+    :entity-type "resource"
+    :resource/type "Trait"
+    :resource/properties [:vice]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Selfish"
+    :entity-type "resource"
+    :resource/type "Trait"
+    :resource/properties [:vice]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Spread the Faith"
+    :entity-type "resource"
+    :resource/type "Trait"
+    :resource/properties [:goal]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Uncover Forgotten Magics"
+    :entity-type "resource"
+    :resource/type "Trait"
+    :resource/properties [:goal]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   
+   {:title "Scout"
+    :entity-type "resource"
+    :resource/type "Expertise"
+    :resource/properties [:training]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Soldier"
+    :entity-type "resource"
+    :resource/type "Expertise"
+    :resource/properties [:training]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Sentinel"
+    :entity-type "resource"
+    :resource/type "Expertise"
+    :resource/properties [:training]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Aethrology"
+    :entity-type "resource"
+    :resource/type "Expertise"
+    :resource/properties [:knowledge]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Medicine"
+    :entity-type "resource"
+    :resource/type "Expertise"
+    :resource/properties [:knowledge]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "History"
+    :entity-type "resource"
+    :resource/type "Expertise"
+    :resource/properties [:knowledge]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Light Fingers"
+    :entity-type "resource"
+    :resource/type "Expertise"
+    :resource/properties [:talent]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Light Footed"
+    :entity-type "resource"
+    :resource/type "Expertise"
+    :resource/properties [:talent]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
 
-(println
- (map make-resource
-      ["\"Dagger\"" "\"Shortsword\"" "\"Greatsword\"" "\"Handaxe\"" "\"Battle Axe\"" "\"Greataxe\"" "\"Javelin\"" "\"Spear\"" "\"Lance\"" "\"Hand Crossbow\"" "\"Crossbow\"" "\"Short Bow\"" "\"Longbow\"" "\"Great Bow\"" "\"Tower Shield\"" "\"Kite Shield\"" "\"Buckler\"" "\"Plate Armor\"" "\"Chain Maille\"" "\"Leather Armor\""]
-      (repeat "\"Equipment\"")
-      (repeat [])
-      [3 2 0 2 1 0 2 1 0 3 1 3 2 1 1 2 3 -1 0 1]
-      [0 1 3 1 2 3 1 2 3 0 2 0 1 2 3 2 1 4 3 2]
-      (repeat "\"\"")))
+   {:title "Adventurer"
+    :entity-type "resource"
+    :resource/type "Affiliation"
+    :resource/properties [:reputation]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Paladin of Heilm"
+    :entity-type "resource"
+    :resource/type "Affiliation"
+    :resource/properties [:membership]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Mediker's Guild"
+    :entity-type "resource"
+    :resource/type "Affiliation"
+    :resource/properties [:membership]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Arcanist's Guild"
+    :entity-type "resource"
+    :resource/type "Affiliation"
+    :resource/properties [:membership]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Thieves' Guild"
+    :entity-type "resource"
+    :resource/type "Affiliation"
+    :resource/properties [:membership]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Mentor"
+    :entity-type "resource"
+    :resource/type "Affiliation"
+    :resource/properties [:friend]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Friend"
+    :entity-type "resource"
+    :resource/type "Affiliation"
+    :resource/properties [:friend]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+   {:title "Enemy"
+    :entity-type "resource"
+    :resource/type "Affiliation"
+    :resource/properties [:rival]
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}
+
+   {:title "Healing Potion"
+    :entity-type "resource"
+    :resource/type "Item"
+    :resource/properties []
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 1
+    :resource/description ""}
+   {:title "Poison"
+    :entity-type "resource"
+    :resource/type "Item"
+    :resource/properties []
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 1
+    :resource/description ""}
+   {:title "Gold"
+    :entity-type "resource"
+    :resource/type "Item"
+    :resource/properties []
+    :resource/quality-title "Quality"
+    :resource/quality-value 0
+    :resource/power-title "Power"
+    :resource/power-value 0
+    :resource/description ""}])
+
+
 
 (defn get-all-resources [conn]
   (let [resource-ids (map first (ds/q '[:find ?eid

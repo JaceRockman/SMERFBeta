@@ -39,8 +39,8 @@
         equipment (type-section-from-resources "Equipment" resources)
         traits (type-section-from-resources "Trait" resources)
         expertise (type-section-from-resources "Expertise" resources)
-        affiliations (type-section-from-resources "Affiliations" resources)
-        items (type-section-from-resources "Items" resources)]
+        affiliations (type-section-from-resources "Affiliation" resources)
+        items (type-section-from-resources "Item" resources)]
     (remove nil? [equipment traits expertise affiliations items])))
 
 (defn resource-list [conn {:keys [resources quantities header]}]
