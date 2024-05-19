@@ -2,6 +2,7 @@
   (:require [reagent.core :as r]
             [systems.navigation :as navigation]
             [entities.realms.data.interface :as realm-data]
+            [organisms.config :refer [palette]]
             [organisms.atoms.buttons :as buttons]))
 
 (def Markdown (.-default (js/require "react-native-markdown-display")))
@@ -19,7 +20,7 @@
 
 (defn default-markdown
   [conn input & variant]
-  [:> Markdown {:style {:body {:color :white :padding-left 20 :padding-right 20}} :rules (rules conn :realm)}
+  [:> Markdown {:style {:body {:color (:surface-700 @palette) :padding-left 20 :padding-right 20}} :rules (rules conn :realm)}
    input])
 
 (defn realm-nav-rules
@@ -34,5 +35,5 @@
 
 (defn default-realm-markdown
   [conn input]
-  [:> Markdown {:style {:body {:color :white :padding-left 20 :padding-right 20}} :rules (realm-nav-rules conn)}
+  [:> Markdown {:style {:body {:color (:surface-700 @palette) :padding-left 20 :padding-right 20}} :rules (realm-nav-rules conn)}
    input])

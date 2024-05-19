@@ -3,6 +3,7 @@
             [reagent.core :as r]
             ["react-native" :as rn]
             ["@expo/vector-icons" :refer [FontAwesome5]]
+            [organisms.config :refer [palette]]
             [organisms.molecules.lists :refer [SectionList FlatList]]
             [organisms.molecules.search-bar :refer [search-bar]]
             [organisms.molecules.filter-section :refer [filter-button]]
@@ -49,7 +50,7 @@
                                                            (update collapse-map component-key not)))}
                        [:> rn/View {:style {:flex-direction :row :align-items :center :justify-content :center}}
                         header-text
-                        [:> FontAwesome5 {:name (if (get @collapse-state component-key) :chevron-down :chevron-up) :color :white :size 20}]])
+                        [:> FontAwesome5 {:name (if (get @collapse-state component-key) :chevron-down :chevron-up) :color (:surface-700 @palette) :size 20}]])
        header-text)
      (when-not (get @collapse-state component-key) (search-bar external-search-text component-key))
      (when-not (get @collapse-state component-key)

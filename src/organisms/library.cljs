@@ -3,7 +3,7 @@
             ["react-native" :as rn]
             ["@expo/vector-icons" :refer [FontAwesome5]]
             [systems.navigation :as navigation]
-            [organisms.config :as config]
+            [organisms.config :as config :refer [palette]]
             [organisms.atoms.buttons :as buttons]
             [organisms.atoms.markdown :as markdown]
             [organisms.atoms.text :as text]
@@ -18,18 +18,18 @@
   [conn]
   [:> rn/Pressable {:style {:width "5%"}
                     :on-press #(navigation/nav-out conn)}
-   [:> FontAwesome5 {:name :arrow-up :color :white :size 20}]])
+   [:> FontAwesome5 {:name :arrow-up :color (:surface-700 @palette) :size 20}]])
 
 (defn back-button
   [conn]
   [:> rn/Pressable {:style {:width "5%"}
                     :on-press #(navigation/nav-back conn)}
-   [:> FontAwesome5 {:name :chevron-left :color :white :size 20}]])
+   [:> FontAwesome5 {:name :chevron-left :color (:surface-700 @palette) :size 20}]])
 
 (defn settings-button
   [conn]
   [:> rn/Pressable {:style {:width "5%"}}
-   [:> FontAwesome5 {:name :ellipsis-v :color :white :size 18}]])
+   [:> FontAwesome5 {:name :ellipsis-v :color (:surface-700 @palette) :size 18}]])
 
 (defn view-frame-header
   [conn]
@@ -37,15 +37,15 @@
     [:> rn/View {:style {:flex-direction :row :width "100%" :height "5%" :padding 10 :align-items :center}}
      (back-button conn)
      (out-button conn)
-     (text/view-header-text {:text title :style {:width "90%" :color :white}})
+     (text/view-header-text {:text title :style {:width "90%" :color (:surface-700 @palette)}})
      (settings-button conn)]))
 
 (defn view-frame
   [conn content]
   [:> rn/View {:style {:width (config/screen-width)
                        :align-items :center
-                       :background-color "#121212"
-                       :color :white
+                       :background-color (:surface-100 @palette)
+                       :color (:surface-700 @palette)
                        :height (config/screen-height)}}
    (view-frame-header conn)
    [:> rn/View {:style {:height "90%" :width "100%"}} content]

@@ -14,7 +14,7 @@
              :style (if deselect
                       {:width "100%" :height "100%" :background-color (:surface-100 @palette) :align-self :center
                        :padding 0 :border-radius 0 :justify-content :center :align-items :center}
-                      {:width "100%" :height "100%" :background-color :inherit :align-self :center
+                      {:width "100%" :height "100%" :background-color (:surface-700 @palette) :align-self :center
                        :padding 0 :border-radius 0 :justify-content :center :align-items :center})
              :on-press (fn [] (navigation/navigate! conn final-destination))}
             (icon (if deselect (:surface-700 @palette) (:surface-100 @palette))))))
@@ -31,5 +31,5 @@
           (fn [color] [:> FontAwesome5 {:key 5 :name "running" :size 24 :color color}])]
          [:realms :rulesets :creatures :resources :actions])])
   ([conn icons destinations]
-   [:> rn/View {:style {:display :grid :grid-auto-flow :column :background-color (:surface-600 @palette) :justify-content :space-evenly :width "100%" :height "5%" :align-self :flex-end}}
+   [:> rn/View {:style {:display :grid :grid-auto-flow :column :background-color (:surface-500 @palette) :justify-content :space-evenly :width "100%" :height "5%" :align-self :flex-end}}
     (map tab-bar-button (repeat conn) icons destinations)]))

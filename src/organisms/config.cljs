@@ -19,7 +19,7 @@
    :surface-400 "#4e4e4e"
    :surface-500 "#696969"
    :surface-600 "#858585"
-   :surface-700 "#ffffff"})
+   :surface-700 "#eeeeee"})
 
 (def light-palette
   {:surface-700 "#000000"
@@ -28,6 +28,6 @@
    :surface-400 "#4e4e4e"
    :surface-300 "#696969"
    :surface-200 "#858585"
-   :surface-100 "#ffffff"})
+   :surface-100 "#eeeeee"})
 
 (def palette (r/atom dark-palette))
