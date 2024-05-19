@@ -1,6 +1,7 @@
 (ns entities.resources.views
   (:require ["react-native" :as rn]
             [entities.resources.data.interface :as resource-data]
+            [entities.actions.views :refer [action-list]]
             [systems.navigation :as navigation]
             [organisms.library :as components]))
 
@@ -13,12 +14,13 @@
   [conn id quantity]
   (let [resource (resource-data/get-resource conn id)]
     [:> rn/View
-     (components/inverted-text (:title resource) {:font-size 24})
-     (components/inverted-text (str "(" (:resource/type resource) ")") {:font-size 12})
-     (components/inverted-text (:resource/description resource))
-     (components/inverted-text (str (:resource/quality-title resource) ": " (:resource/quality-value resource)))
-     (components/inverted-text (str (:resource/power-title resource) ": " (:resource/power-value resource)))
-     (components/inverted-text (str "Quantity: " (or quantity 0)))]))
+     (components/default-text (:title resource) {:font-size 24})
+     (components/default-text (str "(" (:resource/type resource) ")") {:font-size 12})
+     (components/default-text (:resource/description resource))
+     (components/default-text (str (:resource/quality-title resource) ": " (:resource/quality-value resource)))
+     (components/default-text (str (:resource/power-title resource) ": " (:resource/power-value resource)))
+     (components/default-text (str "Quantity: " (or quantity 0)))
+     (action-list conn {:id (:id resource) :actions (:resource/actions resource) :header "Actions" :collapsed? false})]))
 
 (defn resource [conn flex-vals]
   (fn [{:keys [id title quality-value power-value] :as resource} quantity]

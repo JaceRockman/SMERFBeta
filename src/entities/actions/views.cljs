@@ -2,14 +2,8 @@
   (:require [reagent.core :as r]
             ["react-native" :as rn]
             [entities.actions.data.interface :as action-data]
+            [organisms.config :refer [screen-width]]
             [organisms.library :as components]))
-
-(defn screen-width [] (.-width js/screen))
-
-(defn section-divider []
-  [:> rn/View {:style {:background-color :lavender :width "80%" :height 2 :align-self :center}}])
-
-
 
 (defn sort-by-domain
   [actions]
@@ -37,16 +31,17 @@
                                        :on-press #(println "Rolled dice!")}
                       (components/default-text "Roll!")]]))
 
-(defn action-list [conn {:keys [creature-id actions header]}]
+(defn action-list [conn {:keys [id actions header collapsed?]}]
   (let [flex-vals [2 1 1]]
     (components/search-filter-sort-list
      {:list-header      header
+      :collapsed?       collapsed?
       :items            actions
       :column-headers   ["Title" "Roll Value" "Start Roll"]
       :column-flex-vals flex-vals
       :item-format-fn   (action-constructor flex-vals)
       :sort-fns         [sort-by-domain]}
-     (str creature-id "actions"))))
+     (str id "actions"))))
 
 (defn actions-details [conn]
   (let [actions (action-data/get-all-actions conn)]

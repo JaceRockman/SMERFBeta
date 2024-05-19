@@ -5,11 +5,13 @@
                           {:db/ident :resource-property/medium}
                           {:db/ident :resource-property/heavy}])
 
-(def example-resources
+(defn example-resources
+  [example-actions]
   [{:title                  "Longsword"
     :entity-type            "resource"
     :resource/type          "Equipment"
     :resource/properties    [:resource-property/medium]
+    :resource/actions      example-actions
     :resource/quality-title "Quality"
     :resource/quality-value "2"
     :resource/power-title   "Power"
@@ -210,7 +212,7 @@
     :resource/power-title "Power"
     :resource/power-value 0
     :resource/description ""}
-   
+
    {:title "Scout"
     :entity-type "resource"
     :resource/type "Expertise"
