@@ -60,6 +60,7 @@
 (def tertiary-button buttons/tertiary-button)
 
 (def default-text text/default-text)
+(def inverted-text text/inverted-text)
 (def view-header-text text/view-header-text)
 
 (def default-markdown markdown/default-markdown)

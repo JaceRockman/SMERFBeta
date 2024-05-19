@@ -11,8 +11,8 @@
    [main :refer [profile]]))
 
 (def app-conn (ds/create-conn {:realm/children-entities {:db/cardinality :db.cardinality/many
-                                                     :db/valueType :db.type/ref
-                                                     :db/isComponent true}}))
+                                                         :db/valueType :db.type/ref
+                                                         :db/isComponent true}}))
 
 (defn root [conn]
   (let [main-nav (when (not (nil? conn)) (navigation/get-main-nav-state conn))]

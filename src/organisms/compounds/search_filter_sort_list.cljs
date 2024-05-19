@@ -16,7 +16,8 @@
   [{:keys [list-header column-headers column-flex-vals
            collapsed?
            items item-format-fn
-           init-search-fns init-filter-fns init-sort-fns]} component-key]
+           init-search-fns init-filter-fns init-sort-fns]}
+   component-key]
   (when (nil? (get @external-search-text component-key))
     (swap! external-search-text #(assoc % component-key (r/atom "")))
     (when (not (nil? collapsed?)) (swap! collapse-state #(assoc % component-key collapsed?))))
@@ -37,12 +38,11 @@
                                   (function list))
                                 items
                                 full-fn-list))
-        header-text (text/default-text {:style {:color :white
-                                                :font-size 24
-                                                :text-align :center
-                                                :padding-right 10}
-                                        :text list-header})]
-    [:> rn/View {:style {:width "100%" :height "100%" :padding 10}}
+        header-text (text/default-text list-header
+                                       {:font-size 24
+                                        :flex 0
+                                        :padding-right 10})]
+    [:> rn/View {:style {:width "100%" :max-height "100%" :padding 10}}
      (if (not (nil? collapsed?))
        (buttons/button {:style {:background-color :inherit :align-items :center :justify-content :center}
                         :on-press #(swap! collapse-state (fn [collapse-map]

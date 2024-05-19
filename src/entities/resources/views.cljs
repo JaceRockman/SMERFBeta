@@ -13,21 +13,21 @@
   [conn id quantity]
   (let [resource (resource-data/get-resource conn id)]
     [:> rn/View
-     (components/default-text {:style {:font-size 24 :color :black} :text (:title resource)})
-     (components/default-text {:style {:font-size 12 :color :black} :text (str "(" (:resource/type resource) ")")})
-     (components/default-text {:style {:font-size 16 :color :black} :text (:resource/description resource)})
-     (components/default-text {:style {:font-size 16 :color :black} :text (str (:resource/quality-title resource) ": " (:resource/quality-value resource))})
-     (components/default-text {:style {:font-size 16 :color :black} :text (str (:resource/power-title resource) ": " (:resource/power-value resource))})
-     (components/default-text {:style {:font-size 16 :color :black} :text (str "Quantity: " (or quantity 0))})]))
+     (components/inverted-text (:title resource) {:font-size 24})
+     (components/inverted-text (str "(" (:resource/type resource) ")") {:font-size 12})
+     (components/inverted-text (:resource/description resource))
+     (components/inverted-text (str (:resource/quality-title resource) ": " (:resource/quality-value resource)))
+     (components/inverted-text (str (:resource/power-title resource) ": " (:resource/power-value resource)))
+     (components/inverted-text (str "Quantity: " (or quantity 0)))]))
 
 (defn resource [conn flex-vals]
   (fn [{:keys [id title quality-value power-value] :as resource} quantity]
     [:> rn/Pressable {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}
-                    :on-press #(reset! components/modal-content {:fn resource-modal :args [conn id quantity]})}
-   (components/default-text {:style {:flex (nth flex-vals 0) :font-size 16} :text title})
-   (components/default-text {:style {:flex (nth flex-vals 1) :font-size 16} :text quality-value})
-   (components/default-text {:style {:flex (nth flex-vals 2) :font-size 16} :text power-value})
-   (components/default-text {:style {:flex (nth flex-vals 3) :font-size 16} :text (or quantity 0)})]))
+                      :on-press #(reset! components/modal-content {:fn resource-modal :args [conn id quantity]})}
+     (components/default-text title {:flex (nth flex-vals 0) :font-size 16})
+     (components/default-text quality-value {:flex (nth flex-vals 1) :font-size 16})
+     (components/default-text power-value {:flex (nth flex-vals 2) :font-size 16})
+     (components/default-text (or quantity 0) {:flex (nth flex-vals 3) :font-size 16})]))
 
 (defn sort-resources-by-type
   [resources]

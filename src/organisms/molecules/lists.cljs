@@ -1,14 +1,14 @@
 (ns organisms.molecules.lists
   (:require [reagent.core :as r]
             ["react-native" :as rn]
-            [organisms.config :as config]
+            [organisms.config :refer [palette]]
             [organisms.atoms.text :as text]))
 
 (defn section-separator
   []
   [:> rn/View {:style {:height           2
                        :width            "90%"
-                       :background-color :white
+                       :background-color (:surface-700 @palette)
                        :align-self       :center}}])
 
 (defn item-separator
@@ -16,7 +16,7 @@
   (fn []
     (r/as-element [:> rn/View {:style {:height           1
                                        :width            "80%"
-                                       :background-color :white
+                                       :background-color (:surface-700 @palette)
                                        :align-self       :center}}])))
 
 (defn SectionList
@@ -30,16 +30,15 @@
       (let [clj-section       (clojure.walk/keywordize-keys (js->clj section))
             clj-section-title (-> clj-section :section :title)]
         (r/as-element
-         [:> rn/View {:style {:background-color (:color-surface-100 config/default-palette)}}
-          (text/default-text {:style {:font-size  24
-                                      :text-align :center
-                                      :padding    10}
-                              :text  clj-section-title})
+         [:> rn/View {:style {:background-color (:surface-100 @palette)}}
+          (text/default-text clj-section-title
+                             {:font-size  24
+                              :text-align :center
+                              :padding    10})
           [:> rn/View {:style {:flex-direction :row}}
            (map (fn [header flex]
-                  (text/default-text {:style {:flex      flex
-                                              :font-size 16}
-                                      :text  header}))
+                  (text/default-text header {:flex      flex
+                                             :font-size 16}))
                 headers
                 flex-vals)]
           (section-separator)])))
@@ -57,11 +56,7 @@
                                            :align-self       :center}}]))
 
     :ItemSeparatorComponent
-    (fn []
-      (r/as-element [:> rn/View {:style {:height           1
-                                         :width            "80%"
-                                         :background-color :white
-                                         :align-self       :center}}]))
+    (item-separator)
 
     :key-extractor
     (fn [js-item]
@@ -70,7 +65,7 @@
 
     :listEmptyComponent
     (fn []
-      (r/as-element (text/default-text {:text "No Items"})))
+      (r/as-element (text/default-text "No Items")))
 
     :sticky-section-headers-enabled
     true}])
@@ -84,10 +79,9 @@
     :ListHeaderComponent
     (fn []
       (r/as-element
-       [:> rn/View {:style {:flex-direction :row :background-color (:color-surface-100 config/default-palette)}}
+       [:> rn/View {:style {:flex-direction :row :background-color (:surface-100 @palette)}}
         (map (fn [header flex]
-               (text/default-text {:style {:flex flex}
-                                   :text  header}))
+               (text/default-text header {:flex flex}))
              headers
              flex-vals)]))
 
@@ -97,11 +91,7 @@
         (r/as-element (row-constructor (clojure.walk/keywordize-keys clj-item)))))
 
     :ItemSeparatorComponent
-    (fn []
-      (r/as-element [:> rn/View {:style {:height           1
-                                         :width            "80%"
-                                         :background-color :white
-                                         :align-self       :center}}]))
+    (item-separator)
 
     :key-extractor
     (fn [js-item]
@@ -110,4 +100,4 @@
 
     :ListEmptyComponent
     (fn []
-      (r/as-element [:> rn/Text {:style {:color :white}} "No Items"]))}])
+      (r/as-element [:> rn/Text {:style {:color (:surface-700 @palette)}} "No Items"]))}])

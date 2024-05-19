@@ -1,6 +1,6 @@
 (ns organisms.atoms.buttons
   (:require ["react-native" :as rn]
-            [organisms.config :refer [default-palette]]))
+            [organisms.config :refer [palette]]))
 
 (defn test-button
   [{:keys [text text-style button-style on-press disabled?]}]
@@ -13,7 +13,7 @@
 (defn primary-button-style
   [& [variant]]
   (let [base-button-style {:padding 15
-                           :background-color (:color-primary-200 default-palette)
+                           :background-color (:primary-200 @palette)
                            :width :fit-content
                            :border-radius 5
                            :font-size 24}]
@@ -27,7 +27,7 @@
       base-button-style)))
 
 (def primary-button-text-style
-  {:color (:color-primary-000 default-palette)
+  {:color (:primary-100 @palette)
    :font-size 18})
 
 (defn primary-button
@@ -42,8 +42,8 @@
   [& [variant]]
   (let [base-button-style {:padding 10
                            :border-width 2
-                           :color (:color-primary-600 default-palette)
-                           :border-color (:color-primary-200 default-palette)
+                           :color (:primary-600 @palette)
+                           :border-color (:primary-200 @palette)
                            :width :fit-content
                            :border-radius 5
                            :font-size 18}]
@@ -57,7 +57,7 @@
       base-button-style)))
 
 (def secondary-button-text-style
-  {:color (:color-primary-600 default-palette)})
+  {:color (:primary-600 @palette)})
 
 (defn secondary-button
   [{:keys [text text-style button-variant on-press disabled?]}]
@@ -84,7 +84,7 @@
       base-button-style)))
 
 (def tertiary-button-text-style
-  {:color (:color-primary-600 default-palette)})
+  {:color (:primary-600 @palette)})
 
 (defn tertiary-button
   [{:keys [text text-style button-variant on-press disabled?]}]
@@ -100,7 +100,7 @@
   [:> rn/Pressable {:style (cond-> {:font-size        18
                                     :padding          6
                                     :border-radius    999
-                                    :background-color :gray}
+                                    :background-color (:surface-400 @palette)}
                              :always (merge style)
                              disabled? (merge {:background-color "#aaaaaa"}
                                               disabled-style))
@@ -108,8 +108,8 @@
                     :disabled disabled?}
    [:> rn/Text {:style (cond-> {:font-weight   :bold
                                 :font-size     18
-                                :color         :white}
+                                :color         (:surface-700 @palette)}
                          :always (merge text-style)
-                         disabled? (merge {:color :white}
+                         disabled? (merge {:color (:surface-400 @palette)}
                                           disabled-text-style))}
     text]])

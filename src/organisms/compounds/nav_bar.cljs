@@ -2,6 +2,7 @@
   (:require ["react-native" :as rn]
             ["@expo/vector-icons" :refer [FontAwesome5]]
             [systems.navigation :as navigation]
+            [organisms.config :refer [palette]]
             [organisms.environments.overlays :refer [menu]]
             [organisms.atoms.text :refer [view-header-text]]
             [organisms.atoms.buttons :refer [button]]))
@@ -10,11 +11,11 @@
   [conn]
   (button {:style {:background-color :inherit}
            :on-press #(navigation/navigate! conn [:campaign])}
-          [:> FontAwesome5 {:name :home :color :black :size 24}]))
+          [:> FontAwesome5 {:name :home :color (:surface-100 @palette) :size 24}]))
 
 (defn nav-bar
   [conn headers]
-  [:> rn/View {:style {:background-color :lavender
+  [:> rn/View {:style {:background-color (:surface-600 @palette)
                        :width "100%"
                        :height "5%"
                        :flex-direction :row

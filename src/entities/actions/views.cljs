@@ -29,13 +29,13 @@
 
 (defn action-constructor [flex-vals]
   (fn [action-data] [:> rn/View {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}}
-                    (components/default-text {:style {:flex (nth flex-vals 0) :font-size 16 :align-self :center}
-                                        :text (:title action-data)})
-                    (components/default-text {:style {:flex (nth flex-vals 1) :font-size 16 :align-self :center}
-                                        :text (action-data/dummy-roll-value)})
-                    [:> rn/Pressable {:style {:flex (nth flex-vals 2) :font-size 16 :align-self :center}
-                                      :on-press #(println "Rolled dice!")}
-                     (components/default-text {:text "Roll!"})]]))
+                     (components/default-text (:title action-data)
+                                              {:flex (nth flex-vals 0) :font-size 16 :align-self :center})
+                     (components/default-text (action-data/dummy-roll-value)
+                                              {:flex (nth flex-vals 1) :font-size 16 :align-self :center})
+                     [:> rn/Pressable {:style {:flex (nth flex-vals 2) :font-size 16 :align-self :center}
+                                       :on-press #(println "Rolled dice!")}
+                      (components/default-text "Roll!")]]))
 
 (defn action-list [conn {:keys [creature-id actions header]}]
   (let [flex-vals [2 1 1]]

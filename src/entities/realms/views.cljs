@@ -19,10 +19,10 @@
       :item-format-fn (fn [realm-data]
                         [:> rn/Pressable {:style {:flex-direction :row}
                                           :on-press (fn [] (realm-data/set-active-realm
-                                                           conn
-                                                           (:id realm-data)))}
-                         (components/default-text {:style {:flex (nth flex-vals 0)} :text (:title realm-data)})
-                         (components/default-text {:style {:flex (nth flex-vals 1)} :text "Avis Industries"})])}
+                                                            conn
+                                                            (:id realm-data)))}
+                         (components/default-text (:title realm-data) {:flex (nth flex-vals 0)})
+                         (components/default-text "Avis Industries" {:flex (nth flex-vals 1)})])}
      "realms")))
 
 (defn subrealm-sort
@@ -44,10 +44,10 @@
                                             :on-press (fn [] (realm-data/set-active-subrealm
                                                               conn
                                                               (:id realm-entity)))}
-                           (components/default-text {:style {:flex (nth flex-vals 0)}
-                                                     :text  (:title realm-entity)})
-                           (components/default-text {:style {:flex (nth flex-vals 0)}
-                                                     :text  "System"})])
+                           (components/default-text (:title realm-entity)
+                                                    {:flex (nth flex-vals 0)})
+                           (components/default-text "System"
+                                                    {:flex (nth flex-vals 0)})])
       :sort-fns         [subrealm-sort]}
      "subrealm")))
 
@@ -74,10 +74,14 @@
                                                                  (realm-data/set-active-subrealm
                                                                   conn
                                                                   (:id realm-data))))}
-                             (components/default-text {:style {:flex (nth flex-vals 0)} :text (:title realm-data)})
-                             (components/default-text {:style {:flex (nth flex-vals 0)} :text (:entity-type realm-data)})
-                             (components/default-text {:style {:flex (nth flex-vals 1)} :text "Avis Industries"})])} (str (:title subrealm-data) "Parents")))
-      
+                             (components/default-text (:title realm-data)
+                                                      {:flex (nth flex-vals 0)})
+                             (components/default-text (:entity-type realm-data)
+                                                      {:flex (nth flex-vals 0)})
+                             (components/default-text "Avis Industries"
+                                                      {:flex (nth flex-vals 1)})])}
+         (str (:title subrealm-data) "Parents")))
+
       (when-not (empty? children)
         (components/search-filter-sort-list
          {:list-header "Children"
@@ -90,9 +94,13 @@
                                               :on-press (fn [] (realm-data/set-active-subrealm
                                                                 conn
                                                                 (:id realm-data)))}
-                             (components/default-text {:style {:flex (nth flex-vals 0)} :text (:title realm-data)})
-                             (components/default-text {:style {:flex (nth flex-vals 0)} :text (:entity-type realm-data)})
-                             (components/default-text {:style {:flex (nth flex-vals 1)} :text "Avis Industries"})])} (str (:title subrealm-data) "Children")))])])
+                             (components/default-text (:title realm-data)
+                                                      {:flex (nth flex-vals 0)})
+                             (components/default-text (:entity-type realm-data)
+                                                      {:flex (nth flex-vals 0)})
+                             (components/default-text "Avis Industries"
+                                                      {:flex (nth flex-vals 1)})])}
+         (str (:title subrealm-data) "Children")))])])
 
 (defn realm-home [conn]
   (let [active-campaign-data (campaign-data/get-active-campaign conn)

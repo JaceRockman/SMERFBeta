@@ -1,7 +1,6 @@
 (ns entities.campaigns.views
   (:require [reagent.core :as r]
             ["react-native" :as rn]
-            ["@expo/vector-icons" :refer [FontAwesome5]]
             [systems.navigation :as navigation]
             [entities.campaigns.data.interface :as campaign-data]
             [organisms.library :as components]))
@@ -19,10 +18,8 @@
                                         :on-press #(doall
                                                     (campaign-data/set-active-campaign conn id)
                                                     (navigation/navigate! conn [:campaign]))}
-                       (components/default-text {:style {:flex 1}
-                                                 :text title})
-                       (components/default-text {:style {:flex 1}
-                                                 :text (or owner "Avis Industries")})])}
+                       (components/default-text title {})
+                       (components/default-text (or owner "Avis Industries") {})])}
    (str "campaigns")))
 
 (defn campaign-select
@@ -33,8 +30,8 @@
 (defn campaign-summary
   [campaign-data]
   [:> rn/View
-   (components/view-header-text {:text (:campaign/title campaign-data)})
-   (components/default-text {:text (str campaign-data)})])
+   (components/default-text (:campaign/title campaign-data) {:font-size 24})
+   (components/default-text (str campaign-data))])
 
 (defn campaign
   [conn ^js props]
@@ -48,5 +45,4 @@
                                                   :height "100%"}}
       (if (empty? active-campaign-data)
         (campaign-select conn all-campaigns-data)
-        (campaign-summary active-campaign-data))
-      (components/primary-button {:text "Asset Library" :on-press #(navigation/navigate! conn [:asset-library])})])))
+        (campaign-summary active-campaign-data))])))

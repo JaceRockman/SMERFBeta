@@ -22,8 +22,8 @@
                                                       (ruleset-data/set-active-ruleset
                                                        conn
                                                        (:id ruleset-data)))}
-                         (components/default-text {:style {:flex (nth flex-vals 0)} :text (:title ruleset-data)})
-                         (components/default-text {:style {:flex (nth flex-vals 1)} :text (:complexity ruleset-data)})])}
+                         (components/default-text (:title ruleset-data) {:flex (nth flex-vals 0)})
+                         (components/default-text (:complexity ruleset-data) {:flex (nth flex-vals 1)})])}
      "rulesets")))
 
 (defn ruleset-details [conn ruleset-data]
@@ -42,7 +42,7 @@
     (map (fn [data-keys section-title]
            [:> rn/ScrollView {:style {:width  (screen-width)
                                       :height :auto}}
-            (components/default-text {:style {:font-size 24} :text section-title})
+            (components/default-text section-title {:font-size 24})
             (components/default-markdown conn
                                          (apply str (interpose "\n" (vals (select-keys ruleset-data data-keys)))))])
          [[:ruleset/skill-check-overview
