@@ -11,8 +11,8 @@
   []
   (when @modal-content
     (let [content (apply (:fn @modal-content) (:args @modal-content))]
-      [:> rn/View {:style {:position :absolute :width "100%" :height "100%" :background-color "rgba(255, 255, 255, 0.4)" :justify-content :flex-end}}
+      [:> rn/View {:style {:position :absolute :width "100%" :height "100%" :background-color "rgba(0, 0, 0, 0.6)" :justify-content :flex-end}}
        [:> rn/Pressable {:style {:position :absolute :width "100%" :height "100%" :justify-content :flex-end}
                         :on-press #(reset! modal-content nil)}]
-       [:> rn/View {:style {:background-color (:surface-100 @palette) :width "100%" :padding-top "5%" :padding-bottom "5%"}}
+       [:> rn/View {:style {:padding 5 :border-width 2 :border-color (:surface-700 @palette) :background-color (:surface-100 @palette) :width "100%" :padding-bottom "5%"}}
         content]])))
