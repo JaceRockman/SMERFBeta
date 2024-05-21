@@ -17,12 +17,13 @@
   [{:keys [list-header column-headers column-flex-vals
            collapsed?
            items item-format-fn
-           init-search-fns init-filter-fns init-sort-fns]}
+           init-search-fns init-filter-fns item-sort-fns section-sort-fns]}
    component-key]
   (when (nil? (get @external-search-text component-key))
     (swap! external-search-text #(assoc % component-key (r/atom "")))
     (when (not (nil? collapsed?)) (swap! collapse-state #(assoc % component-key collapsed?))))
-  (let [search-fns
+  (let [item-sort-fns* (if (empty? item-sort-fns) [#(sort-by :title %)] item-sort-fns)
+        search-fns
         (r/atom (or init-search-fns
                     [(fn [items]
                        (filter #(str/includes?
@@ -32,7 +33,7 @@
                                     (deref search-text-atom)
                                     "")))
                                items))]))
-        full-fn-list (concat @search-fns init-filter-fns init-sort-fns)
+        full-fn-list (concat @search-fns init-filter-fns item-sort-fns* section-sort-fns)
         reduced-items (if (empty? full-fn-list)
                         items
                         (reduce (fn [list function]
@@ -54,7 +55,7 @@
        header-text)
      (when-not (get @collapse-state component-key) (search-bar external-search-text component-key))
      (when-not (get @collapse-state component-key)
-       ((if (empty? init-sort-fns) FlatList SectionList)
+       ((if (empty? section-sort-fns) FlatList SectionList)
         {:items reduced-items
          :headers column-headers
          :flex-vals column-flex-vals
