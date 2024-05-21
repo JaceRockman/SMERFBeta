@@ -1,5 +1,6 @@
 (ns entities.realms.views
-  (:require ["react-native" :as rn]
+  (:require [clojure.string :as str]
+            ["react-native" :as rn]
             [reagent.core :as r]
             ["@expo/vector-icons" :refer [FontAwesome5]]
             [nextjournal.markdown.parser :as md.parser]
@@ -27,9 +28,9 @@
 
 (defn subrealm-sort
   [realm-entities]
-  (let [entity-type-groups (group-by :realm/entity-type realm-entities)]
+  (let [entity-type-groups (group-by :entity-type realm-entities)]
     (mapv (fn [[entity-type entity-data-list]]
-            {:title entity-type :data entity-data-list})
+            {:title (str/capitalize entity-type) :data entity-data-list})
           entity-type-groups)))
 
 (defn subrealm-select
@@ -48,7 +49,7 @@
                                                     {:flex (nth flex-vals 0)})
                            (components/default-text "System"
                                                     {:flex (nth flex-vals 0)})])
-      :sort-fns         [subrealm-sort]}
+      :section-sort-fns         [subrealm-sort]}
      "subrealm")))
 
 (defn realm-details [conn subrealm-data]
