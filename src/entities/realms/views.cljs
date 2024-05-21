@@ -33,75 +33,53 @@
             {:title (str/capitalize entity-type) :data entity-data-list})
           entity-type-groups)))
 
-(defn subrealm-select
+(defn set-active-subrealm
   [conn realm-data]
-  (let [flex-vals [2 1]]
-    (components/search-filter-sort-list
-     {:items            (remove #(nil? (:title %)) (realm-data/get-realm conn (:db/id realm-data)))
-      :column-headers   ["Title" "Author"]
-      :column-flex-vals flex-vals
-      :item-format-fn   (fn [realm-entity]
-                          [:> rn/Pressable {:style    {:flex-direction :row}
-                                            :on-press (fn [] (realm-data/set-active-subrealm
-                                                              conn
-                                                              (:id realm-entity)))}
-                           (components/default-text (:title realm-entity)
-                                                    {:flex (nth flex-vals 0)})
-                           (components/default-text "System"
-                                                    {:flex (nth flex-vals 0)})])
-      :section-sort-fns         [subrealm-sort]}
-     "subrealm")))
+  (fn []
+    (if (= "realm" (:entity-type realm-data))
+      (realm-data/set-active-realm
+       conn
+       (:id realm-data))
+      (realm-data/set-active-subrealm
+       conn
+       (:id realm-data)))))
 
-(defn realm-details [conn subrealm-data]
+(defn subrealm-select
+  ([conn subrealm-data]
+   (subrealm-select conn subrealm-data {}))
+  ([conn subrealm-data opts]
+   (let [flex-vals [2 1]]
+     (components/search-filter-sort-list
+      (merge
+       {:items            subrealm-data
+        :column-headers   ["Title" "Author"]
+        :column-flex-vals flex-vals
+        :item-format-fn   (fn [realm-entity]
+                            [:> rn/Pressable {:style    {:flex-direction :row}
+                                              :on-press (set-active-subrealm conn realm-entity)}
+                             (components/default-text (:title realm-entity)
+                                                      {:flex (nth flex-vals 0)})
+                             (components/default-text "System"
+                                                      {:flex (nth flex-vals 0)})])
+        :section-sort-fns [subrealm-sort]}
+       opts)
+      (str (:title subrealm-data) (:list-header opts))))))
+
+
+
+(defn realm-details
+  [conn subrealm-data]
   [:> rn/ScrollView {:style {:flex :1}}
    (components/default-realm-markdown conn (:realm/entity-details subrealm-data))
-   (let [flex-vals [1 1 1]
-         children (:realm/children-entities subrealm-data)
-         parents (realm-data/get-realm-entity-parents conn (:db/id subrealm-data))]
+   (let [parents (realm-data/get-realm-entity-parents conn (:db/id subrealm-data))
+         children (realm-data/get-realm-entity-children conn (:db/id subrealm-data))]
      [:> rn/View
       (when-not (empty? parents)
-        (components/search-filter-sort-list
-         {:list-header "Parents"
-          :collapsed? true
-          :items parents
-          :column-headers ["Title" "Category" "Owner"]
-          :column-flex-vals flex-vals
-          :item-format-fn (fn [realm-data]
-                            [:> rn/Pressable {:style {:flex-direction :row}
-                                              :on-press (fn [] (if (= "realm" (:entity-type realm-data))
-                                                                 (realm-data/set-active-realm
-                                                                  conn
-                                                                  (:id realm-data))
-                                                                 (realm-data/set-active-subrealm
-                                                                  conn
-                                                                  (:id realm-data))))}
-                             (components/default-text (:title realm-data)
-                                                      {:flex (nth flex-vals 0)})
-                             (components/default-text (:entity-type realm-data)
-                                                      {:flex (nth flex-vals 0)})
-                             (components/default-text "Avis Industries"
-                                                      {:flex (nth flex-vals 1)})])}
-         (str (:title subrealm-data) "Parents")))
-
+        (subrealm-select conn parents {:list-header "Parents"
+                                       :collapsed? true}))
       (when-not (empty? children)
-        (components/search-filter-sort-list
-         {:list-header "Children"
-          :collapsed? true
-          :items children
-          :column-headers ["Title" "Category" "Owner"]
-          :column-flex-vals flex-vals
-          :item-format-fn (fn [realm-data]
-                            [:> rn/Pressable {:style {:flex-direction :row}
-                                              :on-press (fn [] (realm-data/set-active-subrealm
-                                                                conn
-                                                                (:id realm-data)))}
-                             (components/default-text (:title realm-data)
-                                                      {:flex (nth flex-vals 0)})
-                             (components/default-text (:entity-type realm-data)
-                                                      {:flex (nth flex-vals 0)})
-                             (components/default-text "Avis Industries"
-                                                      {:flex (nth flex-vals 1)})])}
-         (str (:title subrealm-data) "Children")))])])
+        (subrealm-select conn children {:list-header "Children"
+                                        :collapsed? true}))])])
 
 (defn realm-home [conn]
   (let [active-campaign-data (campaign-data/get-active-campaign conn)
@@ -109,7 +87,8 @@
         active-subrealm-data (realm-data/get-active-subrealm conn)]
     (cond
       active-subrealm-data (realm-details conn active-subrealm-data)
-      active-realm-data (subrealm-select conn active-realm-data)
+      active-realm-data (let [subrealms (realm-data/get-realm-entity-children conn (:db/id active-realm-data))]
+                          (subrealm-select conn subrealms))
       active-campaign-data (realm-select conn (campaign-data/get-active-campaign-realms conn))
       :else (realm-select conn (realm-data/get-all-realms conn)))))
 

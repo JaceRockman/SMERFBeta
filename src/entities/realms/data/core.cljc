@@ -13,42 +13,43 @@
   (when-let [realm-ids (get-all-realm-ids conn)]
     (ds/pull-many @conn '[*] realm-ids)))
 
-(defn recursively-get-children-entities
-  ([conn ids]
-   (let [children (map :db/id (flatten (map :realm/children-entities (flatten (ds/pull-many @conn '[:realm/children-entities] ids)))))]
-     (if (empty? children)
-       ids
-       (recursively-get-children-entities conn (distinct (concat ids children)) children))))
-  ([conn old-ids new-ids]
-   (let [new-children (remove nil? (map :db/id (flatten (map :realm/children-entities (flatten (ds/pull-many @conn '[:realm/children-entities] new-ids))))))]
-     (if (empty? new-children)
-       old-ids
-       (recursively-get-children-entities conn (distinct (concat old-ids new-children)) new-children)))))
-
-
 (defn recursively-get-parent-entities
-  ([conn ids]
-   (let [parents (remove nil? (map #(get-in % [:realm/_children-entities :db/id]) (ds/pull-many @conn '[:realm/_children-entities] ids)))]
-     (println (concat ids parents))
-     (if (empty? parents)
-       ids
-       (recursively-get-parent-entities conn (distinct (concat ids parents)) parents))))
+  ([conn id]
+   (let [parent-entities (ds/pull @conn '[:realm/_children-entities] id)
+         parents (get-in parent-entities [:realm/_children-entities :db/id])]
+     (if (nil? parents)
+       [id]
+       (recursively-get-parent-entities conn (distinct (cons id [parents])) [parents]))))
   ([conn old-ids new-ids]
    (let [new-parents (remove nil? (map #(get-in % [:realm/_children-entities :db/id]) (ds/pull-many @conn '[:realm/_children-entities] new-ids)))]
      (if (empty? new-parents)
        old-ids
        (recursively-get-parent-entities conn (distinct (concat old-ids new-parents)) new-parents)))))
 
-(defn recursive-realm-entity-details
-  [conn realm-id]
-  (let [all-entities (filter #(not (= realm-id %)) (recursively-get-children-entities conn (flatten [realm-id])))]
-    (ds/pull-many @conn '[*] all-entities)))
+(defn recursively-get-children-entities
+  ([conn id]
+   (let [children-entities (ds/pull @conn '[:realm/children-entities] id)
+         children (map :db/id (:realm/children-entities children-entities))]
+     (if (empty? children)
+       [id]
+       (recursively-get-children-entities conn (distinct (cons id children)) children))))
+  ([conn old-ids new-ids]
+   (let [new-children (remove nil? (map :db/id (flatten (map :realm/children-entities (flatten (ds/pull-many @conn '[:realm/children-entities] new-ids))))))]
+     (if (empty? new-children)
+       old-ids
+       (recursively-get-children-entities conn (distinct (concat old-ids new-children)) new-children)))))
 
 (defn recursive-realm-parent-details
   [conn realm-entity-id]
-  (let [all-entities (filter #(not (= realm-entity-id %)) (recursively-get-parent-entities conn [realm-entity-id]))]
-    (println all-entities)
-    (ds/pull-many @conn '[*] all-entities)))
+  (let [all-entities (filter #(not (= realm-entity-id %)) (recursively-get-parent-entities conn realm-entity-id))]
+    (when (seq all-entities)
+      (ds/pull-many @conn '[*] all-entities))))
+
+(defn recursive-realm-children-details
+  [conn realm-id]
+  (let [all-entities (filter #(not (= realm-id %)) (recursively-get-children-entities conn realm-id))]
+    (when (seq all-entities)
+      (ds/pull-many @conn '[*] all-entities))))
 
 (defn get-active-realm-id
   [conn]
@@ -99,10 +100,6 @@
 
 (defn set-active-subrealm
   [conn subrealm-id]
-  (if-let [active-subrealm-tracker (get-active-subrealm-tracker conn)]
-    (ds/transact! conn [{:db/id active-subrealm-tracker
-                         :active/subrealm subrealm-id}])
-    (ds/transact! conn [{:active/subrealm subrealm-id}]))
   (navigation/subsubnavigate conn subrealm-id))
 
 (defn set-active-subrealm-by-name
@@ -116,7 +113,8 @@
   [{:db/id "kalashar"
     :title "Kalashar"
     :entity-type "realm"
-    :realm/children-entities ["commonlands" "outwilds"]}
+    :realm/children-entities ["commonlands" "outwilds"]
+    :realm/entity-details "This is Kalashar"}
    {:db/id "commonlands"
     :title "Commonlands"
     :entity-type "territory"
@@ -126,7 +124,7 @@
    {:db/id "outwilds"
     :title "Outwilds"
     :entity-type "territory"
-    :realm/children-entities ["goblins"]
+    :realm/children-entities ["goblins" "humans"]
     :realm/entity-details "Encircling the tranquil lands of the civilized races are The Outwilds. Deadly swamps bubble and hiss in the North, jungles teem with ferocious beasts and verdure to the East just beyond the Greyiron Mountains, and eternal dark subsumes the Elderwoods if one dares travel West of the Eldari ruins. In many of the old tales, The Outwilds act as the crucible for heroes and the resting place of great treasures from forgotten ages. Many adventurers have attempted to claim their place in the annals of history by venturing into these lands. Many adventurers have died in that attempt. There is little that can be said for certain about these wild lands apart from this: death sleeps lightly there."}
 
    {:db/id "humans"
