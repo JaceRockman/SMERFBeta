@@ -50,7 +50,101 @@
     :action/combinations [1 1]
     :action/target-number 0}
 
-   ])
+   {:title "Other Health Check"
+    :entity-type "action"
+    :action/description ""
+    :action/skill "Endurance"
+    :action/ability ""
+    :action/resources []
+    :action/dice-mod 0
+    :action/flat-mod 0
+    :action/splinters 1
+    :action/combinations ""
+    :action/target-number 0}
+
+   {:title "My Health Check"
+    :entity-type "action"
+    :action/description ""
+    :action/skill "Perseverance"
+    :action/ability ""
+    :action/resources []
+    :action/dice-mod 0
+    :action/flat-mod 0
+    :action/splinters 1
+    :action/combinations ""
+    :action/target-number 0}
+
+   {:title "New Health Check"
+    :entity-type "action"
+    :action/description ""
+    :action/skill "Comprehension"
+    :action/ability ""
+    :action/resources []
+    :action/dice-mod 0
+    :action/flat-mod 0
+    :action/splinters 1
+    :action/combinations ""
+    :action/target-number 0}
+
+   {:title "The Health Check"
+    :entity-type "action"
+    :action/description ""
+    :action/skill "Connections"
+    :action/ability ""
+    :action/resources []
+    :action/dice-mod 2
+    :action/flat-mod 1
+    :action/splinters 2
+    :action/combinations [1 1]
+    :action/target-number 0}
+
+   {:title "Ok Health Check"
+    :entity-type "action"
+    :action/description ""
+    :action/skill "Endurance"
+    :action/ability ""
+    :action/resources []
+    :action/dice-mod 0
+    :action/flat-mod 0
+    :action/splinters 1
+    :action/combinations ""
+    :action/target-number 0}
+
+   {:title "Great Health Check"
+    :entity-type "action"
+    :action/description ""
+    :action/skill "Perseverance"
+    :action/ability ""
+    :action/resources []
+    :action/dice-mod 0
+    :action/flat-mod 0
+    :action/splinters 1
+    :action/combinations ""
+    :action/target-number 0}
+
+   {:title "Best Health Check"
+    :entity-type "action"
+    :action/description ""
+    :action/skill "Comprehension"
+    :action/ability ""
+    :action/resources []
+    :action/dice-mod 0
+    :action/flat-mod 0
+    :action/splinters 1
+    :action/combinations ""
+    :action/target-number 0}
+
+   {:title "Not a Health Check"
+    :entity-type "action"
+    :action/description ""
+    :action/skill "Connections"
+    :action/ability ""
+    :action/resources []
+    :action/dice-mod 2
+    :action/flat-mod 1
+    :action/splinters 2
+    :action/combinations [1 1]
+    :action/target-number 0}])
 
 (defn get-all-actions [conn]
   (let [action-eids (map first (ds/q '[:find ?eid

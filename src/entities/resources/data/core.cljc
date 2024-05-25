@@ -11,7 +11,7 @@
     :entity-type            "resource"
     :resource/type          "Equipment"
     :resource/properties    [:resource-property/medium]
-    :resource/actions      example-actions
+    :resource/actions       (concat example-actions example-actions example-actions)
     :resource/quality-title "Quality"
     :resource/quality-value "2"
     :resource/power-title   "Power"
