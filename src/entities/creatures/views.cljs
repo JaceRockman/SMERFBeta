@@ -12,14 +12,12 @@
    [entities.creatures.data.interface :as creature-data]
    [entities.resources.views :as resources-view]
    [entities.actions.views :as actions-view]
-   [organisms.config :refer [palette]]
+   [organisms.config :refer [palette screen-width screen-height]]
    [organisms.library :as components]
    [organisms.environments.modals :as modals]))
 
 #_"The Creature page will show the portrait and main details of the creature at the top
 like their name, gender, race, and description. Below that will be a section for their stats in each domain and their damage trackers. Below that will be a search bar for viewing their resources that automatically shows their favorites and has a button to show all and a plus button to add a new resource which takes you to the resources tab of the app. Each of the resources will list their name, their quality, their power, and their quantity with the ability to increase or decrease. Below that will be another search bar for viewing their actions that automatically shows their favorites and has a button to show all and a plus button to add a new action which takes you to the action tab of the app. Each of the actions will list their name, their quality, their power, and a button to start a roll with that action."
-
-(defn screen-width [] (.-width js/screen))
 
 (defn creature-select
   [conn creatures]
@@ -157,9 +155,10 @@ like their name, gender, race, and description. Below that will be a section for
      (interpose (section-divider)
                 (map stats-domain (repeat conn) domain-details))]))
 
+
 (defn resources [conn {:keys [:creature/resources]}]
   (let [resource-details (ds/pull-many @conn ["*"] resources)]
-    [:> rn/ScrollView {:style {:width (screen-width)}}
+    [:> rn/View {:style {:width (screen-width) :height (- (* 0.9 (screen-height)) 25)}}
      (resources-view/resource-list conn {:resources resource-details
                                          :quantities (reduce (fn [qtys res]
                                                                (assoc qtys (:db/id res) (rand-int 3)))
@@ -169,7 +168,7 @@ like their name, gender, race, and description. Below that will be a section for
 
 (defn actions [conn {:keys [:db/id :creature/actions]}]
   (let [action-details (action-data/get-all-actions conn)]
-    [:> rn/ScrollView {:style {:width (screen-width)}}
+    [:> rn/View {:style {:width (screen-width) :height (- (* 0.9 (screen-height)) 25)}}
      (actions-view/action-list conn
                                {:creature-id id
                                 :actions action-details

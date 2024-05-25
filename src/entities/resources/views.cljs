@@ -13,7 +13,7 @@
 (defn resource-modal
   [conn id quantity]
   (let [resource (resource-data/get-resource conn id)]
-    [:> rn/View
+    [:> rn/View {:style {:height "100%"}}
      (components/default-text (:title resource) {:font-size 24})
      (components/default-text (str "(" (:resource/type resource) ")") {:font-size 12})
      (components/default-text (:resource/description resource))

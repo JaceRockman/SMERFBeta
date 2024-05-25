@@ -14,5 +14,5 @@
       [:> rn/View {:style {:position :absolute :width "100%" :height "100%" :background-color "rgba(0, 0, 0, 0.6)" :justify-content :flex-end}}
        [:> rn/Pressable {:style {:flex 100 :width "100%"}
                         :on-press #(reset! modal-content nil)}]
-       [:> rn/ScrollView {:style {:padding 5 :border-width 2 :border-color (:surface-700 @palette) :background-color (:surface-100 @palette) :width "100%" :max-height "80%" :padding-bottom "5%"}}
+       [:> rn/View {:style {:border-width 2 :border-color (:surface-700 @palette) :background-color (:surface-100 @palette) :width "100%" :max-height "80%"}}
         content]])))
