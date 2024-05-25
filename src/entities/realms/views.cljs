@@ -69,17 +69,19 @@
 
 (defn realm-details
   [conn subrealm-data]
-  [:> rn/ScrollView {:style {:flex :1}}
+  [:> rn/ScrollView {:style {:height "100%"}}
    (components/default-realm-markdown conn (:realm/entity-details subrealm-data))
    (let [parents (realm-data/get-realm-entity-parents conn (:db/id subrealm-data))
          children (realm-data/get-realm-entity-children conn (:db/id subrealm-data))]
      [:> rn/View
-      (when-not (empty? parents)
+      [:> rn/View
+       (when-not (empty? parents)
         (subrealm-select conn parents {:list-header "Parents"
-                                       :collapsed? true}))
-      (when-not (empty? children)
+                                       :collapsed? true}))]
+      [:> rn/View
+       (when-not (empty? children)
         (subrealm-select conn children {:list-header "Children"
-                                        :collapsed? true}))])])
+                                        :collapsed? true}))]])])
 
 (defn realm-home [conn]
   (let [active-campaign-data (campaign-data/get-active-campaign conn)
