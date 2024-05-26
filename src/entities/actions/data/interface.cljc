@@ -14,6 +14,9 @@
 (def get-selected-skill core/get-selected-skill)
 (def set-selected-skill core/set-selected-skill)
 
+(def toggle-resource-selection core/toggle-resource-selection)
+(def get-selected-resources core/get-selected-resources)
+
 (def dummy-roll-value core/dummy-roll-value)
 
 

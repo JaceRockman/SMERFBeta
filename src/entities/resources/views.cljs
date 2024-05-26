@@ -2,13 +2,8 @@
   (:require ["react-native" :as rn]
             [entities.resources.data.interface :as resource-data]
             [entities.actions.views :refer [action-list]]
-            [systems.navigation :as navigation]
+            [organisms.config :refer [screen-width]]
             [organisms.library :as components]))
-
-(defn screen-width [] (.-width js/screen))
-
-(defn section-divider []
-  [:> rn/View {:style {:background-color :lavender :width "80%" :height 2 :align-self :center}}])
 
 (defn resource-modal
   [conn id quantity]
@@ -22,10 +17,13 @@
      (components/default-text (str "Quantity: " (or quantity 0)))
      (action-list conn {:id (:id resource) :actions (:resource/actions resource) :header "Actions" :collapsed? false})]))
 
-(defn resource [conn flex-vals]
+(defn resource [conn {:keys [flex-vals on-press-override style]}]
   (fn [{:keys [id title quality-value power-value] :as resource} quantity]
-    [:> rn/Pressable {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}
-                      :on-press #(reset! components/modal-content {:fn resource-modal :args [conn id quantity]})}
+    [:> rn/Pressable {:style (merge {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"} style)
+                      :on-press (or on-press-override
+                                    (fn []
+                                      (reset! components/modal-content
+                                              {:fn resource-modal :args [conn id quantity]})))}
      (components/default-text title {:flex (nth flex-vals 0) :font-size 16})
      (components/default-text quality-value {:flex (nth flex-vals 1) :font-size 16})
      (components/default-text power-value {:flex (nth flex-vals 2) :font-size 16})
@@ -45,14 +43,17 @@
         items (type-section-from-resources "Item" resources)]
     (remove nil? [equipment traits expertise affiliations items])))
 
-(defn resource-list [conn {:keys [resources quantities header]}]
+(defn resource-list [conn {:keys [resources quantities header on-press-override item-style]}]
   (let [flex-vals [3 1 1 2]]
     (components/search-filter-sort-list
      {:list-header      header
       :items            resources
       :column-headers   ["Title" "Quality" "Power" "Quantity"]
       :column-flex-vals flex-vals
-      :item-format-fn   #((resource conn flex-vals) % (get quantities (:db/id resource)))
+      :item-format-fn   (fn [resource-data]
+                          ((resource conn {:flex-vals flex-vals
+                                           :on-press-override on-press-override
+                                           :style item-style}) resource-data (get quantities (:db/id resource))))
       :section-sort-fns [sort-resources-by-type]}
      "resources")))
 

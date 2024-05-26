@@ -2,12 +2,14 @@
   (:require [datascript.core :as ds]))
 
 (defn init-campaigns
-  [example-realms example-rulesets example-creatures]
+  [example-realms example-rulesets example-creatures example-domains example-resources]
   [{:entity-type "campaign"
     :title "Fantasy"
     :campaign/realms example-realms
     :campaign/rulesets example-rulesets
-    :campaign/creatures example-creatures}
+    :campaign/creatures example-creatures
+    :campaign/domains example-domains
+    :campaign/resources example-resources}
    {:entity-type "campaign"
     :title "Science Fiction"}
    {:entity-type "campaign"
@@ -53,6 +55,16 @@
   [conn]
   (when-let [active-campaign-data (get-active-campaign conn)]
     (ds/pull-many @conn '[*] (:campaign/creatures active-campaign-data))))
+
+(defn get-active-campaign-default-domains
+  [conn]
+  (when-let [active-campaign-data (get-active-campaign conn)]
+    (ds/pull-many @conn '[*] (:campaign/domains active-campaign-data))))
+
+(defn get-active-campaign-resources
+  [conn]
+  (when-let [active-campaign-data (get-active-campaign conn)]
+    (ds/pull-many @conn '[*] (:campaign/resources active-campaign-data))))
 
 (defn set-active-campaign [conn campaign-id]
   (ds/transact! conn [{:db/id -1

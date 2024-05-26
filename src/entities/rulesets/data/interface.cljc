@@ -15,6 +15,6 @@
 
 (def set-active-ruleset core/set-active-ruleset)
 
-
+(def get-domains-data core/get-domains-data)
 (def default-domains core/default-domains)
 (def example-rulesets core/example-rulesets)

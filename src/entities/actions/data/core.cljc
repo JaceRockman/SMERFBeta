@@ -165,6 +165,22 @@
   (ds/transact! conn [{:db/id action-id
                        :action/skill skill}]))
 
+(defn get-selected-resources
+  [conn action-id]
+  (map first (ds/q '[:find ?resources
+                     :in $ ?action-id
+                     :where [?action-id :action/resources ?resources]]
+                   @conn action-id)))
+
+(defn toggle-resource-selection
+  [conn resource-id action-id]
+  (let [selected-resources (or (get-selected-resources conn action-id) [])]
+    (if (some #(= resource-id %) selected-resources)
+      (ds/transact! conn [[:db/retract action-id
+                           :action/resources resource-id]])
+      (ds/transact! conn [{:db/id action-id
+                           :action/resources (cons resource-id selected-resources)}]))))
+
 (defn divide-evenly [n m]
   (let [q (quot n m)
         r (rem n m)]
@@ -199,7 +215,7 @@
         base-dice-mod (+ (rand-int 4) resource-flat-mod)
         splintered-quantities (divide-evenly base-dice-quantity 2)
         splintered-mods (divide-evenly base-dice-mod 2)
-        _ (println splintered-quantities)
+        ;; _ (println splintered-quantities)
         dice-pools (map vector splintered-quantities (repeat base-dice-size) splintered-mods)
         combined-dice-pools (map apply-combinations dice-pools [1 2])]
     ;; (println "skill-value" skill-value)

@@ -5,8 +5,7 @@
             [organisms.config :refer [palette screen-width]]
             [organisms.library :as components]
             [organisms.environments.modals :as modals]
-            [entities.creatures.data.interface :as creature-data]
-            [entities.actions.data.interface :as action-data]))
+            [entities.creatures.data.interface :as creature-data]))
 
 (defn skill
   [title value]
@@ -78,41 +77,6 @@
 (def selected-skill
   (r/atom nil))
 
-(defn stats-picker-domain
-  [conn
-   {:keys
-    [:db/id
-     :title
-     :domain/initiation-title :domain/initiation-value
-     :domain/reaction-title :domain/reaction-value
-     :domain/continuation-title :domain/continuation-value
-     :domain/dominance-title :domain/dominance-value
-     :domain/competence-title :domain/competence-value
-     :domain/resilience-title :domain/resilience-value
-     :domain/minor-wounds :domain/moderate-wounds :domain/major-wounds]}
-   action-id]
-  (let [flex-vals [2 3 1 1]
-        initiation-item {:title initiation-title :quality initiation-value :power dominance-value}
-        reaction-item {:title reaction-title :quality reaction-value :power competence-value}
-        continuation-item {:title continuation-title :quality continuation-value :power resilience-value}]
-    [:> rn/View {:style {:padding "0px 10px 0px 10px"}}
-     (components/default-text title {:font-size 24})
-     (components/flat-list {:items [initiation-item reaction-item continuation-item]
-                            :headers ["Selected" "Title" "Quality" "Power"]
-                            :flex-vals flex-vals
-                            :row-constructor (fn [item]
-                                               (let [selected-skill (action-data/get-selected-skill conn action-id)]
-                                                 [:> rn/Pressable {:style {:flex-direction :row}
-                                                                 :on-press (fn [] (action-data/set-selected-skill conn action-id (:title item)))}
-                                                (components/default-text (if (= (:title item) selected-skill) "X" "[ ]")
-                                                                         {:flex (nth flex-vals 0)})
-                                                (components/default-text (:title item)
-                                                                         {:flex (nth flex-vals 1)})
-                                                (components/default-text (:quality item)
-                                                                         {:flex (nth flex-vals 2)})
-                                                (components/default-text (str "d" (:power item))
-                                                                         {:flex (nth flex-vals 3)})]))})]))
-
 (defn stats-domain
   [conn
    {:keys
@@ -158,7 +122,7 @@
 (defn stats-section-style []
   {:padding 10 :width (screen-width) :gap 10})
 
-(defn stats-picker
+#_(defn stats-picker
   [conn creature-details action-id]
   (let [domain-details (creature-data/get-creature-domains conn creature-details)]
     [:> rn/ScrollView {:style (stats-section-style)}

@@ -6,6 +6,8 @@
 (def get-campaign)
 (def get-all-campaigns core/get-all-campaigns)
 (def get-active-campaign core/get-active-campaign)
+(def get-active-campaign-resources core/get-active-campaign-resources)
+(def get-active-campaign-default-domains core/get-active-campaign-default-domains)
 (def get-active-campaign-creatures core/get-active-campaign-creatures)
 (def get-active-campaign-realms core/get-active-campaign-realms)
 (def get-active-campaign-rules core/get-active-campaign-rulesets)

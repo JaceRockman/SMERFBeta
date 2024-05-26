@@ -24,6 +24,10 @@
   [conn ruleset-title]
   (ds/pull @conn '[*] (ruleset-eid-by-title conn ruleset-title)))
 
+(defn get-domains-data
+  [conn domain-ids]
+  (ds/pull-many @conn '[*] domain-ids))
+
 (defn get-active-ruleset-id
   [conn]
   (let [nav-state (navigation/get-main-nav-state-list conn)]
@@ -267,6 +271,8 @@ Connections represents how many relationships and affiliations a creature has, h
                        :domain/minor-wounds 0
                        :domain/moderate-wounds 0
                        :domain/major-wounds 0}])
+
+
 
 (def simple-ruleset
   [{:title "Simple Ruleset"
