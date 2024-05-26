@@ -18,3 +18,5 @@
 (def get-domains-data core/get-domains-data)
 (def default-domains core/default-domains)
 (def example-rulesets core/example-rulesets)
+
+(def get-stat-value-from-title core/get-stat-value-from-title)

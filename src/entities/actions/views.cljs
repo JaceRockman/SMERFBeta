@@ -41,24 +41,41 @@
            :domain/resilience-title :domain/resilience-value
            :domain/minor-wounds :domain/moderate-wounds :domain/major-wounds]}]
       (let [flex-vals         [3 1 1]
-            initiation-item   {:title initiation-title :quality initiation-value :power dominance-value}
-            reaction-item     {:title reaction-title :quality reaction-value :power competence-value}
-            continuation-item {:title continuation-title :quality continuation-value :power resilience-value}]
+            initiation-item   {:title initiation-title
+                               :quality-key :domain/initiation-value :quality initiation-value
+                               :power-key :domain/dominance-value :power dominance-value}
+            reaction-item     {:title reaction-title
+                               :quality-key :domain/reaction-value :quality reaction-value
+                               :power-key :domain/competence-value :power competence-value}
+            continuation-item {:title continuation-title
+                               :quality-key :domain/continuation-value :quality continuation-value
+                               :power-key :domain/resilience-value :power resilience-value}]
         [:> rn/View {:style {:padding "0px 10px 0px 10px" :width (screen-width)}}
          (components/default-text title {:font-size 24})
-         (components/flat-list {:items           [initiation-item reaction-item continuation-item]
-                                :headers         ["Title" "Quality" "Power"]
-                                :flex-vals       flex-vals
-                                :row-constructor (fn [item]
-                                                   (let [selected-skill (action-data/get-selected-skill conn action-id)]
-                                                     [:> rn/Pressable {:style    {:flex-direction :row :background-color (when (= (:title item) selected-skill) (str (:surface-600 @palette) "80"))}
-                                                                       :on-press (fn [] (action-data/set-selected-skill conn action-id (:title item)))}
-                                                      (components/default-text (:title item)
-                                                                               {:flex (nth flex-vals 0)})
-                                                      (components/default-text (:quality item)
-                                                                               {:flex (nth flex-vals 1)})
-                                                      (components/default-text (str "d" (:power item))
-                                                                               {:flex (nth flex-vals 2)})]))})]))
+         (components/flat-list
+          {:items           [initiation-item reaction-item continuation-item]
+           :headers         ["Title" "Quality" "Power"]
+           :flex-vals       flex-vals
+           :row-constructor (fn [item]
+                              (let [selected-skill-value-key (action-data/get-selected-skill conn action-id)
+                                    _ (println (= selected-skill-value-key (name (:quality-key item))))
+                                    selected-skill (:title (first (filter #(= selected-skill-value-key (name (:quality-key %))) [initiation-item reaction-item continuation-item])))
+                                    selected-domain (action-data/get-selected-domain conn action-id)]
+                                [:> rn/Pressable
+                                 {:style {:flex-direction :row :background-color (when (and (= id selected-domain) (= (:title item) selected-skill)) (str (:surface-600 @palette) "80"))}
+                                  :on-press (fn []
+                                              (action-data/set-selected-skill
+                                               conn action-id (name (:quality-key item)))
+                                              (action-data/set-selected-ability
+                                               conn action-id (name (:power-key item)))
+                                              (action-data/set-selected-domain
+                                               conn action-id id))}
+                                 (components/default-text (:title item)
+                                                          {:flex (nth flex-vals 0)})
+                                 (components/default-text (:quality item)
+                                                          {:flex (nth flex-vals 1)})
+                                 (components/default-text (str "d" (:power item))
+                                                          {:flex (nth flex-vals 2)})]))})]))
     domains)])
 
 (defn sort-resources-by-type
@@ -102,12 +119,12 @@
 
 (defn decrementor-and-incrementor
   [label number dec-fn inc-fn]
-  [:> rn/View
-   (components/default-text label)
+  [:> rn/View {:style {:justify-content :center :align-items :center}}
+   (components/default-text label {:align-self :center})
    [:> rn/View {:style {:flex-direction :row :align-content :center :gap 10}}
     [:> rn/Pressable {:on-press dec-fn}
      (components/default-text "-")]
-    (components/default-text number {:text-align :center})
+    (components/default-text number {:text-align :center :flex 0})
     [:> rn/Pressable {:on-press inc-fn}
      (components/default-text "+")]]])
 
@@ -137,6 +154,15 @@
                                   #(action-data/update-flat-bonuses conn action-id dec)
                                   #(action-data/update-flat-bonuses conn action-id inc))]]])
 
+(defn roll-splinters-tab
+  [conn action-id]
+  [:> rn/View {:style {:width (screen-width) :flex 1}}
+   (decrementor-and-incrementor "Dice Pools"
+                                (action-data/get-splinters conn action-id)
+                                #(action-data/update-splinters conn action-id dec)
+                                #(action-data/update-splinters conn action-id inc))
+   ])
+
 (defn construct-roll
   [conn action-data domains resources]
   [:> rn/View
@@ -147,7 +173,7 @@
     [(stats-selector conn (:id action-data) domains)
      (resource-multi-select conn (:id action-data) resources)
      (roll-modifiers-tab conn (:id action-data))
-     [:> rn/View {:style {:width (screen-width)}}]
+     (roll-splinters-tab conn (:id action-data))
      [:> rn/View {:style {:width (screen-width)}}]])])
 
 (defn action-constructor [conn flex-vals domains resources]

@@ -5,6 +5,7 @@
   [{:title "Physical Health Check"
     :entity-type "action"
     :action/description ""
+    :action/domain ""
     :action/skill "Endurance"
     :action/ability ""
     :action/resources []
@@ -19,6 +20,7 @@
    {:title "Spiritual Health Check"
     :entity-type "action"
     :action/description ""
+    :action/domain ""
     :action/skill "Perseverance"
     :action/ability ""
     :action/resources []
@@ -33,6 +35,7 @@
    {:title "Mental Health Check"
     :entity-type "action"
     :action/description ""
+    :action/domain ""
     :action/skill "Comprehension"
     :action/ability ""
     :action/resources []
@@ -47,6 +50,7 @@
    {:title "Social Health Check"
     :entity-type "action"
     :action/description ""
+    :action/domain ""
     :action/skill "Connections"
     :action/ability ""
     :action/resources []
@@ -61,6 +65,7 @@
    {:title "Other Health Check"
     :entity-type "action"
     :action/description ""
+    :action/domain ""
     :action/skill "Endurance"
     :action/ability ""
     :action/resources []
@@ -75,6 +80,7 @@
    {:title "My Health Check"
     :entity-type "action"
     :action/description ""
+    :action/domain ""
     :action/skill "Perseverance"
     :action/ability ""
     :action/resources []
@@ -89,6 +95,7 @@
    {:title "New Health Check"
     :entity-type "action"
     :action/description ""
+    :action/domain ""
     :action/skill "Comprehension"
     :action/ability ""
     :action/resources []
@@ -103,6 +110,7 @@
    {:title "The Health Check"
     :entity-type "action"
     :action/description ""
+    :action/domain ""
     :action/skill "Connections"
     :action/ability ""
     :action/resources []
@@ -117,6 +125,7 @@
    {:title "Ok Health Check"
     :entity-type "action"
     :action/description ""
+    :action/domain ""
     :action/skill "Endurance"
     :action/ability ""
     :action/resources []
@@ -131,6 +140,7 @@
    {:title "Great Health Check"
     :entity-type "action"
     :action/description ""
+    :action/domain ""
     :action/skill "Perseverance"
     :action/ability ""
     :action/resources []
@@ -145,6 +155,7 @@
    {:title "Best Health Check"
     :entity-type "action"
     :action/description ""
+    :action/domain ""
     :action/skill "Comprehension"
     :action/ability ""
     :action/resources []
@@ -159,6 +170,7 @@
    {:title "Not a Health Check"
     :entity-type "action"
     :action/description ""
+    :action/domain ""
     :action/skill "Connections"
     :action/ability ""
     :action/resources []
@@ -188,6 +200,32 @@
   [conn action-id skill]
   (ds/transact! conn [{:db/id action-id
                        :action/skill skill}]))
+
+(defn get-selected-ability
+  [conn action-id]
+  (ffirst
+   (ds/q '[:find ?ability
+           :in $ ?action-id
+           :where [?action-id :action/ability ?ability]]
+         @conn action-id)))
+
+(defn set-selected-ability
+  [conn action-id ability]
+  (ds/transact! conn [{:db/id action-id
+                       :action/ability ability}]))
+
+(defn get-selected-domain
+  [conn action-id]
+  (ffirst
+   (ds/q '[:find ?domain
+           :in $ ?action-id
+           :where [?action-id :action/domain ?domain]]
+         @conn action-id)))
+
+(defn set-selected-domain
+  [conn action-id domain]
+  (ds/transact! conn [{:db/id action-id
+                       :action/domain domain}]))
 
 (defn get-selected-resources
   [conn action-id]
@@ -279,6 +317,24 @@
 
 
 
+(defn get-splinters
+  [conn action-id]
+  (ffirst (ds/q '[:find ?splinters
+                  :in $ ?action-id
+                  :where [?action-id :action/splinters ?splinters]]
+                @conn action-id)))
+
+(defn update-splinters
+  [conn action-id update-fn]
+  (let [current-splinters  (get-splinters conn action-id)
+        updated-flat-bonus (update-fn current-splinters)]
+    (when (<= 1 updated-flat-bonus)
+      (ds/transact! conn [{:db/id            action-id
+                           :action/splinters updated-flat-bonus}]))))
+
+(defn calculate-dice-pools
+  [conn action-id]
+  )
 
 (defn divide-evenly [n m]
   (let [q (quot n m)
@@ -330,12 +386,13 @@
     (interpose "\n" (map format-dice-pool combined-dice-pools))))
 
 (defn derive-roll-value [conn
-                         creature-id
                          {:keys [:action/ability :action/skill
                                  :action/dice-mod :action/flat-mod
                                  :action/resources
                                  :action/splinters
-                                 :action/combinations]}]
+                                 :action/combinations]
+                          :as action}
+                         domains]
   (let [[skill-value ability-value] [(inc (rand-int 3)) (* 2 (inc (rand-int 5)))]
         [resource-dice-mod resource-flat-mod] [(rand-int 3) (rand-int 4)]
         base-dice-quantity (+ skill-value dice-mod resource-dice-mod)
@@ -343,7 +400,6 @@
         base-dice-mod (+ flat-mod resource-flat-mod)
         splintered-quantities (divide-evenly base-dice-quantity splinters)
         splintered-mods (divide-evenly base-dice-mod splinters)
-        _ (println splintered-quantities)
         dice-pools (map vector splintered-quantities (repeat base-dice-size) splintered-mods)
         combined-dice-pools (map apply-combinations dice-pools combinations)]
-    (interpose " | "(map format-dice-pool combined-dice-pools))))
+    (interpose " | " (map format-dice-pool combined-dice-pools))))

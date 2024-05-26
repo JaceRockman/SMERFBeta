@@ -1,5 +1,6 @@
 (ns entities.rulesets.data.core
-  (:require [datascript.core :as ds]
+  (:require [clojure.string :as str]
+            [datascript.core :as ds]
             [systems.navigation :as navigation]))
 
 (defn get-all-rulesets-ids
@@ -191,6 +192,21 @@ Connections represents how many relationships and affiliations a creature has, h
    :presence "# Presence"
    :wit "# Wit"
    :poise "# Poise"})
+
+
+(defn get-stat-value-from-title
+  [conn domains stat-title]
+  (let [domain (first (filter #(some (fn [domain-val] (= domain-val stat-title)) (vals %)) domains))
+        _ (println domain)
+        stat-title-key (first (filter (comp #{stat-title} domain) (keys domain)))
+        _ (println stat-title-key)
+        stat-category (-> stat-title-key
+                          name
+                          (str/split #"-")
+                          first)
+        stat-value-key (keyword (str "domain/" stat-category "-value"))]
+    (println stat-value-key)
+    (get domain stat-value-key)))
 
 (def default-domains [{:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
                        :title "Physical"
