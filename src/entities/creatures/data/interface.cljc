@@ -3,7 +3,7 @@
 
 (def create-creature)
 
-(def get-creature)
+(def get-creature core/get-creature-by-id)
 (def get-all-creatures core/get-all-creatures)
 (def get-active-creature core/get-active-creature)
 (def get-creature-races core/get-creature-races)

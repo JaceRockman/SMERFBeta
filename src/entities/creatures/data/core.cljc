@@ -151,6 +151,11 @@
           :where [?e :creature/name]]
         @conn))
 
+(defn get-creature-by-id
+  [conn creature-id]
+  (println (ds/pull @conn '[*] creature-id))
+  (ds/pull @conn '[*] creature-id))
+
 ;; Pull Patterns
 ;; Pull patterns define the structure of the data to be returned given an entity id
 

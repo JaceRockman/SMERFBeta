@@ -152,6 +152,19 @@
                                      @conn))]
     (ds/pull-many @conn '[*] action-eids)))
 
+(defn get-selected-skill
+  [conn action-id]
+  (ffirst
+   (ds/q '[:find ?skill
+           :in $ ?action-id
+           :where [?action-id :action/skill ?skill]]
+         @conn action-id)))
+
+(defn set-selected-skill
+  [conn action-id skill]
+  (ds/transact! conn [{:db/id action-id
+                       :action/skill skill}]))
+
 (defn divide-evenly [n m]
   (let [q (quot n m)
         r (rem n m)]

@@ -11,6 +11,9 @@
 
 (def delete-action)
 
+(def get-selected-skill core/get-selected-skill)
+(def set-selected-skill core/set-selected-skill)
+
 (def dummy-roll-value core/dummy-roll-value)
 
 
