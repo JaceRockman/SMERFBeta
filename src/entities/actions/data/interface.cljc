@@ -17,6 +17,17 @@
 (def toggle-resource-selection core/toggle-resource-selection)
 (def get-selected-resources core/get-selected-resources)
 
+(def get-dice-penalties core/get-dice-penalties)
+(def get-dice-bonuses core/get-dice-bonuses)
+(def get-dice-modifier core/get-dice-modifier)
+(def get-flat-penalties core/get-flat-penalties)
+(def get-flat-bonuses core/get-flat-bonuses)
+(def get-flat-modifier core/get-flat-modifier)
+(def update-dice-penalties core/update-dice-penalties)
+(def update-dice-bonuses core/update-dice-bonuses)
+(def update-flat-penalties core/update-flat-penalties)
+(def update-flat-bonuses core/update-flat-bonuses)
+
 (def dummy-roll-value core/dummy-roll-value)
 
 

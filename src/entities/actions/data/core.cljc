@@ -8,8 +8,10 @@
     :action/skill "Endurance"
     :action/ability ""
     :action/resources []
-    :action/dice-mod 0
-    :action/flat-mod 0
+    :action/dice-penalty 0
+    :action/dice-bonus 0
+    :action/flat-penalty 0
+    :action/flat-bonus 0
     :action/splinters 1
     :action/combinations ""
     :action/target-number 0}
@@ -20,8 +22,10 @@
     :action/skill "Perseverance"
     :action/ability ""
     :action/resources []
-    :action/dice-mod 0
-    :action/flat-mod 0
+    :action/dice-penalty 0
+    :action/dice-bonus 0
+    :action/flat-penalty 0
+    :action/flat-bonus 0
     :action/splinters 1
     :action/combinations ""
     :action/target-number 0}
@@ -32,8 +36,10 @@
     :action/skill "Comprehension"
     :action/ability ""
     :action/resources []
-    :action/dice-mod 0
-    :action/flat-mod 0
+    :action/dice-penalty 0
+    :action/dice-bonus 0
+    :action/flat-penalty 0
+    :action/flat-bonus 0
     :action/splinters 1
     :action/combinations ""
     :action/target-number 0}
@@ -44,8 +50,10 @@
     :action/skill "Connections"
     :action/ability ""
     :action/resources []
-    :action/dice-mod 2
-    :action/flat-mod 1
+    :action/dice-penalty 0
+    :action/dice-bonus 0
+    :action/flat-penalty 0
+    :action/flat-bonus 0
     :action/splinters 2
     :action/combinations [1 1]
     :action/target-number 0}
@@ -56,8 +64,10 @@
     :action/skill "Endurance"
     :action/ability ""
     :action/resources []
-    :action/dice-mod 0
-    :action/flat-mod 0
+    :action/dice-penalty 0
+    :action/dice-bonus 0
+    :action/flat-penalty 0
+    :action/flat-bonus 0
     :action/splinters 1
     :action/combinations ""
     :action/target-number 0}
@@ -68,8 +78,10 @@
     :action/skill "Perseverance"
     :action/ability ""
     :action/resources []
-    :action/dice-mod 0
-    :action/flat-mod 0
+    :action/dice-penalty 0
+    :action/dice-bonus 0
+    :action/flat-penalty 0
+    :action/flat-bonus 0
     :action/splinters 1
     :action/combinations ""
     :action/target-number 0}
@@ -80,8 +92,10 @@
     :action/skill "Comprehension"
     :action/ability ""
     :action/resources []
-    :action/dice-mod 0
-    :action/flat-mod 0
+    :action/dice-penalty 0
+    :action/dice-bonus 0
+    :action/flat-penalty 0
+    :action/flat-bonus 0
     :action/splinters 1
     :action/combinations ""
     :action/target-number 0}
@@ -92,8 +106,10 @@
     :action/skill "Connections"
     :action/ability ""
     :action/resources []
-    :action/dice-mod 2
-    :action/flat-mod 1
+    :action/dice-penalty 0
+    :action/dice-bonus 0
+    :action/flat-penalty 0
+    :action/flat-bonus 0
     :action/splinters 2
     :action/combinations [1 1]
     :action/target-number 0}
@@ -104,8 +120,10 @@
     :action/skill "Endurance"
     :action/ability ""
     :action/resources []
-    :action/dice-mod 0
-    :action/flat-mod 0
+    :action/dice-penalty 0
+    :action/dice-bonus 0
+    :action/flat-penalty 0
+    :action/flat-bonus 0
     :action/splinters 1
     :action/combinations ""
     :action/target-number 0}
@@ -116,8 +134,10 @@
     :action/skill "Perseverance"
     :action/ability ""
     :action/resources []
-    :action/dice-mod 0
-    :action/flat-mod 0
+    :action/dice-penalty 0
+    :action/dice-bonus 0
+    :action/flat-penalty 0
+    :action/flat-bonus 0
     :action/splinters 1
     :action/combinations ""
     :action/target-number 0}
@@ -128,8 +148,10 @@
     :action/skill "Comprehension"
     :action/ability ""
     :action/resources []
-    :action/dice-mod 0
-    :action/flat-mod 0
+    :action/dice-penalty 0
+    :action/dice-bonus 0
+    :action/flat-penalty 0
+    :action/flat-bonus 0
     :action/splinters 1
     :action/combinations ""
     :action/target-number 0}
@@ -140,8 +162,10 @@
     :action/skill "Connections"
     :action/ability ""
     :action/resources []
-    :action/dice-mod 2
-    :action/flat-mod 1
+    :action/dice-penalty 0
+    :action/dice-bonus 0
+    :action/flat-penalty 0
+    :action/flat-bonus 0
     :action/splinters 2
     :action/combinations [1 1]
     :action/target-number 0}])
@@ -180,6 +204,81 @@
                            :action/resources resource-id]])
       (ds/transact! conn [{:db/id action-id
                            :action/resources (cons resource-id selected-resources)}]))))
+
+(defn get-dice-penalties
+  [conn action-id]
+  (ffirst (ds/q '[:find ?penalties
+                  :in $ ?action-id
+                  :where [?action-id :action/dice-penalty ?penalties]]
+        @conn action-id)))
+
+(defn update-dice-penalties
+  [conn action-id update-fn]
+  (let [current-dice-penalty (get-dice-penalties conn action-id)
+        updated-dice-penalty (update-fn current-dice-penalty)]
+    (when (<= 0 updated-dice-penalty)
+      (ds/transact! conn [{:db/id action-id
+                          :action/dice-penalty updated-dice-penalty}]))))
+
+(defn get-dice-bonuses
+  [conn action-id]
+  (ffirst (ds/q '[:find ?penalties
+                  :in $ ?action-id
+                  :where [?action-id :action/dice-bonus ?penalties]]
+        @conn action-id)))
+
+(defn update-dice-bonuses
+  [conn action-id update-fn]
+  (let [current-dice-bonus (get-dice-bonuses conn action-id)
+        updated-dice-bonus (update-fn current-dice-bonus)]
+    (when (<= 0 updated-dice-bonus)
+      (ds/transact! conn [{:db/id action-id
+                          :action/dice-bonus updated-dice-bonus}]))))
+
+(defn get-dice-modifier
+  [conn action-id]
+  (let [penalties (get-dice-penalties conn action-id)
+        bonuses (get-dice-bonuses conn action-id)]
+    (- bonuses penalties)))
+
+(defn get-flat-penalties
+  [conn action-id]
+  (ffirst (ds/q '[:find ?penalties
+                  :in $ ?action-id
+                  :where [?action-id :action/flat-penalty ?penalties]]
+        @conn action-id)))
+
+(defn update-flat-penalties
+  [conn action-id update-fn]
+  (let [current-flat-penalty (get-flat-penalties conn action-id)
+        updated-flat-penalty (update-fn current-flat-penalty)]
+    (when (<= 0 updated-flat-penalty)
+      (ds/transact! conn [{:db/id               action-id
+                           :action/flat-penalty updated-flat-penalty}]))))
+
+(defn get-flat-bonuses
+  [conn action-id]
+  (ffirst (ds/q '[:find ?penalties
+                  :in $ ?action-id
+                  :where [?action-id :action/flat-bonus ?penalties]]
+        @conn action-id)))
+
+(defn update-flat-bonuses
+  [conn action-id update-fn]
+  (let [current-flat-bonus (get-flat-bonuses conn action-id)
+        updated-flat-bonus (update-fn current-flat-bonus)]
+    (when (<= 0 updated-flat-bonus)
+      (ds/transact! conn [{:db/id             action-id
+                           :action/flat-bonus updated-flat-bonus}]))))
+
+(defn get-flat-modifier
+  [conn action-id]
+  (let [penalties (get-flat-penalties conn action-id)
+        bonuses (get-flat-bonuses conn action-id)]
+    (- bonuses penalties)))
+
+
+
 
 (defn divide-evenly [n m]
   (let [q (quot n m)

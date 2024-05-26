@@ -100,17 +100,55 @@
        :section-sort-fns [sort-resources-by-type]}
       "resources")]))
 
+(defn decrementor-and-incrementor
+  [label number dec-fn inc-fn]
+  [:> rn/View
+   (components/default-text label)
+   [:> rn/View {:style {:flex-direction :row :align-content :center :gap 10}}
+    [:> rn/Pressable {:on-press dec-fn}
+     (components/default-text "-")]
+    (components/default-text number {:text-align :center})
+    [:> rn/Pressable {:on-press inc-fn}
+     (components/default-text "+")]]])
+
+(defn roll-modifiers-tab
+  [conn action-id]
+  [:> rn/View {:style {:width (screen-width) :flex 1 :gap 20 :padding-bottom 20}}
+   [:> rn/View
+    (components/default-text (str "Dice Modifier: " (action-data/get-dice-modifier conn action-id)) {:flex 0 :text-align :center :font-size 20})
+    [:> rn/View {:style {:flex-direction :row :justify-content :space-evenly}}
+     (decrementor-and-incrementor "Penalties"
+                                  (action-data/get-dice-penalties conn action-id)
+                                  #(action-data/update-dice-penalties conn action-id dec)
+                                  #(action-data/update-dice-penalties conn action-id inc))
+     (decrementor-and-incrementor "Bonuses"
+                                  (action-data/get-dice-bonuses conn action-id)
+                                  #(action-data/update-dice-bonuses conn action-id dec)
+                                  #(action-data/update-dice-bonuses conn action-id inc))]]
+   [:> rn/View
+    (components/default-text (str "Flat Modifier: " (action-data/get-flat-modifier conn action-id)) {:flex 0 :text-align :center :font-size 20})
+    [:> rn/View {:style {:flex-direction :row :justify-content :space-evenly}}
+     (decrementor-and-incrementor "Penalties"
+                                  (action-data/get-flat-penalties conn action-id)
+                                  #(action-data/update-flat-penalties conn action-id dec)
+                                  #(action-data/update-flat-penalties conn action-id inc))
+     (decrementor-and-incrementor "Bonuses"
+                                  (action-data/get-flat-bonuses conn action-id)
+                                  #(action-data/update-flat-bonuses conn action-id dec)
+                                  #(action-data/update-flat-bonuses conn action-id inc))]]])
 
 (defn construct-roll
   [conn action-data domains resources]
-  (components/indicated-scroll-view
-   components/roll-horizontal-position
-   ["Stats" "Resources" "Modifiers" "Shards" "SplitOrMerge"]
-   [(stats-selector conn (:id action-data) domains)
-    (resource-multi-select conn (:id action-data) resources)
-    [:> rn/View {:style {:width (screen-width)}}]
-    [:> rn/View {:style {:width (screen-width)}}]
-    [:> rn/View {:style {:width (screen-width)}}]]))
+  [:> rn/View
+   (components/default-text (:title action-data) {:flex 0 :font-size 24 :text-align :center})
+   (components/indicated-scroll-view
+    components/roll-horizontal-position
+    ["Stats" "Resources" "Modifiers" "Shards" "SplitOrMerge"]
+    [(stats-selector conn (:id action-data) domains)
+     (resource-multi-select conn (:id action-data) resources)
+     (roll-modifiers-tab conn (:id action-data))
+     [:> rn/View {:style {:width (screen-width)}}]
+     [:> rn/View {:style {:width (screen-width)}}]])])
 
 (defn action-constructor [conn flex-vals domains resources]
   (fn [action-data] [:> rn/View {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}}
