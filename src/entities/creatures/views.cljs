@@ -66,20 +66,20 @@ like their name, gender, race, and description. Below that will be a section for
 (defn damage-severity-tracker
   [conn domain-id {:keys [severity-title damage-quantity]}]
   [:> rn/View {:style {:flex 1}}
-   (components/inverted-text (str severity-title " Wounds"))
+   (components/default-text (str severity-title " Wounds"))
    [:> rn/View {:style {:flex-direction :row :align-items :center}}
     [:> rn/Image {:style {:flex 1}}]
     (components/button {:style {:padding 2 :background-color :inherit}
-                        :text-style {:color (:surface-100 @palette)}
+                        :text-style {:color (:surface-700 @palette)}
                         :on-press #(creature-data/update-wound-value conn domain-id severity-title dec)} "-")
-    (components/inverted-text damage-quantity {:flex 0})
+    (components/default-text damage-quantity {:flex 0})
     (components/button {:style {:padding 2 :background-color :inherit}
-                        :text-style {:color (:surface-100 @palette)}
+                        :text-style {:color (:surface-700 @palette)}
                         :on-press #(creature-data/update-wound-value conn domain-id severity-title inc)} "+")
     [:> rn/Image {:style {:flex 1}}]]])
 
 (defn domain-damage-modal
-  [conn domain-id minor-wounds major-wounds]
+  [conn domain-id]
   [:> rn/View {:style {:flex-direction :row}}
    (damage-severity-tracker
     conn
