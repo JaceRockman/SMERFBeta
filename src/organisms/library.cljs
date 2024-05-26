@@ -72,3 +72,5 @@
 (def scroll-position-indicator spi/scroll-position-indicator)
 (def ruleset-horizontal-position spi/ruleset-horizontal-position)
 (def creature-horizontal-position spi/creature-horizontal-position)
+(def roll-horizontal-position spi/roll-horizontal-position)
+(def indicated-scroll-view spi/indicated-scroll-view)

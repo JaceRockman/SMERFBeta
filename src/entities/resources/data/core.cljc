@@ -387,13 +387,15 @@
     :resource/power-value 0
     :resource/description ""}])
 
-
-
 (defn get-all-resources [conn]
   (let [resource-ids (map first (ds/q '[:find ?eid
                                        :where [?eid :entity-type "resource"]]
                                      @conn))]
     (ds/pull-many @conn '[*] resource-ids)))
+
+(defn get-resources-by-id
+  [conn resource-ids]
+  (ds/pull-many @conn '[*] resource-ids))
 
 (defn get-resource-by-id
   [conn resource-id]

@@ -1,8 +1,10 @@
 (ns entities.actions.views
-  (:require [reagent.core :as r]
+  (:require [clojure.math :as math]
+            [reagent.core :as r]
             ["react-native" :as rn]
             [entities.actions.data.interface :as action-data]
             [organisms.config :refer [screen-width]]
+            [organisms.environments.modals :as modals]
             [organisms.library :as components]))
 
 (defn sort-by-domain
@@ -21,14 +23,21 @@
      {:title "Mental" :data mental-actions}
      {:title "Social" :data social-actions}]))
 
-(defn action-constructor [flex-vals]
+(defn construct-roll
+  [conn action-data]
+  (components/indicated-scroll-view
+   components/roll-horizontal-position
+   ["Stats" "Resources" "Modifiers" "Shards" "SplitOrMerge"]
+   [[:> rn/View]]))
+
+(defn action-constructor [conn flex-vals]
   (fn [action-data] [:> rn/View {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}}
                      (components/default-text (:title action-data)
                                               {:flex (nth flex-vals 0) :font-size 16 :align-self :center})
                      (components/default-text (action-data/dummy-roll-value)
                                               {:flex (nth flex-vals 1) :font-size 16 :align-self :center})
                      [:> rn/Pressable {:style {:flex (nth flex-vals 2) :font-size 16 :align-self :center}
-                                       :on-press #(println "Rolled dice!")}
+                                       :on-press #(reset! modals/modal-content {:fn construct-roll :args [conn action-data]})}
                       (components/default-text "Roll!")]]))
 
 (defn action-list [conn {:keys [id actions header collapsed?]}]
@@ -39,7 +48,7 @@
       :items            actions
       :column-headers   ["Title" "Roll Value" "Start Roll"]
       :column-flex-vals flex-vals
-      :item-format-fn   (action-constructor flex-vals)
+      :item-format-fn   (action-constructor conn flex-vals)
       :sort-fns         [sort-by-domain]}
      (str id "actions"))))
 

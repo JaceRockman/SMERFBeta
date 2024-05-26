@@ -3,7 +3,7 @@
             [entities.campaigns.views :as campaign-views]
             [entities.realms.views :as realm-views]
             [entities.rulesets.views :as ruleset-views] 
-            [entities.creatures.views :as creature-views]
+            [entities.creatures.views.main :as creature-views]
             [entities.resources.views :as resource-views]
             [entities.actions.views :as action-views]))
 
@@ -29,7 +29,7 @@
   (ruleset-views/rules conn props))
 
 (defn creatures [conn ^js props]
-  (creature-views/creatures conn props))
+  (creature-views/creatures-page conn props))
 
 (defn resources [conn ^js props]
   (resource-views/resources conn props))
