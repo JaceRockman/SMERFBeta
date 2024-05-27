@@ -214,30 +214,27 @@
 
 (defn action-list
   [conn {:keys [id actions header collapsed? domains resources]}]
-  (let [flex-vals [2 1 1]]
+  (let [active-campaign? (some? (campaign-data/get-active-campaign conn))
+        default-domains (if active-campaign?
+                          (campaign-data/get-active-campaign-default-domains conn)
+                          (rulesets-data/get-default-domains conn))
+        default-resources (if active-campaign?
+                            (campaign-data/get-active-campaign-resources conn)
+                            (resources-data/get-all-resources conn))flex-vals [2 1 1]]
     (components/search-filter-sort-list
      {:list-header      header
       :collapsed?       collapsed?
       :items            actions
       :column-headers   ["Title" "Roll Value" "Start Roll"]
       :column-flex-vals flex-vals
-      :item-format-fn   (action-constructor conn flex-vals domains resources)
+      :item-format-fn   (action-constructor conn flex-vals (or domains default-domains) (or resources default-resources))
       :sort-fns         [sort-by-domain]}
      (str id "actions"))))
 
 (defn actions-details [conn]
-  (let [actions (action-data/get-all-actions conn)
-        active-campaign? (some? (campaign-data/get-active-campaign conn))
-        domains (if active-campaign?
-                  (campaign-data/get-active-campaign-default-domains conn)
-                  (rulesets-data/get-default-domains conn))
-        resources (if active-campaign?
-                    (campaign-data/get-active-campaign-resources conn)
-                    (resources-data/get-all-resources conn))]
+  (let [actions (action-data/get-all-actions conn)]
     [:> rn/View {:style {:flex :1 :width (screen-width) :align-items :center :align-text :center}}
-     (action-list conn {:actions actions
-                        :domains domains
-                        :resources resources})]))
+     (action-list conn {:actions actions})]))
 
 (defn actions [conn ^js props]
   (components/view-frame conn (actions-details conn)))

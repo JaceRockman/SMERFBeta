@@ -15,7 +15,10 @@
      (components/default-text (str (:resource/quality-title resource) ": " (:resource/quality-value resource)))
      (components/default-text (str (:resource/power-title resource) ": " (:resource/power-value resource)))
      (components/default-text (str "Quantity: " (or quantity 0)))
-     (action-list conn {:id (:id resource) :actions (:resource/actions resource) :header "Actions" :collapsed? false})]))
+     (action-list conn {:id (:id resource)
+                        :actions (:resource/actions resource)
+                        :header "Actions"
+                        :collapsed? false})]))
 
 (defn resource [conn {:keys [flex-vals on-press-override style]}]
   (fn [{:keys [id title quality-value power-value] :as resource} quantity]
