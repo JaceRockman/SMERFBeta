@@ -205,7 +205,7 @@
   [conn action-id]
   (let [splinters (get-splinters conn action-id)]
     (ds/transact! conn [{:db/id action-id
-                          :action/combinations (into [] (repeat splinters 0))}])))
+                          :action/combinations (vec (repeat splinters 0))}])))
 
 (defn reset-splinters
   [conn action-id]
@@ -371,16 +371,17 @@
 (defn update-combinations
   [conn action-id index update-fn]
   (let [current-combinations (vec (ffirst (ds/q '[:find ?combinations
-                                          :in $ ?action-id
-                                          :where [?action-id :action/combinations ?combinations]]
+                                                  :in $ ?action-id
+                                                  :where [?action-id :action/combinations ?combinations]]
                                                 @conn action-id)))
-        max-combination (as-> (get-calculated-action-pool-info conn action-id) pools
-                             (:dice-pools pools)
-                             (map first pools)
-                             (flatten pools)
-                             (get pools index))
+        dice-pool-to-update (-> (get-calculated-action-pool-info conn action-id)
+                                :dice-pools
+                                vec
+                                (get index))
+        min-combination (* -1 (first dice-pool-to-update))
+        max-combination (/ (first dice-pool-to-update) 2)
         updated-combination (update-fn (get current-combinations index))]
-    (when (<= 0 updated-combination max-combination)
+    (when (<= min-combination updated-combination max-combination)
       (ds/transact! conn [{:db/id action-id
                            :action/combinations (assoc current-combinations index updated-combination)}]))))
 
@@ -416,15 +417,18 @@
                      new-quantities new-dice-sizes new-mods))))))
 
 (defn format-dice-pool
-  [[quantity size modifier]]
-  (str quantity "d" size (cond
-                           (> 0 modifier) (str " " modifier)
-                           (= 0 modifier) nil
-                           (< 0 modifier) (str " +" modifier)
-                           :else nil)))
+  [pool]
+  (interpose " + " (map (fn [[quantity size modifier]]
+                        (str quantity "d" size
+                             (cond
+                               (> 0 modifier) (str " " modifier)
+                               (= 0 modifier) nil
+                               (< 0 modifier) (str " +" modifier)
+                               :else nil)))
+                      pool)))
 
 (defn format-dice-pools [pools]
-  (apply str (interpose " + " (map format-dice-pool pools))))
+  (map format-dice-pool pools))
 
 (defn get-calculated-action-pool-info
   [conn action-id]
@@ -448,7 +452,7 @@
             splintered-mods       (divide-evenly base-dice-mod splinters)
             dice-pools            (map vector splintered-quantities (repeat base-dice-size) splintered-mods)
             combined-dice-pools   (map apply-combination dice-pools combinations)
-            formatted-dice-pools  (apply str (interpose " | " (map format-dice-pools combined-dice-pools)))]
+            formatted-dice-pools  (apply str (interpose " | " (map #(apply str %) (format-dice-pools combined-dice-pools))))]
         {:stat-quality skill-value
          :stat-power ability-value
          :resource-dice-mod resource-dice-mod
@@ -468,6 +472,13 @@
   [conn action-id]
   (:dice-pools (get-calculated-action-pool-info conn action-id)))
 
+(defn get-combined-dice-pools
+  [conn action-id]
+  (:combined-dice-pools (get-calculated-action-pool-info conn action-id)))
+
+(defn get-fully-formatted-roll
+  [conn action-id]
+  (:formatted-dice-pools (get-calculated-action-pool-info conn action-id)))
 
 
 (defn dummy-roll-value []

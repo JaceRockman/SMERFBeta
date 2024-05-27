@@ -168,14 +168,14 @@
     [:> rn/View {:style {:flex 1}}
      (decrementor-and-incrementor
       nil
-      (components/default-text (action-data/format-dice-pool pool) {:align-text :center})
+      (components/default-text pool {:align-text :center})
       #(action-data/update-combinations conn action-id index dec)
       #(action-data/update-combinations conn action-id index inc)
       true)]))
 
 (defn pool-combinations-tab
   [conn action-id]
-  (let [pools (action-data/get-dice-pools conn action-id)]
+  (let [pools (action-data/format-dice-pools (action-data/get-combined-dice-pools conn action-id))]
     [:> rn/View {:style {:width (screen-width) :flex 1 :flex-direction :row :justify-content :flex-start}}
      (if (nil? pools)
        (components/default-text "No Domain Found")
@@ -196,7 +196,7 @@
         ]
     [:> rn/View {:style {:height "100%"}}
      (components/default-text (:title action-data) {:flex 0 :font-size 24 :text-align :center})
-     (components/default-text (action-data/derive-roll-value conn (:id action-data)) {:flex 0})
+     (components/default-text (action-data/get-fully-formatted-roll conn (:id action-data)) {:flex 0})
      (components/indicated-scroll-view
       components/roll-horizontal-position
       ["Stats" "Resources" "Modifiers" "Shards" "SplitOrMerge"]
