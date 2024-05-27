@@ -163,7 +163,7 @@
                                 #(action-data/update-splinters conn action-id inc))])
 
 (defn pool-combinations
-  [pool index]
+  [index pool]
   [:> rn/View {:style {:flex 1}}
    (decrementor-and-incrementor
     nil
@@ -183,10 +183,16 @@
 (defn construct-roll
   [conn action-data domains resources]
   (let [stats (stats-selector conn (:id action-data) domains)
+        ;; _ (println "stats complete")
         resources (resource-multi-select conn (:id action-data) resources)
+        ;; _ (println "resources complete")
         modifiers (roll-modifiers-tab conn (:id action-data))
+        ;; _ (println "modifiers complete")
         splinters (roll-splinters-tab conn (:id action-data))
-        pools (pool-combinations-tab conn (:id action-data))]
+        ;; _ (println "splinters complete")
+        pools (pool-combinations-tab conn (:id action-data))
+        ;; _ (println "pools complete")
+        ]
     [:> rn/View
    (components/default-text (:title action-data) {:flex 0 :font-size 24 :text-align :center})
    (components/default-text (action-data/derive-roll-value conn (:id action-data)) {:flex 0})
