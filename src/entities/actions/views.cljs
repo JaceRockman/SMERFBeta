@@ -196,31 +196,39 @@
         ]
     [:> rn/View {:style {:height "100%"}}
      (components/default-text (:title action-data) {:flex 0 :font-size 24 :text-align :center})
-     (components/default-text (action-data/get-fully-formatted-roll conn (:id action-data)) {:flex 0})
+     (components/default-text (action-data/get-fully-formatted-roll conn (:id action-data)) {:flex 0 :text-align :center})
      (components/indicated-scroll-view
       components/roll-horizontal-position
       ["Stats" "Resources" "Modifiers" "Shards" "SplitOrMerge"]
       [stats resources modifiers splinters pools])]))
 
+(defn save-action-roll
+  [conn action-data]
+  [:> rn/Pressable {:on-press #(println "Saved Action!")}
+   (components/default-text "Save!" {:flex 0})])
+
 (defn action-constructor [conn flex-vals domains resources]
-  (fn [action-data] [:> rn/View {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}}
+  (fn [action-data] [:> rn/Pressable {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}
+                                      :on-press #(reset! modals/modal-content
+                                                         {:fn construct-roll
+                                                          :args [conn action-data domains resources]
+                                                          :save-fn save-action-roll
+                                                          :save-args [conn action-data]})}
                      (components/default-text (:title action-data)
                                               {:flex (nth flex-vals 0) :font-size 16 :align-self :center})
                      (components/default-text (action-data/get-fully-formatted-roll conn (:id action-data))
-                                              {:flex (nth flex-vals 1) :font-size 16 :align-self :center})
-                     [:> rn/Pressable {:style {:flex (nth flex-vals 2) :font-size 16 :align-self :center}
-                                       :on-press #(reset! modals/modal-content {:fn construct-roll :args [conn action-data domains resources]})}
-                      (components/default-text "Roll!")]]))
+                                              {:flex (nth flex-vals 1) :font-size 16 :align-self :center})]))
 
 (defn action-list
   [conn {:keys [id actions header collapsed? domains resources]}]
-  (let [active-campaign? (some? (campaign-data/get-active-campaign conn))
-        default-domains (if active-campaign?
-                          (campaign-data/get-active-campaign-default-domains conn)
-                          (rulesets-data/get-default-domains conn))
+  (let [active-campaign?  (some? (campaign-data/get-active-campaign conn))
+        default-domains   (if active-campaign?
+                            (campaign-data/get-active-campaign-default-domains conn)
+                            (rulesets-data/get-default-domains conn))
         default-resources (if active-campaign?
                             (campaign-data/get-active-campaign-resources conn)
-                            (resources-data/get-all-resources conn))flex-vals [2 1 1]]
+                            (resources-data/get-all-resources conn))
+        flex-vals         [2 2]]
     (components/search-filter-sort-list
      {:list-header      header
       :collapsed?       collapsed?
