@@ -163,14 +163,15 @@
                                 #(action-data/update-splinters conn action-id inc))])
 
 (defn pool-combinations
-  [index pool]
-  [:> rn/View {:style {:flex 1}}
-   (decrementor-and-incrementor
-    nil
-    (components/default-text (action-data/format-dice-pool pool) {:align-text :center})
-    #(println "Dec")
-    #(println "Inc")
-    true)])
+  [conn action-id]
+  (fn [index pool]
+    [:> rn/View {:style {:flex 1}}
+     (decrementor-and-incrementor
+      nil
+      (components/default-text (action-data/format-dice-pool pool) {:align-text :center})
+      #(action-data/update-combinations conn action-id index dec)
+      #(action-data/update-combinations conn action-id index inc)
+      true)]))
 
 (defn pool-combinations-tab
   [conn action-id]
@@ -178,7 +179,7 @@
     [:> rn/View {:style {:width (screen-width) :flex 1 :flex-direction :row :justify-content :flex-start}}
      (if (nil? pools)
        (components/default-text "No Domain Found")
-       (map-indexed pool-combinations pools))]))
+       (map-indexed (pool-combinations conn action-id) pools))]))
 
 (defn construct-roll
   [conn action-data domains resources]

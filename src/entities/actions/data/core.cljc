@@ -14,7 +14,7 @@
     :action/flat-penalty 0
     :action/flat-bonus 0
     :action/splinters 1
-    :action/combinations ""
+    :action/combinations []
     :action/target-number 0}
 
    {:title "Spiritual Health Check"
@@ -29,7 +29,7 @@
     :action/flat-penalty 0
     :action/flat-bonus 0
     :action/splinters 1
-    :action/combinations ""
+    :action/combinations []
     :action/target-number 0}
 
    {:title "Mental Health Check"
@@ -44,7 +44,7 @@
     :action/flat-penalty 0
     :action/flat-bonus 0
     :action/splinters 1
-    :action/combinations ""
+    :action/combinations []
     :action/target-number 0}
 
    {:title "Social Health Check"
@@ -59,7 +59,7 @@
     :action/flat-penalty 0
     :action/flat-bonus 0
     :action/splinters 2
-    :action/combinations [1 1]
+    :action/combinations []
     :action/target-number 0}
 
    {:title "Other Health Check"
@@ -74,7 +74,7 @@
     :action/flat-penalty 0
     :action/flat-bonus 0
     :action/splinters 1
-    :action/combinations ""
+    :action/combinations []
     :action/target-number 0}
 
    {:title "My Health Check"
@@ -89,7 +89,7 @@
     :action/flat-penalty 0
     :action/flat-bonus 0
     :action/splinters 1
-    :action/combinations ""
+    :action/combinations []
     :action/target-number 0}
 
    {:title "New Health Check"
@@ -104,7 +104,7 @@
     :action/flat-penalty 0
     :action/flat-bonus 0
     :action/splinters 1
-    :action/combinations ""
+    :action/combinations []
     :action/target-number 0}
 
    {:title "The Health Check"
@@ -119,7 +119,7 @@
     :action/flat-penalty 0
     :action/flat-bonus 0
     :action/splinters 2
-    :action/combinations [1 1]
+    :action/combinations []
     :action/target-number 0}
 
    {:title "Ok Health Check"
@@ -134,7 +134,7 @@
     :action/flat-penalty 0
     :action/flat-bonus 0
     :action/splinters 1
-    :action/combinations ""
+    :action/combinations []
     :action/target-number 0}
 
    {:title "Great Health Check"
@@ -149,7 +149,7 @@
     :action/flat-penalty 0
     :action/flat-bonus 0
     :action/splinters 1
-    :action/combinations ""
+    :action/combinations []
     :action/target-number 0}
 
    {:title "Best Health Check"
@@ -179,7 +179,7 @@
     :action/flat-penalty 0
     :action/flat-bonus 0
     :action/splinters 2
-    :action/combinations [1 1]
+    :action/combinations []
     :action/target-number 0}])
 
 (defn get-all-actions [conn]
@@ -192,6 +192,7 @@
   [conn action-id]
   (ds/pull @conn '[*] action-id))
 
+(declare get-calculated-action-pool-info)
 
 (defn get-splinters
   [conn action-id]
@@ -200,25 +201,16 @@
                   :where [?action-id :action/splinters ?splinters]]
                 @conn action-id)))
 
-(defn update-splinters
-  [conn action-id update-fn]
-  (let [current-splinters  (get-splinters conn action-id)
-        updated-flat-bonus (update-fn current-splinters)]
-    (when (<= 1 updated-flat-bonus)
-      (ds/transact! conn [{:db/id            action-id
-                           :action/splinters updated-flat-bonus}]))))
+(defn reset-combinations
+  [conn action-id]
+  (let [splinters (get-splinters conn action-id)]
+    (ds/transact! conn [{:db/id action-id
+                          :action/combinations (into [] (repeat splinters 0))}])))
 
 (defn reset-splinters
   [conn action-id]
   (ds/transact! conn [{:db/id            action-id
                        :action/splinters 1}]))
-
-
-(defn update-combinations
-  [conn action-id index])
-
-(defn reset-combinations
-  [conn action-id])
 
 
 (defn get-selected-skill
@@ -366,9 +358,31 @@
         bonuses (get-flat-bonuses conn action-id)]
     (- bonuses penalties)))
 
+(defn update-splinters
+  [conn action-id update-fn]
+  (let [current-splinters (get-splinters conn action-id)
+        updated-splinters (update-fn current-splinters)
+        max-splinters     (:quality (get-calculated-action-pool-info conn action-id))]
+    (when (<= 1 updated-splinters max-splinters)
+      (ds/transact! conn [{:db/id            action-id
+                           :action/splinters updated-splinters}])
+      (reset-combinations conn action-id))))
 
-
-
+(defn update-combinations
+  [conn action-id index update-fn]
+  (let [current-combinations (vec (ffirst (ds/q '[:find ?combinations
+                                          :in $ ?action-id
+                                          :where [?action-id :action/combinations ?combinations]]
+                                                @conn action-id)))
+        max-combination (as-> (get-calculated-action-pool-info conn action-id) pools
+                             (:dice-pools pools)
+                             (map first pools)
+                             (flatten pools)
+                             (get pools index))
+        updated-combination (update-fn (get current-combinations index))]
+    (when (<= 0 updated-combination max-combination)
+      (ds/transact! conn [{:db/id action-id
+                           :action/combinations (assoc current-combinations index updated-combination)}]))))
 
 
 
@@ -378,13 +392,48 @@
     (concat (repeat (- m r) q)
             (repeat r (inc q)))))
 
-(defn get-dice-pools
+(defn apply-combination [[dice-quantity dice-size dice-mod] combination]
+  (if (or (nil? combination)
+          (= 0 combination)
+          (< dice-quantity (* -1 combination))
+          (< (quot dice-quantity 2) combination))
+    [[dice-quantity dice-size dice-mod]]
+    (if (< 0 combination)
+      (let [new-quantities [(- dice-quantity (* 2 combination)) combination]
+            new-dice-sizes [dice-size (+ dice-size 2)]
+            new-mods [0 dice-mod]]
+        (remove nil?
+                (map (fn [qty size mod]
+                       (when (< 0 qty) (vector qty size mod)))
+                     new-quantities new-dice-sizes new-mods)))
+      (let [number-of-splits (* -1 combination)
+            new-quantities [(- dice-quantity number-of-splits) (* 2 number-of-splits)]
+            new-dice-sizes [dice-size (- dice-size 2)]
+            new-mods [0 dice-mod]]
+        (remove nil?
+                (map (fn [qty size mod]
+                       (when (< 0 qty) (vector qty size mod)))
+                     new-quantities new-dice-sizes new-mods))))))
+
+(defn format-dice-pool
+  [[quantity size modifier]]
+  (str quantity "d" size (cond
+                           (> 0 modifier) (str " " modifier)
+                           (= 0 modifier) nil
+                           (< 0 modifier) (str " +" modifier)
+                           :else nil)))
+
+(defn format-dice-pools [pools]
+  (apply str (interpose " + " (map format-dice-pool pools))))
+
+(defn get-calculated-action-pool-info
   [conn action-id]
   (let [{:keys [action/domain action/skill action/ability
                 action/resources
-                action/splinters]
+                action/splinters
+                action/combinations]
          :as   action-data} (get-action-data conn action-id)]
-    (if (integer? domain)
+    (when (integer? domain)
       (let [domain-data           (when domain (ds/pull @conn '[*] domain))
             skill-value           (get domain-data (keyword (str "domain/" skill)))
             ability-value         (get domain-data (keyword (str "domain/" ability)))
@@ -397,31 +446,29 @@
             base-dice-mod         (+ flat-mod resource-flat-mod)
             splintered-quantities (divide-evenly base-dice-quantity splinters)
             splintered-mods       (divide-evenly base-dice-mod splinters)
-            dice-pools            (map vector splintered-quantities (repeat base-dice-size) splintered-mods)]
-        dice-pools))))
+            dice-pools            (map vector splintered-quantities (repeat base-dice-size) splintered-mods)
+            combined-dice-pools   (map apply-combination dice-pools combinations)
+            formatted-dice-pools  (apply str (interpose " | " (map format-dice-pools combined-dice-pools)))]
+        {:stat-quality skill-value
+         :stat-power ability-value
+         :resource-dice-mod resource-dice-mod
+         :resource-flat-mod resource-flat-mod
+         :modifier-dice-mod dice-mod
+         :modifier-flat-mod flat-mod
+         :quality base-dice-quantity
+         :power base-dice-size
+         :bonus base-dice-mod
+         :splinter-sizes splintered-quantities
+         :splinter-bonuses splintered-mods
+         :dice-pools dice-pools
+         :combined-dice-pools combined-dice-pools
+         :formatted-dice-pools formatted-dice-pools}))))
 
-(defn apply-combinations [[dice-quantity dice-size dice-mod] combinations]
-  (let [combining? (< 0 combinations)
-        combinations (if combining?
-                       (min (quot dice-quantity 2) combinations)
-                       (max combinations dice-quantity))]
-    (if (or (nil? combinations) (= 0 combinations))
-      [[dice-quantity dice-size dice-mod]]
-      (let [new-pool-quantity (* combinations (if combining? combinations (* combinations -2)))
-            original-pool-quantity (- dice-quantity (* combinations (if combining? 2 -1)))
-            new-pool-size (+ dice-size (if combining? 2 -2))]
-        (filter #(not (= 0 (first %))) (map vector [original-pool-quantity new-pool-quantity] [dice-size new-pool-size] (divide-evenly dice-mod 2)))))))
+(defn get-dice-pools
+  [conn action-id]
+  (:dice-pools (get-calculated-action-pool-info conn action-id)))
 
-(defn format-dice-pool
-  [[quantity size modifier]]
-  (str quantity "d" size (cond
-                           (> 0 modifier) (str " " modifier)
-                           (= 0 modifier) nil
-                           (< 0 modifier) (str " +" modifier)
-                           :else nil)))
 
-(defn format-dice-pools [pools]
-  (interpose " + " (map format-dice-pool pools)))
 
 (defn dummy-roll-value []
   (let [[skill-value ability-value] [(inc (rand-int 3)) (* 2 (inc (rand-int 5)))]
@@ -433,7 +480,8 @@
         splintered-mods (divide-evenly base-dice-mod 2)
         ;; _ (println splintered-quantities)
         dice-pools (map vector splintered-quantities (repeat base-dice-size) splintered-mods)
-        combined-dice-pools (map apply-combinations dice-pools [1 2])]
+        combined-dice-pools (map apply-combination dice-pools [1 2])
+        ]
     ;; (println "skill-value" skill-value)
     ;; (println "ability-value" ability-value)
     ;; (println "resource-dice-mod" resource-dice-mod)
@@ -466,5 +514,5 @@
             splintered-quantities (divide-evenly base-dice-quantity splinters)
             splintered-mods       (divide-evenly base-dice-mod splinters)
             dice-pools            (map vector splintered-quantities (repeat base-dice-size) splintered-mods)
-            combined-dice-pools   (map apply-combinations dice-pools combinations)]
+            combined-dice-pools   (map apply-combination dice-pools combinations)]
         (interpose " | " (map format-dice-pool combined-dice-pools))))))
