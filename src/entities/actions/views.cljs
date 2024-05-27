@@ -58,18 +58,17 @@
            :flex-vals       flex-vals
            :row-constructor (fn [item]
                               (let [selected-skill-value-key (action-data/get-selected-skill conn action-id)
-                                    _ (println (= selected-skill-value-key (name (:quality-key item))))
                                     selected-skill (:title (first (filter #(= selected-skill-value-key (name (:quality-key %))) [initiation-item reaction-item continuation-item])))
                                     selected-domain (action-data/get-selected-domain conn action-id)]
                                 [:> rn/Pressable
                                  {:style {:flex-direction :row :background-color (when (and (= id selected-domain) (= (:title item) selected-skill)) (str (:surface-600 @palette) "80"))}
                                   :on-press (fn []
+                                              (action-data/set-selected-domain
+                                               conn action-id id)
                                               (action-data/set-selected-skill
                                                conn action-id (name (:quality-key item)))
                                               (action-data/set-selected-ability
-                                               conn action-id (name (:power-key item)))
-                                              (action-data/set-selected-domain
-                                               conn action-id id))}
+                                               conn action-id (name (:power-key item))))}
                                  (components/default-text (:title item)
                                                           {:flex (nth flex-vals 0)})
                                  (components/default-text (:quality item)
@@ -160,13 +159,13 @@
    (decrementor-and-incrementor "Dice Pools"
                                 (action-data/get-splinters conn action-id)
                                 #(action-data/update-splinters conn action-id dec)
-                                #(action-data/update-splinters conn action-id inc))
-   ])
+                                #(action-data/update-splinters conn action-id inc))])
 
 (defn construct-roll
   [conn action-data domains resources]
   [:> rn/View
    (components/default-text (:title action-data) {:flex 0 :font-size 24 :text-align :center})
+   (components/default-text (action-data/derive-roll-value conn (:id action-data)) {:flex 0})
    (components/indicated-scroll-view
     components/roll-horizontal-position
     ["Stats" "Resources" "Modifiers" "Shards" "SplitOrMerge"]

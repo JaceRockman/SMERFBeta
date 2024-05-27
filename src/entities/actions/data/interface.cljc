@@ -39,3 +39,5 @@
 
 
 (def example-actions core/example-actions)
+
+(def derive-roll-value core/derive-roll-value)

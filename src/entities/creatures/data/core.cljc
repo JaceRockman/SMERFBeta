@@ -153,7 +153,6 @@
 
 (defn get-creature-by-id
   [conn creature-id]
-  (println (ds/pull @conn '[*] creature-id))
   (ds/pull @conn '[*] creature-id))
 
 ;; Pull Patterns

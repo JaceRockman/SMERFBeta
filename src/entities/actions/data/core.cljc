@@ -188,6 +188,10 @@
                                      @conn))]
     (ds/pull-many @conn '[*] action-eids)))
 
+(defn get-action-data
+  [conn action-id]
+  (ds/pull @conn '[*] action-id))
+
 (defn get-selected-skill
   [conn action-id]
   (ffirst
@@ -223,9 +227,9 @@
          @conn action-id)))
 
 (defn set-selected-domain
-  [conn action-id domain]
+  [conn action-id domain-id]
   (ds/transact! conn [{:db/id action-id
-                       :action/domain domain}]))
+                       :action/domain domain-id}]))
 
 (defn get-selected-resources
   [conn action-id]
@@ -332,10 +336,6 @@
       (ds/transact! conn [{:db/id            action-id
                            :action/splinters updated-flat-bonus}]))))
 
-(defn calculate-dice-pools
-  [conn action-id]
-  )
-
 (defn divide-evenly [n m]
   (let [q (quot n m)
         r (rem n m)]
@@ -386,20 +386,23 @@
     (interpose "\n" (map format-dice-pool combined-dice-pools))))
 
 (defn derive-roll-value [conn
-                         {:keys [:action/ability :action/skill
-                                 :action/dice-mod :action/flat-mod
-                                 :action/resources
-                                 :action/splinters
-                                 :action/combinations]
-                          :as action}
-                         domains]
-  (let [[skill-value ability-value] [(inc (rand-int 3)) (* 2 (inc (rand-int 5)))]
-        [resource-dice-mod resource-flat-mod] [(rand-int 3) (rand-int 4)]
-        base-dice-quantity (+ skill-value dice-mod resource-dice-mod)
-        base-dice-size ability-value
-        base-dice-mod (+ flat-mod resource-flat-mod)
+                         action-id]
+  (let [{:keys [action/domain action/skill action/ability
+                action/resources
+                action/splinters action/combinations]
+         :as   action-data}     (get-action-data conn action-id)
+        domain-data           (when domain (ds/pull @conn '[*] domain))
+        skill-value           (get domain-data (keyword (str "domain/" skill)))
+        ability-value         (get domain-data (keyword (str "domain/" ability)))
+        resource-dice-mod     (apply + (map :resource/quality-value resources))
+        resource-flat-mod     (apply + (map :resource/power-value resources))
+        dice-mod              (get-dice-modifier conn action-id)
+        flat-mod              (get-flat-modifier conn action-id)
+        base-dice-quantity    (+ skill-value resource-dice-mod dice-mod)
+        base-dice-size        ability-value
+        base-dice-mod         (+ flat-mod resource-flat-mod)
         splintered-quantities (divide-evenly base-dice-quantity splinters)
-        splintered-mods (divide-evenly base-dice-mod splinters)
-        dice-pools (map vector splintered-quantities (repeat base-dice-size) splintered-mods)
-        combined-dice-pools (map apply-combinations dice-pools combinations)]
+        splintered-mods       (divide-evenly base-dice-mod splinters)
+        dice-pools            (map vector splintered-quantities (repeat base-dice-size) splintered-mods)
+        combined-dice-pools   (map apply-combinations dice-pools combinations)]
     (interpose " | " (map format-dice-pool combined-dice-pools))))
