@@ -192,6 +192,35 @@
   [conn action-id]
   (ds/pull @conn '[*] action-id))
 
+
+(defn get-splinters
+  [conn action-id]
+  (ffirst (ds/q '[:find ?splinters
+                  :in $ ?action-id
+                  :where [?action-id :action/splinters ?splinters]]
+                @conn action-id)))
+
+(defn update-splinters
+  [conn action-id update-fn]
+  (let [current-splinters  (get-splinters conn action-id)
+        updated-flat-bonus (update-fn current-splinters)]
+    (when (<= 1 updated-flat-bonus)
+      (ds/transact! conn [{:db/id            action-id
+                           :action/splinters updated-flat-bonus}]))))
+
+(defn reset-splinters
+  [conn action-id]
+  (ds/transact! conn [{:db/id            action-id
+                       :action/splinters 1}]))
+
+
+(defn update-combinations
+  [conn action-id index])
+
+(defn reset-combinations
+  [conn action-id])
+
+
 (defn get-selected-skill
   [conn action-id]
   (ffirst
@@ -202,6 +231,8 @@
 
 (defn set-selected-skill
   [conn action-id skill]
+  (reset-splinters conn action-id)
+  (reset-combinations conn action-id)
   (ds/transact! conn [{:db/id action-id
                        :action/skill skill}]))
 
@@ -215,6 +246,8 @@
 
 (defn set-selected-ability
   [conn action-id ability]
+  (reset-splinters conn action-id)
+  (reset-combinations conn action-id)
   (ds/transact! conn [{:db/id action-id
                        :action/ability ability}]))
 
@@ -228,6 +261,8 @@
 
 (defn set-selected-domain
   [conn action-id domain-id]
+  (reset-splinters conn action-id)
+  (reset-combinations conn action-id)
   (ds/transact! conn [{:db/id action-id
                        :action/domain domain-id}]))
 
@@ -242,10 +277,14 @@
   [conn resource-id action-id]
   (let [selected-resources (or (get-selected-resources conn action-id) [])]
     (if (some #(= resource-id %) selected-resources)
-      (ds/transact! conn [[:db/retract action-id
-                           :action/resources resource-id]])
-      (ds/transact! conn [{:db/id action-id
-                           :action/resources (cons resource-id selected-resources)}]))))
+      (do (reset-splinters conn action-id)
+          (reset-combinations conn action-id)
+          (ds/transact! conn [[:db/retract action-id
+                               :action/resources resource-id]]))
+      (do (reset-splinters conn action-id)
+          (reset-combinations conn action-id)
+          (ds/transact! conn [{:db/id action-id
+                               :action/resources (cons resource-id selected-resources)}])))))
 
 (defn get-dice-penalties
   [conn action-id]
@@ -259,6 +298,8 @@
   (let [current-dice-penalty (get-dice-penalties conn action-id)
         updated-dice-penalty (update-fn current-dice-penalty)]
     (when (<= 0 updated-dice-penalty)
+      (reset-splinters conn action-id)
+      (reset-combinations conn action-id)
       (ds/transact! conn [{:db/id action-id
                           :action/dice-penalty updated-dice-penalty}]))))
 
@@ -274,6 +315,8 @@
   (let [current-dice-bonus (get-dice-bonuses conn action-id)
         updated-dice-bonus (update-fn current-dice-bonus)]
     (when (<= 0 updated-dice-bonus)
+      (reset-splinters conn action-id)
+      (reset-combinations conn action-id)
       (ds/transact! conn [{:db/id action-id
                           :action/dice-bonus updated-dice-bonus}]))))
 
@@ -295,6 +338,8 @@
   (let [current-flat-penalty (get-flat-penalties conn action-id)
         updated-flat-penalty (update-fn current-flat-penalty)]
     (when (<= 0 updated-flat-penalty)
+      (reset-splinters conn action-id)
+      (reset-combinations conn action-id)
       (ds/transact! conn [{:db/id               action-id
                            :action/flat-penalty updated-flat-penalty}]))))
 
@@ -310,6 +355,8 @@
   (let [current-flat-bonus (get-flat-bonuses conn action-id)
         updated-flat-bonus (update-fn current-flat-bonus)]
     (when (<= 0 updated-flat-bonus)
+      (reset-splinters conn action-id)
+      (reset-combinations conn action-id)
       (ds/transact! conn [{:db/id             action-id
                            :action/flat-bonus updated-flat-bonus}]))))
 
@@ -321,24 +368,9 @@
 
 
 
-(defn get-splinters
-  [conn action-id]
-  (ffirst (ds/q '[:find ?splinters
-                  :in $ ?action-id
-                  :where [?action-id :action/splinters ?splinters]]
-                @conn action-id)))
 
-(defn update-splinters
-  [conn action-id update-fn]
-  (let [current-splinters  (get-splinters conn action-id)
-        updated-flat-bonus (update-fn current-splinters)]
-    (when (<= 1 updated-flat-bonus)
-      (ds/transact! conn [{:db/id            action-id
-                           :action/splinters updated-flat-bonus}]))))
 
-(defn update-combinations
-  [conn action-id index]
-  )
+
 
 (defn divide-evenly [n m]
   (let [q (quot n m)
