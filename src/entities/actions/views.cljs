@@ -168,17 +168,18 @@
     [:> rn/View {:style {:flex 1}}
      (decrementor-and-incrementor
       nil
-      (components/default-text pool {:align-text :center})
+      [:> rn/Pressable {:on-press #(println (action-data/roll-dice-pool pool))}
+       (components/default-text (action-data/format-dice-pool pool) {:align-text :center})]
       #(action-data/update-combinations conn action-id index dec)
       #(action-data/update-combinations conn action-id index inc)
       true)]))
 
 (defn pool-combinations-tab
   [conn action-id]
-  (let [pools (action-data/format-dice-pools (action-data/get-combined-dice-pools conn action-id))]
+  (let [pools (action-data/get-combined-dice-pools conn action-id)]
     [:> rn/View {:style {:width (screen-width) :flex 1 :flex-direction :row :justify-content :flex-start}}
      (if (nil? pools)
-       (components/default-text "No Domain Found")
+       (components/default-text "No Pools Found")
        (map-indexed (pool-combinations conn action-id) pools))]))
 
 (defn construct-roll

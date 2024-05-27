@@ -44,9 +44,6 @@
 (def get-combined-dice-pools core/get-combined-dice-pools)
 (def get-fully-formatted-roll core/get-fully-formatted-roll)
 
-(def dummy-roll-value core/dummy-roll-value)
-
-
 (def example-actions core/example-actions)
 
-(def derive-roll-value core/derive-roll-value)
+(def roll-dice-pool core/roll-dice-pool)

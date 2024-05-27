@@ -361,49 +361,16 @@
   (:formatted-dice-pools (get-calculated-action-pool-info conn action-id)))
 
 
-(defn dummy-roll-value []
-  (let [[skill-value ability-value] [(inc (rand-int 3)) (* 2 (inc (rand-int 5)))]
-        [resource-dice-mod resource-flat-mod] [(rand-int 3) (rand-int 4)]
-        base-dice-quantity (+ skill-value (rand-int 2) resource-dice-mod)
-        base-dice-size ability-value
-        base-dice-mod (+ (rand-int 4) resource-flat-mod)
-        splintered-quantities (divide-evenly base-dice-quantity 2)
-        splintered-mods (divide-evenly base-dice-mod 2)
-        ;; _ (println splintered-quantities)
-        dice-pools (map vector splintered-quantities (repeat base-dice-size) splintered-mods)
-        combined-dice-pools (map apply-combination dice-pools [1 2])
-        ]
-    ;; (println "skill-value" skill-value)
-    ;; (println "ability-value" ability-value)
-    ;; (println "resource-dice-mod" resource-dice-mod)
-    ;; (println "resource-flat-mod" resource-flat-mod)
-    ;; (println "base dice quantity" base-dice-quantity)
-    ;; (println "base-dice-mod" base-dice-mod)
-    ;; (println "splintered quantities" splintered-quantities)
-    ;; (println "splintered-mods" splintered-mods)
-    ;; (println "dice pools" dice-pools)
-    ;; (println "combined-dice-pools" combined-dice-pools)
-    (interpose "\n" (map format-dice-pool combined-dice-pools))))
-
-(defn derive-roll-value [conn
-                         action-id]
-  (let [{:keys [action/domain action/skill action/ability
-                action/resources
-                action/splinters action/combinations]
-         :as   action-data}     (get-action-data conn action-id)]
-    (if (integer? domain)
-      (let [domain-data           (when (integer? domain) (ds/pull @conn '[*] domain))
-            skill-value           (get domain-data (keyword (str "domain/" skill)))
-            ability-value         (get domain-data (keyword (str "domain/" ability)))
-            resource-dice-mod     (apply + (map :resource/quality-value resources))
-            resource-flat-mod     (apply + (map :resource/power-value resources))
-            dice-mod              (get-dice-modifier conn action-id)
-            flat-mod              (get-flat-modifier conn action-id)
-            base-dice-quantity    (+ skill-value resource-dice-mod dice-mod)
-            base-dice-size        ability-value
-            base-dice-mod         (+ flat-mod resource-flat-mod)
-            splintered-quantities (divide-evenly base-dice-quantity splinters)
-            splintered-mods       (divide-evenly base-dice-mod splinters)
-            dice-pools            (map vector splintered-quantities (repeat base-dice-size) splintered-mods)
-            combined-dice-pools   (map apply-combination dice-pools combinations)]
-        (interpose " | " (map format-dice-pool combined-dice-pools))))))
+(defn roll-dice-pool
+  [pool]
+  (let [rolls (map (fn [[quantity size _]]
+                     (let [rolls (take quantity (repeatedly #(inc (rand-int size))))]
+                       {:rolls rolls
+                        :highest (apply max rolls)}))
+                   pool)
+        all-rolls (flatten (map :highest rolls))
+        bonus (apply max (map last pool))
+        final-result (+ (apply max all-rolls) bonus)]
+    {:rolls rolls
+     :bonus bonus
+     :result final-result}))
