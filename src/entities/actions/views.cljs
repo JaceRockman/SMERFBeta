@@ -26,6 +26,23 @@
      {:title "Mental" :data mental-actions}
      {:title "Social" :data social-actions}]))
 
+(defn stats-selector-row
+  [item]
+  (fn [conn action-id initiation-item reaction-item continuation-item id flex-vals]
+    (let [selected-skill-value-key (action-data/get-selected-skill conn action-id)
+          selected-skill (:title (first (filter #(= selected-skill-value-key (name (:quality-key %)))
+                                                [initiation-item reaction-item continuation-item])))
+          selected-domain (action-data/get-selected-domain conn action-id)]
+      [:> rn/Pressable
+       {:style {:flex-direction :row :background-color (when (and (= id selected-domain) (= (:title item) selected-skill)) (str (:surface-600 @palette) "80"))}
+        :on-press (fn []
+                    (action-data/set-selected-domain conn action-id id)
+                    (action-data/set-selected-skill conn action-id (name (:quality-key item)))
+                    (action-data/set-selected-ability conn action-id (name (:power-key item))))}
+       (components/default-text (:title item) {:flex (nth flex-vals 0)})
+       (components/default-text (:quality item) {:flex (nth flex-vals 1)})
+       (components/default-text (str "d" (:power item)) {:flex (nth flex-vals 2)})])))
+
 (defn stats-selector
   [conn action-id domains]
   [:> rn/View {:style {:width (screen-width)}}
@@ -56,25 +73,8 @@
           {:items           [initiation-item reaction-item continuation-item]
            :headers         ["Title" "Quality" "Power"]
            :flex-vals       flex-vals
-           :row-constructor (fn [item]
-                              (let [selected-skill-value-key (action-data/get-selected-skill conn action-id)
-                                    selected-skill (:title (first (filter #(= selected-skill-value-key (name (:quality-key %))) [initiation-item reaction-item continuation-item])))
-                                    selected-domain (action-data/get-selected-domain conn action-id)]
-                                [:> rn/Pressable
-                                 {:style {:flex-direction :row :background-color (when (and (= id selected-domain) (= (:title item) selected-skill)) (str (:surface-600 @palette) "80"))}
-                                  :on-press (fn []
-                                              (action-data/set-selected-domain
-                                               conn action-id id)
-                                              (action-data/set-selected-skill
-                                               conn action-id (name (:quality-key item)))
-                                              (action-data/set-selected-ability
-                                               conn action-id (name (:power-key item))))}
-                                 (components/default-text (:title item)
-                                                          {:flex (nth flex-vals 0)})
-                                 (components/default-text (:quality item)
-                                                          {:flex (nth flex-vals 1)})
-                                 (components/default-text (str "d" (:power item))
-                                                          {:flex (nth flex-vals 2)})]))})]))
+           :row-constructor #((stats-selector-row %)
+                             conn action-id initiation-item reaction-item continuation-item id flex-vals)})]))
     domains)])
 
 (defn sort-resources-by-type
@@ -91,7 +91,8 @@
         items (type-section-from-resources "Item" resources)]
     (remove nil? [equipment traits expertise affiliations items])))
 
-(defn resource [conn flex-vals action-id selected-resources]
+(defn resource
+  [conn flex-vals action-id selected-resources]
   (fn [{:keys [id title quality-value power-value]}]
     [:> rn/Pressable {:key (str "resource-" id)
                       :style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"
@@ -175,21 +176,24 @@
   [conn action-id]
   (let [pools (action-data/get-dice-pools conn action-id)]
     [:> rn/View {:style {:width (screen-width) :flex 1 :flex-direction :row :justify-content :flex-start}}
-     (map-indexed pool-combinations pools)]))
+     (if (nil? pools)
+       (components/default-text "No Domain Found")
+       (map-indexed pool-combinations pools))]))
 
 (defn construct-roll
   [conn action-data domains resources]
-  [:> rn/View
+  (let [stats (stats-selector conn (:id action-data) domains)
+        resources (resource-multi-select conn (:id action-data) resources)
+        modifiers (roll-modifiers-tab conn (:id action-data))
+        splinters (roll-splinters-tab conn (:id action-data))
+        pools (pool-combinations-tab conn (:id action-data))]
+    [:> rn/View
    (components/default-text (:title action-data) {:flex 0 :font-size 24 :text-align :center})
    (components/default-text (action-data/derive-roll-value conn (:id action-data)) {:flex 0})
    (components/indicated-scroll-view
     components/roll-horizontal-position
     ["Stats" "Resources" "Modifiers" "Shards" "SplitOrMerge"]
-    [(stats-selector conn (:id action-data) domains)
-     (resource-multi-select conn (:id action-data) resources)
-     (roll-modifiers-tab conn (:id action-data))
-     (roll-splinters-tab conn (:id action-data))
-     (pool-combinations-tab conn (:id action-data))])])
+    [stats resources modifiers splinters pools])]))
 
 (defn action-constructor [conn flex-vals domains resources]
   (fn [action-data] [:> rn/View {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}}

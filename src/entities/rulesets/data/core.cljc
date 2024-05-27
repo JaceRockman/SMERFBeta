@@ -194,7 +194,7 @@ Connections represents how many relationships and affiliations a creature has, h
    :poise "# Poise"})
 
 
-(defn get-stat-value-from-title
+#_(defn get-stat-value-from-title
   [conn domains stat-title]
   (let [domain (first (filter #(some (fn [domain-val] (= domain-val stat-title)) (vals %)) domains))
         _ (println domain)

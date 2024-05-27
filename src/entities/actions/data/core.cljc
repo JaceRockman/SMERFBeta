@@ -21,7 +21,7 @@
     :entity-type "action"
     :action/description ""
     :action/domain ""
-    :action/skill "Perseverance"
+    :action/skill ""
     :action/ability ""
     :action/resources []
     :action/dice-penalty 0
@@ -36,7 +36,7 @@
     :entity-type "action"
     :action/description ""
     :action/domain ""
-    :action/skill "Comprehension"
+    :action/skill ""
     :action/ability ""
     :action/resources []
     :action/dice-penalty 0
@@ -51,7 +51,7 @@
     :entity-type "action"
     :action/description ""
     :action/domain ""
-    :action/skill "Connections"
+    :action/skill ""
     :action/ability ""
     :action/resources []
     :action/dice-penalty 0
@@ -66,7 +66,7 @@
     :entity-type "action"
     :action/description ""
     :action/domain ""
-    :action/skill "Endurance"
+    :action/skill ""
     :action/ability ""
     :action/resources []
     :action/dice-penalty 0
@@ -81,7 +81,7 @@
     :entity-type "action"
     :action/description ""
     :action/domain ""
-    :action/skill "Perseverance"
+    :action/skill ""
     :action/ability ""
     :action/resources []
     :action/dice-penalty 0
@@ -96,7 +96,7 @@
     :entity-type "action"
     :action/description ""
     :action/domain ""
-    :action/skill "Comprehension"
+    :action/skill ""
     :action/ability ""
     :action/resources []
     :action/dice-penalty 0
@@ -111,7 +111,7 @@
     :entity-type "action"
     :action/description ""
     :action/domain ""
-    :action/skill "Connections"
+    :action/skill ""
     :action/ability ""
     :action/resources []
     :action/dice-penalty 0
@@ -126,7 +126,7 @@
     :entity-type "action"
     :action/description ""
     :action/domain ""
-    :action/skill "Endurance"
+    :action/skill ""
     :action/ability ""
     :action/resources []
     :action/dice-penalty 0
@@ -141,7 +141,7 @@
     :entity-type "action"
     :action/description ""
     :action/domain ""
-    :action/skill "Perseverance"
+    :action/skill ""
     :action/ability ""
     :action/resources []
     :action/dice-penalty 0
@@ -155,23 +155,23 @@
    {:title "Best Health Check"
     :entity-type "action"
     :action/description ""
-    :action/domain ""
-    :action/skill "Comprehension"
-    :action/ability ""
+    :action/domain "domain"
+    :action/skill "skill"
+    :action/ability "ability"
     :action/resources []
     :action/dice-penalty 0
     :action/dice-bonus 0
     :action/flat-penalty 0
     :action/flat-bonus 0
     :action/splinters 1
-    :action/combinations ""
+    :action/combinations []
     :action/target-number 0}
 
    {:title "Not a Health Check"
     :entity-type "action"
     :action/description ""
-    :action/domain ""
-    :action/skill "Connections"
+    :action/domain 13
+    :action/skill ""
     :action/ability ""
     :action/resources []
     :action/dice-penalty 0
@@ -351,21 +351,22 @@
   (let [{:keys [action/domain action/skill action/ability
                 action/resources
                 action/splinters]
-         :as   action-data} (get-action-data conn action-id)
-        domain-data           (when domain (ds/pull @conn '[*] domain))
-        skill-value           (get domain-data (keyword (str "domain/" skill)))
-        ability-value         (get domain-data (keyword (str "domain/" ability)))
-        resource-dice-mod     (apply + (map :resource/quality-value resources))
-        resource-flat-mod     (apply + (map :resource/power-value resources))
-        dice-mod              (get-dice-modifier conn action-id)
-        flat-mod              (get-flat-modifier conn action-id)
-        base-dice-quantity    (+ skill-value resource-dice-mod dice-mod)
-        base-dice-size        ability-value
-        base-dice-mod         (+ flat-mod resource-flat-mod)
-        splintered-quantities (divide-evenly base-dice-quantity splinters)
-        splintered-mods       (divide-evenly base-dice-mod splinters)
-        dice-pools            (map vector splintered-quantities (repeat base-dice-size) splintered-mods)]
-    dice-pools))
+         :as   action-data} (get-action-data conn action-id)]
+    (if (integer? domain)
+      (let [domain-data           (when domain (ds/pull @conn '[*] domain))
+            skill-value           (get domain-data (keyword (str "domain/" skill)))
+            ability-value         (get domain-data (keyword (str "domain/" ability)))
+            resource-dice-mod     (apply + (map :resource/quality-value resources))
+            resource-flat-mod     (apply + (map :resource/power-value resources))
+            dice-mod              (get-dice-modifier conn action-id)
+            flat-mod              (get-flat-modifier conn action-id)
+            base-dice-quantity    (+ skill-value resource-dice-mod dice-mod)
+            base-dice-size        ability-value
+            base-dice-mod         (+ flat-mod resource-flat-mod)
+            splintered-quantities (divide-evenly base-dice-quantity splinters)
+            splintered-mods       (divide-evenly base-dice-mod splinters)
+            dice-pools            (map vector splintered-quantities (repeat base-dice-size) splintered-mods)]
+        dice-pools))))
 
 (defn apply-combinations [[dice-quantity dice-size dice-mod] combinations]
   (let [combining? (< 0 combinations)
@@ -418,19 +419,20 @@
   (let [{:keys [action/domain action/skill action/ability
                 action/resources
                 action/splinters action/combinations]
-         :as   action-data}     (get-action-data conn action-id)
-        domain-data           (when domain (ds/pull @conn '[*] domain))
-        skill-value           (get domain-data (keyword (str "domain/" skill)))
-        ability-value         (get domain-data (keyword (str "domain/" ability)))
-        resource-dice-mod     (apply + (map :resource/quality-value resources))
-        resource-flat-mod     (apply + (map :resource/power-value resources))
-        dice-mod              (get-dice-modifier conn action-id)
-        flat-mod              (get-flat-modifier conn action-id)
-        base-dice-quantity    (+ skill-value resource-dice-mod dice-mod)
-        base-dice-size        ability-value
-        base-dice-mod         (+ flat-mod resource-flat-mod)
-        splintered-quantities (divide-evenly base-dice-quantity splinters)
-        splintered-mods       (divide-evenly base-dice-mod splinters)
-        dice-pools            (map vector splintered-quantities (repeat base-dice-size) splintered-mods)
-        combined-dice-pools   (map apply-combinations dice-pools combinations)]
-    (interpose " | " (map format-dice-pool combined-dice-pools))))
+         :as   action-data}     (get-action-data conn action-id)]
+    (if (integer? domain)
+      (let [domain-data           (when (integer? domain) (ds/pull @conn '[*] domain))
+            skill-value           (get domain-data (keyword (str "domain/" skill)))
+            ability-value         (get domain-data (keyword (str "domain/" ability)))
+            resource-dice-mod     (apply + (map :resource/quality-value resources))
+            resource-flat-mod     (apply + (map :resource/power-value resources))
+            dice-mod              (get-dice-modifier conn action-id)
+            flat-mod              (get-flat-modifier conn action-id)
+            base-dice-quantity    (+ skill-value resource-dice-mod dice-mod)
+            base-dice-size        ability-value
+            base-dice-mod         (+ flat-mod resource-flat-mod)
+            splintered-quantities (divide-evenly base-dice-quantity splinters)
+            splintered-mods       (divide-evenly base-dice-mod splinters)
+            dice-pools            (map vector splintered-quantities (repeat base-dice-size) splintered-mods)
+            combined-dice-pools   (map apply-combinations dice-pools combinations)]
+        (interpose " | " (map format-dice-pool combined-dice-pools))))))
