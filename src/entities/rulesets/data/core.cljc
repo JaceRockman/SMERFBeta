@@ -29,6 +29,20 @@
   [conn domain-ids]
   (ds/pull-many @conn '[*] domain-ids))
 
+(defn get-all-domains
+  [conn]
+  (let [domain-ids (map first (ds/q '[:find ?e
+                                      :where [?e :entity-type "domain"]]
+                                    @conn))]
+    (get-domains-data conn domain-ids)))
+
+(defn get-default-domains
+  [conn]
+  (let [domain-ids (map first (ds/q '[:find ?e
+                                      :where [?e :domain/default? true]]
+                                    @conn))]
+    (get-domains-data conn domain-ids)))
+
 (defn get-active-ruleset-id
   [conn]
   (let [nav-state (navigation/get-main-nav-state-list conn)]
@@ -208,9 +222,9 @@ Connections represents how many relationships and affiliations a creature has, h
     (println stat-value-key)
     (get domain stat-value-key)))
 
-(def default-domains [{:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
-                       :title "Physical"
+(def default-domains [{:title "Physical"
                        :entity-type "domain"
+                       :domain/default? true
                        :domain/resource-type-title "Equipment"
                        :domain/initiation-title "Coordination"
                        :domain/initiation-value 1
@@ -228,9 +242,9 @@ Connections represents how many relationships and affiliations a creature has, h
                        :domain/moderate-wounds 0
                        :domain/major-wounds 0}
 
-                      {:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
-                       :title "Spiritual"
+                      {:title "Spiritual"
                        :entity-type "domain"
+                       :domain/default? true
                        :domain/resource-type-title "Trait"
                        :domain/initiation-title "Exertion"
                        :domain/initiation-value 1
@@ -248,9 +262,9 @@ Connections represents how many relationships and affiliations a creature has, h
                        :domain/moderate-wounds 0
                        :domain/major-wounds 0}
 
-                      {:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
-                       :title "Mental"
+                      {:title "Mental"
                        :entity-type "domain"
+                       :domain/default? true
                        :domain/resource-type-title "Expertise"
                        :domain/initiation-title "Concentration"
                        :domain/initiation-value 1
@@ -268,9 +282,9 @@ Connections represents how many relationships and affiliations a creature has, h
                        :domain/moderate-wounds 0
                        :domain/major-wounds 0}
 
-                      {:domain/id #?(:cljs (random-uuid) :clj (java.util.UUID/randomUUID))
-                       :title "Social"
+                      {:title "Social"
                        :entity-type "domain"
+                       :domain/default? true
                        :domain/resource-type-title "Affiliation"
                        :domain/initiation-title "Persuasion"
                        :domain/initiation-value 1

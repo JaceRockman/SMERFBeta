@@ -193,13 +193,13 @@
         pools (pool-combinations-tab conn (:id action-data))
         ;; _ (println "pools complete")
         ]
-    [:> rn/View
-   (components/default-text (:title action-data) {:flex 0 :font-size 24 :text-align :center})
-   (components/default-text (action-data/derive-roll-value conn (:id action-data)) {:flex 0})
-   (components/indicated-scroll-view
-    components/roll-horizontal-position
-    ["Stats" "Resources" "Modifiers" "Shards" "SplitOrMerge"]
-    [stats resources modifiers splinters pools])]))
+    [:> rn/View {:style {:height "100%"}}
+     (components/default-text (:title action-data) {:flex 0 :font-size 24 :text-align :center})
+     (components/default-text (action-data/derive-roll-value conn (:id action-data)) {:flex 0})
+     (components/indicated-scroll-view
+      components/roll-horizontal-position
+      ["Stats" "Resources" "Modifiers" "Shards" "SplitOrMerge"]
+      [stats resources modifiers splinters pools])]))
 
 (defn action-constructor [conn flex-vals domains resources]
   (fn [action-data] [:> rn/View {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}}
@@ -225,11 +225,18 @@
      (str id "actions"))))
 
 (defn actions-details [conn]
-  (let [actions (action-data/get-all-actions conn)]
+  (let [actions (action-data/get-all-actions conn)
+        active-campaign? (some? (campaign-data/get-active-campaign conn))
+        domains (if active-campaign?
+                  (campaign-data/get-active-campaign-default-domains conn)
+                  (rulesets-data/get-default-domains conn))
+        resources (if active-campaign?
+                    (campaign-data/get-active-campaign-resources conn)
+                    (resources-data/get-all-resources conn))]
     [:> rn/View {:style {:flex :1 :width (screen-width) :align-items :center :align-text :center}}
      (action-list conn {:actions actions
-                        :domains (campaign-data/get-active-campaign-default-domains conn)
-                        :resources (campaign-data/get-active-campaign-resources conn)})]))
+                        :domains domains
+                        :resources resources})]))
 
 (defn actions [conn ^js props]
   (components/view-frame conn (actions-details conn)))

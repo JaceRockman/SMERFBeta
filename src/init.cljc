@@ -36,8 +36,8 @@
                                                            (vec (map first (ds/q '[:find ?e
                                                                                    :where [?e :entity-type "resource"]]
                                                                                  @conn)))))
-                init-domain-entities (map first (ds/q '[:find ?e
-                                                :where [?e :domain/id]]
+        init-domain-entities (map first (ds/q '[:find ?e
+                                                :where [?e :entity-type "domain"]]
                                               @conn))
         init-resources (map first (ds/q '[:find ?e
                                           :where [?e :entity-type "resource"]]

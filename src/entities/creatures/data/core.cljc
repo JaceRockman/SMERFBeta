@@ -78,6 +78,25 @@
                     :where [?id ?key ?wound-quantity]]
                   @conn domain-id wound-type-keyword))))
 
+(defn get-creature-resources
+  [conn creature-id]
+  (map first
+       (ds/q '[:find ?resources
+               :in $ ?creature-id
+               :where [?creature-id :creature/resources ?resources]]
+             @conn creature-id)))
+
+(defn get-creature-resources-from-data
+ [conn creature-data]
+ (ds/pull-many @conn '[*] (:creature/resources creature-data)))
+
+(defn get-creature-actions
+  [conn creature-id]
+  (ds/q '[:find ?actions
+          :in $ ?creature-id
+          :where [?creature-id :creature/actions ?actions]]
+        @conn creature-id))
+
 (defn example-creatures
   [default-domain-entities example-resources default-actions]
   [{:creature/domains default-domain-entities
