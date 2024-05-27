@@ -5,9 +5,9 @@
   [{:title "Physical Health Check"
     :entity-type "action"
     :action/description ""
-    :action/domain ""
-    :action/skill "Endurance"
-    :action/ability ""
+    :action/domain 13
+    :action/skill "initiation-value"
+    :action/ability "dominance-value"
     :action/resources []
     :action/dice-penalty 0
     :action/dice-bonus 0
@@ -336,11 +336,36 @@
       (ds/transact! conn [{:db/id            action-id
                            :action/splinters updated-flat-bonus}]))))
 
+(defn update-combinations
+  [conn action-id index]
+  )
+
 (defn divide-evenly [n m]
   (let [q (quot n m)
         r (rem n m)]
     (concat (repeat (- m r) q)
             (repeat r (inc q)))))
+
+(defn get-dice-pools
+  [conn action-id]
+  (let [{:keys [action/domain action/skill action/ability
+                action/resources
+                action/splinters]
+         :as   action-data} (get-action-data conn action-id)
+        domain-data           (when domain (ds/pull @conn '[*] domain))
+        skill-value           (get domain-data (keyword (str "domain/" skill)))
+        ability-value         (get domain-data (keyword (str "domain/" ability)))
+        resource-dice-mod     (apply + (map :resource/quality-value resources))
+        resource-flat-mod     (apply + (map :resource/power-value resources))
+        dice-mod              (get-dice-modifier conn action-id)
+        flat-mod              (get-flat-modifier conn action-id)
+        base-dice-quantity    (+ skill-value resource-dice-mod dice-mod)
+        base-dice-size        ability-value
+        base-dice-mod         (+ flat-mod resource-flat-mod)
+        splintered-quantities (divide-evenly base-dice-quantity splinters)
+        splintered-mods       (divide-evenly base-dice-mod splinters)
+        dice-pools            (map vector splintered-quantities (repeat base-dice-size) splintered-mods)]
+    dice-pools))
 
 (defn apply-combinations [[dice-quantity dice-size dice-mod] combinations]
   (let [combining? (< 0 combinations)
@@ -354,13 +379,16 @@
             new-pool-size (+ dice-size (if combining? 2 -2))]
         (filter #(not (= 0 (first %))) (map vector [original-pool-quantity new-pool-quantity] [dice-size new-pool-size] (divide-evenly dice-mod 2)))))))
 
-(defn format-dice-pool [dice-collections]
-  (interpose " + "
-             (map (fn [[qty size mod]] (str qty "d" size (cond
-                                                           (> 0 mod) (str " " mod)
-                                                           (= 0 mod) nil
-                                                           (< 0 mod) (str " +" mod))))
-                  dice-collections)))
+(defn format-dice-pool
+  [[quantity size modifier]]
+  (str quantity "d" size (cond
+                           (> 0 modifier) (str " " modifier)
+                           (= 0 modifier) nil
+                           (< 0 modifier) (str " +" modifier)
+                           :else nil)))
+
+(defn format-dice-pools [pools]
+  (interpose " + " (map format-dice-pool pools)))
 
 (defn dummy-roll-value []
   (let [[skill-value ability-value] [(inc (rand-int 3)) (* 2 (inc (rand-int 5)))]

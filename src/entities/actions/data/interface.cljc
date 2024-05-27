@@ -35,6 +35,10 @@
 (def get-splinters core/get-splinters)
 (def update-splinters core/update-splinters)
 
+(def get-dice-pools core/get-dice-pools)
+(def format-dice-pool core/format-dice-pool)
+(def format-dice-pools core/format-dice-pools)
+
 (def dummy-roll-value core/dummy-roll-value)
 
 

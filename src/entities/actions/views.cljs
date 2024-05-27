@@ -117,15 +117,15 @@
       "resources")]))
 
 (defn decrementor-and-incrementor
-  [label number dec-fn inc-fn]
-  [:> rn/View {:style {:justify-content :center :align-items :center}}
-   (components/default-text label {:align-self :center})
-   [:> rn/View {:style {:flex-direction :row :align-content :center :gap 10}}
-    [:> rn/Pressable {:on-press dec-fn}
-     (components/default-text "-")]
+  [label number dec-fn inc-fn & [vertical?]]
+  [:> rn/View {:style {:align-items :center}}
+   (when-not vertical? (components/default-text label {:align-self :center}))
+   [:> rn/View {:style {:flex-direction (if vertical? :column :row) :align-content :center :gap 10}}
+    [:> rn/Pressable {:on-press (if vertical? inc-fn dec-fn)}
+     (components/default-text (if vertical? "^" "-") {:text-align :center})]
     (components/default-text number {:text-align :center :flex 0})
-    [:> rn/Pressable {:on-press inc-fn}
-     (components/default-text "+")]]])
+    [:> rn/Pressable {:on-press (if vertical? dec-fn inc-fn)}
+     (components/default-text (if vertical? "v" "+") {:text-align :center})]]])
 
 (defn roll-modifiers-tab
   [conn action-id]
@@ -161,6 +161,22 @@
                                 #(action-data/update-splinters conn action-id dec)
                                 #(action-data/update-splinters conn action-id inc))])
 
+(defn pool-combinations
+  [pool index]
+  [:> rn/View {:style {:flex 1}}
+   (decrementor-and-incrementor
+    nil
+    (components/default-text (action-data/format-dice-pool pool) {:align-text :center})
+    #(println "Dec")
+    #(println "Inc")
+    true)])
+
+(defn pool-combinations-tab
+  [conn action-id]
+  (let [pools (action-data/get-dice-pools conn action-id)]
+    [:> rn/View {:style {:width (screen-width) :flex 1 :flex-direction :row :justify-content :flex-start}}
+     (map-indexed pool-combinations pools)]))
+
 (defn construct-roll
   [conn action-data domains resources]
   [:> rn/View
@@ -173,7 +189,7 @@
      (resource-multi-select conn (:id action-data) resources)
      (roll-modifiers-tab conn (:id action-data))
      (roll-splinters-tab conn (:id action-data))
-     [:> rn/View {:style {:width (screen-width)}}]])])
+     (pool-combinations-tab conn (:id action-data))])])
 
 (defn action-constructor [conn flex-vals domains resources]
   (fn [action-data] [:> rn/View {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}}
