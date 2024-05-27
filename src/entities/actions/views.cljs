@@ -206,7 +206,7 @@
   (fn [action-data] [:> rn/View {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}}
                      (components/default-text (:title action-data)
                                               {:flex (nth flex-vals 0) :font-size 16 :align-self :center})
-                     (components/default-text (action-data/dummy-roll-value)
+                     (components/default-text (action-data/get-fully-formatted-roll conn (:id action-data))
                                               {:flex (nth flex-vals 1) :font-size 16 :align-self :center})
                      [:> rn/Pressable {:style {:flex (nth flex-vals 2) :font-size 16 :align-self :center}
                                        :on-press #(reset! modals/modal-content {:fn construct-roll :args [conn action-data domains resources]})}

@@ -6,180 +6,60 @@
     :entity-type "action"
     :action/description ""
     :action/domain 13
-    :action/skill "initiation-value"
-    :action/ability "dominance-value"
+    :action/skill "continuation-value"
+    :action/ability "resilience-value"
     :action/resources []
     :action/dice-penalty 0
     :action/dice-bonus 0
     :action/flat-penalty 0
     :action/flat-bonus 0
     :action/splinters 1
-    :action/combinations []
+    :action/combinations [0]
     :action/target-number 0}
 
    {:title "Spiritual Health Check"
     :entity-type "action"
     :action/description ""
-    :action/domain ""
-    :action/skill ""
-    :action/ability ""
+    :action/domain 14
+    :action/skill "continuation-value"
+    :action/ability "resilience-value"
     :action/resources []
     :action/dice-penalty 0
     :action/dice-bonus 0
     :action/flat-penalty 0
     :action/flat-bonus 0
     :action/splinters 1
-    :action/combinations []
+    :action/combinations [0]
     :action/target-number 0}
 
    {:title "Mental Health Check"
     :entity-type "action"
     :action/description ""
-    :action/domain ""
-    :action/skill ""
-    :action/ability ""
+    :action/domain 15
+    :action/skill "continuation-value"
+    :action/ability "resilience-value"
     :action/resources []
     :action/dice-penalty 0
     :action/dice-bonus 0
     :action/flat-penalty 0
     :action/flat-bonus 0
     :action/splinters 1
-    :action/combinations []
+    :action/combinations [0]
     :action/target-number 0}
 
    {:title "Social Health Check"
     :entity-type "action"
     :action/description ""
-    :action/domain ""
-    :action/skill ""
-    :action/ability ""
-    :action/resources []
-    :action/dice-penalty 0
-    :action/dice-bonus 0
-    :action/flat-penalty 0
-    :action/flat-bonus 0
-    :action/splinters 2
-    :action/combinations []
-    :action/target-number 0}
-
-   {:title "Other Health Check"
-    :entity-type "action"
-    :action/description ""
-    :action/domain ""
-    :action/skill ""
-    :action/ability ""
+    :action/domain 16
+    :action/skill "continuation-value"
+    :action/ability "resilience-value"
     :action/resources []
     :action/dice-penalty 0
     :action/dice-bonus 0
     :action/flat-penalty 0
     :action/flat-bonus 0
     :action/splinters 1
-    :action/combinations []
-    :action/target-number 0}
-
-   {:title "My Health Check"
-    :entity-type "action"
-    :action/description ""
-    :action/domain ""
-    :action/skill ""
-    :action/ability ""
-    :action/resources []
-    :action/dice-penalty 0
-    :action/dice-bonus 0
-    :action/flat-penalty 0
-    :action/flat-bonus 0
-    :action/splinters 1
-    :action/combinations []
-    :action/target-number 0}
-
-   {:title "New Health Check"
-    :entity-type "action"
-    :action/description ""
-    :action/domain ""
-    :action/skill ""
-    :action/ability ""
-    :action/resources []
-    :action/dice-penalty 0
-    :action/dice-bonus 0
-    :action/flat-penalty 0
-    :action/flat-bonus 0
-    :action/splinters 1
-    :action/combinations []
-    :action/target-number 0}
-
-   {:title "The Health Check"
-    :entity-type "action"
-    :action/description ""
-    :action/domain ""
-    :action/skill ""
-    :action/ability ""
-    :action/resources []
-    :action/dice-penalty 0
-    :action/dice-bonus 0
-    :action/flat-penalty 0
-    :action/flat-bonus 0
-    :action/splinters 2
-    :action/combinations []
-    :action/target-number 0}
-
-   {:title "Ok Health Check"
-    :entity-type "action"
-    :action/description ""
-    :action/domain ""
-    :action/skill ""
-    :action/ability ""
-    :action/resources []
-    :action/dice-penalty 0
-    :action/dice-bonus 0
-    :action/flat-penalty 0
-    :action/flat-bonus 0
-    :action/splinters 1
-    :action/combinations []
-    :action/target-number 0}
-
-   {:title "Great Health Check"
-    :entity-type "action"
-    :action/description ""
-    :action/domain ""
-    :action/skill ""
-    :action/ability ""
-    :action/resources []
-    :action/dice-penalty 0
-    :action/dice-bonus 0
-    :action/flat-penalty 0
-    :action/flat-bonus 0
-    :action/splinters 1
-    :action/combinations []
-    :action/target-number 0}
-
-   {:title "Best Health Check"
-    :entity-type "action"
-    :action/description ""
-    :action/domain "domain"
-    :action/skill "skill"
-    :action/ability "ability"
-    :action/resources []
-    :action/dice-penalty 0
-    :action/dice-bonus 0
-    :action/flat-penalty 0
-    :action/flat-bonus 0
-    :action/splinters 1
-    :action/combinations []
-    :action/target-number 0}
-
-   {:title "Not a Health Check"
-    :entity-type "action"
-    :action/description ""
-    :action/domain 13
-    :action/skill ""
-    :action/ability ""
-    :action/resources []
-    :action/dice-penalty 0
-    :action/dice-bonus 0
-    :action/flat-penalty 0
-    :action/flat-bonus 0
-    :action/splinters 2
-    :action/combinations []
+    :action/combinations [0]
     :action/target-number 0}])
 
 (defn get-all-actions [conn]
