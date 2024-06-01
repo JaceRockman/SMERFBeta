@@ -37,15 +37,14 @@
   (reset! creature-horizontal-position 0))
 
 (defn navigate!
-  [conn keyword-url & dont-return?]
+  [conn keyword-url]
   (reset-temp-state)
   (let [url (if (coll? keyword-url)
               (apply str (interpose "/" keyword-url))
               (name keyword-url))
-        history (get-nav-history conn)
-        return-url (when-not dont-return? (some #(if (= (subs % 0 (count url)) url) % false) history))]
+        history (get-nav-history conn)]
     (when (not (= (first history) url))
-      (ds/transact! conn [[:db/add 1 :navigator/history (conj history (or return-url url))]]))))
+      (ds/transact! conn [[:db/add 1 :navigator/history (conj history url)]]))))
 
 (defn subnavigate
   [conn subsection]
@@ -73,7 +72,7 @@
         navigation-collection (if (= 1 (count nav-state-list))
                                 "campaigns"
                                 (butlast nav-state-list))]
-    (navigate! conn navigation-collection true)))
+    (navigate! conn navigation-collection)))
 
 (defn get-modal-content
   [conn]
