@@ -46,6 +46,7 @@
 (defn stats-selector
   [conn action-id domains]
   [:> rn/View {:style {:width (screen-width)}}
+   (components/default-text "Select Stats" {:font-size 24 :text-align :center})
    (map
     (fn [{:keys
           [:db/id
@@ -108,9 +109,9 @@
   (let [flex-vals [3 1 1]
         selected-resources (action-data/get-selected-resources conn action-id)]
     [:> rn/View {:style {:width (screen-width) :flex 1}}
+     (components/default-text "Select Stats" {:font-size 24 :text-align :center})
      (components/search-filter-sort-list
-      {:list-header      "Resources"
-       :items            resources
+      {:items            resources
        :column-headers   ["Title" "Quality" "Power"]
        :column-flex-vals flex-vals
        :item-format-fn   (fn [resource-data] ((resource conn flex-vals action-id selected-resources) resource-data))
@@ -120,7 +121,7 @@
 (defn decrementor-and-incrementor
   [label number dec-fn inc-fn & [vertical?]]
   [:> rn/View {:style {:align-items :center}}
-   (when-not vertical? (components/default-text label {:align-self :center}))
+   (when-not vertical? (components/default-text label {:font-size 24 :align-self :center}))
    [:> rn/View {:style {:flex-direction (if vertical? :column :row) :align-content :center :gap 10}}
     [:> rn/Pressable {:on-press (if vertical? inc-fn dec-fn)}
      (components/default-text (if vertical? "^" "-") {:text-align :center})]
@@ -131,6 +132,7 @@
 (defn roll-modifiers-tab
   [conn action-id]
   [:> rn/View {:style {:width (screen-width) :flex 1 :gap 20 :padding-bottom 20}}
+   (components/default-text "Circumstantial Modifiers" {:font-size 24 :text-align :center :flex 0})
    [:> rn/View
     (components/default-text (str "Dice Modifier: " (action-data/get-dice-modifier conn action-id)) {:flex 0 :text-align :center :font-size 20})
     [:> rn/View {:style {:flex-direction :row :justify-content :space-evenly}}
@@ -157,30 +159,32 @@
 (defn roll-splinters-tab
   [conn action-id]
   [:> rn/View {:style {:width (screen-width) :flex 1}}
-   (decrementor-and-incrementor "Dice Pools"
+   (decrementor-and-incrementor "Select Dice Pools"
                                 (action-data/get-splinters conn action-id)
                                 #(action-data/update-splinters conn action-id dec)
                                 #(action-data/update-splinters conn action-id inc))])
 
-(defn pool-combinations
-  [conn action-id]
-  (fn [index pool]
-    [:> rn/View {:style {:flex 1}}
-     (decrementor-and-incrementor
-      nil
-      [:> rn/Pressable {:on-press #(println (action-data/roll-dice-pool pool))}
-       (components/default-text (action-data/format-dice-pool pool) {:align-text :center})]
-      #(action-data/update-combinations conn action-id index dec)
-      #(action-data/update-combinations conn action-id index inc)
-      true)]))
+(defn pool-format
+  [index {:keys [conn action-id pool]}]
+  [:> rn/View {:style {:width "33%" :margin-bottom 25}}
+   (decrementor-and-incrementor
+    nil
+    [:> rn/Pressable {:style {:background-color (:surface-400 @palette) :padding 5 :border-width 2 :border-color (:surface-500 @palette) :border-radius 4}
+                      :on-press #(println (action-data/roll-dice-pool pool))}
+     (components/default-text (action-data/format-dice-pool pool) {:align-text :center})]
+    #(action-data/update-combinations conn action-id index dec)
+    #(action-data/update-combinations conn action-id index inc)
+    true)])
 
 (defn pool-combinations-tab
   [conn action-id]
   (let [pools (action-data/get-combined-dice-pools conn action-id)]
-    [:> rn/View {:style {:width (screen-width) :flex 1 :flex-direction :row :justify-content :flex-start}}
-     (if (nil? pools)
-       (components/default-text "No Pools Found")
-       (map-indexed (pool-combinations conn action-id) pools))]))
+    [:> rn/View
+     (components/default-text "Combine and Split Dice" {:font-size 24 :text-align :center})
+     [:> rn/View {:style {:width (screen-width) :flex-wrap :wrap :flex-direction :row :justify-content :flex-start}}
+      (if (nil? pools)
+        (components/default-text "No Pools Found")
+        (map-indexed pool-format (map (fn [pool] {:conn conn :action-id action-id :pool pool}) pools)))]]))
 
 (defn construct-roll
   [conn action-data domains resources]
