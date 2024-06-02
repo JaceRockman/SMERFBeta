@@ -181,7 +181,7 @@
   (let [pools (action-data/get-combined-dice-pools conn action-id)]
     [:> rn/View
      (components/default-text "Combine and Split Dice" {:font-size 24 :text-align :center})
-     [:> rn/View {:style {:width (screen-width) :flex-wrap :wrap :flex-direction :row :justify-content :flex-start}}
+     [:> rn/View {:style {:width (screen-width) :flex-wrap :wrap :flex-direction :row :justify-content :center}}
       (if (nil? pools)
         (components/default-text "No Pools Found")
         (map-indexed pool-format (map (fn [pool] {:conn conn :action-id action-id :pool pool}) pools)))]]))
