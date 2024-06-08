@@ -43,7 +43,7 @@
         header-text (text/default-text list-header
                                        {:font-size 24
                                         :flex 0
-                                        :padding-right 10})]
+                                        :text-align :center})]
     [:> rn/View {:style {:width "100%" :max-height "100%" :flex 100 :padding 10}}
      (if (not (nil? collapsed?))
        (buttons/button {:style {:background-color :inherit :align-items :center :justify-content :center}
