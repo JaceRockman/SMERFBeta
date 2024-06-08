@@ -45,11 +45,13 @@
        (:id realm-data)))))
 
 (defn subrealm-select
-  ([conn subrealm-data]
-   (subrealm-select conn subrealm-data {}))
-  ([conn subrealm-data opts]
+  ([conn active-realm-data subrealm-data]
+   (subrealm-select conn active-realm-data subrealm-data {}))
+  ([conn active-realm-data subrealm-data opts]
    (let [flex-vals [2 1]]
-     (components/search-filter-sort-list
+     [:> rn/View
+      (components/default-text (:realm/entity-details active-realm-data))
+      (components/search-filter-sort-list
       (merge
        {:items            subrealm-data
         :column-headers   ["Title" "Author"]
@@ -63,7 +65,7 @@
                                                       {:flex (nth flex-vals 0)})])
         :section-sort-fns [subrealm-sort]}
        opts)
-      (str (:title subrealm-data) (:list-header opts))))))
+      (str (:title subrealm-data) (:list-header opts)))])))
 
 
 
@@ -90,7 +92,7 @@
     (cond
       active-subrealm-data (realm-details conn active-subrealm-data)
       active-realm-data (let [subrealms (realm-data/get-realm-entity-children conn (:db/id active-realm-data))]
-                          (subrealm-select conn subrealms))
+                          (subrealm-select conn active-realm-data subrealms))
       active-campaign-data (realm-select conn (campaign-data/get-active-campaign-realms conn))
       :else (realm-select conn (realm-data/get-all-realms conn)))))
 
