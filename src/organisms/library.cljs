@@ -53,6 +53,8 @@
    (modals/modal)])
 
 (def modal-content modals/modal-content)
+(def hide-modal-content modals/hide-modal-content)
+(def show-modal-content modals/show-modal-content)
 
 (def button buttons/button)
 (def primary-button buttons/primary-button)

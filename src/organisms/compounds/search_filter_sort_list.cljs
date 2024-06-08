@@ -16,6 +16,7 @@
 (defn search-filter-sort-list
   [{:keys [list-header column-headers column-flex-vals
            collapsed?
+           new-item-fn
            items item-format-fn
            init-search-fns init-filter-fns item-sort-fns section-sort-fns]}
    component-key]
@@ -53,7 +54,13 @@
                         header-text
                         [:> FontAwesome5 {:name (if (get @collapse-state component-key) :chevron-down :chevron-up) :color (:surface-700 @palette) :size 20}]])
        header-text)
-     (when-not (get @collapse-state component-key) (search-bar external-search-text component-key))
+     (when-not (get @collapse-state component-key)
+       [:> rn/View {:style {:flex-direction :row :justify-content :center :align-items :center}}
+        (search-bar external-search-text component-key)
+        (when new-item-fn
+          [:> rn/Pressable {:style {:padding 10}
+                            :on-press new-item-fn}
+           [:> FontAwesome5 {:name :plus :color (:surface-700 @palette) :size 20}]])])
      (when-not (get @collapse-state component-key)
        ((if (empty? section-sort-fns) FlatList SectionList)
         {:items reduced-items

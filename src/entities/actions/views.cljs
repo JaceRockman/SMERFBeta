@@ -104,6 +104,10 @@
      (components/default-text quality-value {:flex (nth flex-vals 1) :font-size 16})
      (components/default-text power-value {:flex (nth flex-vals 2) :font-size 16})]))
 
+(defn new-resource
+  []
+  (components/hide-modal-content))
+
 (defn resource-multi-select
   [conn action-id resources]
   (let [flex-vals [3 1 1]
@@ -112,6 +116,7 @@
      (components/default-text "Select Stats" {:font-size 24 :text-align :center})
      (components/search-filter-sort-list
       {:items            resources
+       :new-item-fn      new-resource
        :column-headers   ["Title" "Quality" "Power"]
        :column-flex-vals flex-vals
        :item-format-fn   (fn [resource-data] ((resource conn flex-vals action-id selected-resources) resource-data))
@@ -215,7 +220,8 @@
 (defn action-constructor [conn flex-vals domains resources]
   (fn [action-data] [:> rn/Pressable {:style {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}
                                       :on-press #(reset! modals/modal-content
-                                                         {:fn construct-roll
+                                                         {:display? true
+                                                          :fn construct-roll
                                                           :args [conn action-data domains resources]
                                                           :save-fn save-action-roll
                                                           :save-args [conn action-data]})}

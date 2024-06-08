@@ -14,7 +14,8 @@
                          :border-color (:surface-400 @palette)
                          :flex-direction :row
                          :align-items :end
-                         :padding 2}}
+                         :padding 2
+                         :flex 1}}
      [:> Ionicons {:name "search" :color (:surface-400 @palette) :size 16}]
      [:> rn/TextInput {:value @search-text-atom
                        :style {:color (:surface-700 @palette)

@@ -7,9 +7,17 @@
 
 (def modal-content (r/atom nil))
 
+(defn hide-modal-content
+  []
+  (swap! modal-content (fn [content] (assoc content :display? false))))
+
+(defn show-modal-content
+  []
+  (swap! modal-content (fn [content] (assoc content :display? true))))
+
 (defn modal
   []
-  (when @modal-content
+  (when (:display? @modal-content)
     (let [content (apply (:fn @modal-content) (:args @modal-content))
           save-button (when (:save-fn @modal-content)
                         (apply (:save-fn @modal-content) (:save-args @modal-content))) ]

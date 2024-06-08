@@ -62,7 +62,7 @@
 (defn domain-damage [conn domain-id]
   (let [minor-wounds (creature-data/get-creature-domain-damage conn domain-id "minor")
         major-wounds (creature-data/get-creature-domain-damage conn domain-id "major")
-        update-damage-fn #(reset! modals/modal-content {:fn domain-damage-modal :args [conn domain-id]})]
+        update-damage-fn #(reset! modals/modal-content {:display? true :fn domain-damage-modal :args [conn domain-id]})]
     [:> rn/View {:style {:flex-direction :row :align-items :center}}
      (components/button {:style {:background-color :none}
                          :on-press update-damage-fn}
