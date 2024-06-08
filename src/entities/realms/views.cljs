@@ -45,12 +45,12 @@
        (:id realm-data)))))
 
 (defn subrealm-select
-  ([conn active-realm-data subrealm-data]
-   (subrealm-select conn active-realm-data subrealm-data {}))
-  ([conn active-realm-data subrealm-data opts]
+  ([conn subrealm-data]
+   (subrealm-select conn subrealm-data {}))
+  ([conn subrealm-data {:keys [realm-data list-overrides]}]
    (let [flex-vals [2 1]]
      [:> rn/View
-      (components/default-text (:realm/entity-details active-realm-data))
+      (when realm-data (components/default-text (:realm/entity-details realm-data)))
       (components/search-filter-sort-list
       (merge
        {:items            subrealm-data
@@ -64,8 +64,8 @@
                              (components/default-text "System"
                                                       {:flex (nth flex-vals 0)})])
         :section-sort-fns [subrealm-sort]}
-       opts)
-      (str (:title subrealm-data) (:list-header opts)))])))
+       list-overrides)
+      (str (:title subrealm-data) (:list-header list-overrides)))])))
 
 
 
@@ -78,12 +78,12 @@
      [:> rn/View
       [:> rn/View
        (when-not (empty? parents)
-        (subrealm-select conn parents {:list-header "Parents"
-                                       :collapsed? true}))]
+        (subrealm-select conn parents {:list-overrides {:list-header "Parents"
+                                                        :collapsed? true}}))]
       [:> rn/View
        (when-not (empty? children)
-        (subrealm-select conn children {:list-header "Children"
-                                        :collapsed? true}))]])])
+        (subrealm-select conn children {:list-overrides {:list-header "Children"
+                                                         :collapsed? true}}))]])])
 
 (defn realm-home [conn]
   (let [active-campaign-data (campaign-data/get-active-campaign conn)
@@ -92,7 +92,7 @@
     (cond
       active-subrealm-data (realm-details conn active-subrealm-data)
       active-realm-data (let [subrealms (realm-data/get-realm-entity-children conn (:db/id active-realm-data))]
-                          (subrealm-select conn active-realm-data subrealms))
+                          (subrealm-select conn subrealms {:realm-data active-realm-data}))
       active-campaign-data (realm-select conn (campaign-data/get-active-campaign-realms conn))
       :else (realm-select conn (realm-data/get-all-realms conn)))))
 
