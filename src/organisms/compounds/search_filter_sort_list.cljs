@@ -52,7 +52,8 @@
                                                            (update collapse-map component-key not)))}
                        [:> rn/View {:style {:flex-direction :row :align-items :center :justify-content :center}}
                         header-text
-                        [:> FontAwesome5 {:name (if (get @collapse-state component-key) :chevron-down :chevron-up) :color (:surface-700 @palette) :size 20}]])
+                        [:> rn/View {:style {:padding-left 5}}
+                         [:> FontAwesome5 {:name (if (get @collapse-state component-key) :chevron-down :chevron-up) :color (:surface-700 @palette) :size 20}]]])
        header-text)
      (when-not (get @collapse-state component-key)
        [:> rn/View {:style {:flex-direction :row :justify-content :center :align-items :center}}
