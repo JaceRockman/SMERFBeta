@@ -26,7 +26,7 @@
                       :on-press (or on-press-override
                                     (fn []
                                       (reset! components/modal-content
-                                              {:fn resource-modal :args [conn id quantity]})))}
+                                              {:display? true :fn resource-modal :args [conn id quantity]})))}
      (components/default-text title {:flex (nth flex-vals 0) :font-size 16})
      (components/default-text quality-value {:flex (nth flex-vals 1) :font-size 16})
      (components/default-text power-value {:flex (nth flex-vals 2) :font-size 16})
@@ -48,12 +48,7 @@
 
 (defn new-resource
   []
-  (doall [(components/hide-modal-content)
-          (println "modal hidden!")
-          (println "new resource!")
-          
-  (components/show-modal-content)
-  (println components/modal-content)]))
+  (println "new resource!"))
 
 (defn resource-list [conn {:keys [resources quantities header on-press-override item-style]}]
   (let [flex-vals [3 1 1 2]]
