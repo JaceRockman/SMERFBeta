@@ -176,7 +176,7 @@
     nil
     [:> rn/Pressable {:style {:background-color (:surface-400 @palette) :padding 5 :border-width 2 :border-color (:surface-500 @palette) :border-radius 4}
                       :on-press #(println (action-data/roll-dice-pool pool))}
-     (components/default-text (action-data/format-dice-pool pool) {:align-text :center})]
+     (into [] (concat [:> rn/View {:style {:flex-direction :row}}] (action-data/format-dice-pool-icons pool)))]
     #(action-data/update-combinations conn action-id index dec)
     #(action-data/update-combinations conn action-id index inc)
     true)])

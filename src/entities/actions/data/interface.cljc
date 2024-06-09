@@ -39,8 +39,10 @@
 (def update-combinations core/update-combinations)
 
 (def get-dice-pools core/get-dice-pools)
-(def format-dice-pool core/format-dice-pool)
-(def format-dice-pools core/format-dice-pools)
+(def format-dice-pool-text core/format-dice-pool-text)
+(def format-dice-pools-text core/format-dice-pools-text)
+(def format-dice-pool-icons core/format-dice-pool-icons)
+(def format-dice-pools-icons core/format-dice-pools-icons)
 (def get-combined-dice-pools core/get-combined-dice-pools)
 (def get-fully-formatted-roll core/get-fully-formatted-roll)
 

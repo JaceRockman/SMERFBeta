@@ -1,5 +1,8 @@
 (ns entities.actions.data.core
-  (:require [datascript.core :as ds]))
+  (:require [datascript.core :as ds]
+            ["react-native" :as rn]
+            ["@expo/vector-icons" :refer [MaterialCommunityIcons]]
+            [organisms.library :as components]))
 
 (def example-actions
   [{:title "Physical Health Check"
@@ -296,19 +299,41 @@
                        (when (< 0 qty) (vector qty size mod)))
                      new-quantities new-dice-sizes new-mods))))))
 
-(defn format-dice-pool
+(defn format-dice-pool-text
   [pool]
+  (println pool)
   (interpose " + " (map (fn [[quantity size modifier]]
-                        (str quantity "d" size
-                             (cond
-                               (> 0 modifier) (str " " modifier)
-                               (= 0 modifier) nil
-                               (< 0 modifier) (str " +" modifier)
-                               :else nil)))
+                          (str quantity "d" size
+                               (cond
+                                 (> 0 modifier) (str " " modifier)
+                                 (= 0 modifier) nil
+                                 (< 0 modifier) (str " +" modifier)
+                                 :else nil)))
                       pool)))
 
-(defn format-dice-pools [pools]
-  (map format-dice-pool pools))
+(defn format-dice-pools-text [pools]
+  (map format-dice-pool-text pools))
+
+(defn format-dice-pool-icons
+  [pool]
+  (let [total-modifier (apply + (map last pool))]
+    (conj
+     (mapv (fn [[quantity size _]]
+             [:> rn/View (map (fn [dice-size]
+                    [:> MaterialCommunityIcons {:key 5 :name (str "dice-d" dice-size) :size 18 :color :white}])
+                  (repeat quantity size))])
+           pool)
+     (when (not (= 0 total-modifier))
+       (components/default-text
+        (cond
+          (> 0 total-modifier) (str " " total-modifier)
+          (< 0 total-modifier) (str " +" total-modifier)
+          :else nil)
+        {:flex nil})))))
+
+(defn format-dice-pools-icons
+  [pools]
+  (map format-dice-pool-icons pools))
 
 (defn get-calculated-action-pool-info
   [conn action-id]
@@ -332,7 +357,8 @@
             splintered-mods       (divide-evenly base-dice-mod splinters)
             dice-pools            (map vector splintered-quantities (repeat base-dice-size) splintered-mods)
             combined-dice-pools   (map apply-combination dice-pools combinations)
-            formatted-dice-pools  (apply str (interpose " | " (map #(apply str %) (format-dice-pools combined-dice-pools))))]
+            formatted-dice-pools  (apply str (interpose " | " (map #(apply str %) (format-dice-pools-text combined-dice-pools))))
+            formatted-dice-pools-icons (format-dice-pools-icons combined-dice-pools)]
         {:stat-quality skill-value
          :stat-power ability-value
          :resource-dice-mod resource-dice-mod
@@ -346,7 +372,8 @@
          :splinter-bonuses splintered-mods
          :dice-pools dice-pools
          :combined-dice-pools combined-dice-pools
-         :formatted-dice-pools formatted-dice-pools}))))
+         :formatted-dice-pools formatted-dice-pools
+         :formatted-dice-pools-icons formatted-dice-pools-icons}))))
 
 (defn get-dice-pools
   [conn action-id]
