@@ -48,6 +48,8 @@
          [[:ruleset/skill-check-overview
            :ruleset/skill-check-base-dice-pool
            :ruleset/skill-check-benefits-and-detriments
+           :ruleset/complex-actions
+           :ruleset/careful-and-reckless-actions
            :ruleset/skill-check-passive-checks]
           [:ruleset/encounter-overview
            :ruleset/encounter-actions

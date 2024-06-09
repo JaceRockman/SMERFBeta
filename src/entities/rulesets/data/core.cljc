@@ -68,19 +68,19 @@
 
 (defn skill-check-rules
   [base-dice-pool-example]
-  {:overview "# Overview
+  {:overview "## Overview
 Skill checks should be made when a character’s actions have a reasonable chance of both failure and success and when failure would come at a cost. If it is impossible for a skill check to fail or to succeed, then there is nothing to check. If a skill check has a reasonable chance of both success and failure but there is no cost for the actions either way, then the character could just continue to try again until they succeed. Ultimately, it is up to the GM’s discretion when a skill check should be called for. When a skill check is called for, you will use your character’s stats to determine the check’s base dice pool. The base dice pool may then be modified by bonuses and penalties. Once the base dice pool has been modified, then the dice are rolled and the results are compared to a target number which represents the difficulty of the actions you are taking."
-   :base-dice-pool "# Base Dice Pool
+   :base-dice-pool "## Base Dice Pool
 When a check is called for, the GM will determine which of your stats is most relevant to the task at hand and that will determine your base dice pool. For example, if you are trying to climb a cliffside, the GM may ask for a check using your coordination skill. If your coordination skill is 2d8, then your base dice pool would be two 8-sided dice."
-   :benefits-and-detriments "# Benefits and Detriments
+   :benefits-and-detriments "## Benefits and Detriments
 Circumstances and resources can affect skill checks beneficially or detrimentally. Beneficial effects grant dice bonuses and flat bonuses while detrimental effects inflict dice penalties and flat penalties. Dice bonuses and dice penalties alter your chances of success by increasing or decreasing the number of dice you roll. They are represented in the format of \"+1d\" for bonuses and \"-1d\" for penalties. On the other hand, flat penalties alter the limits of what you can accomplish by increasing or decreasing the result of the roll. They are represented in the format of \"+1\" or \"-1\". When bonuses and penalties of the same type are applied to a check, they cancel each other out and the final number is then applied to the dice pool. If a dice penalty would cause you to roll zero dice, instead, roll one die of the next size down.
 
 Sometimes bonuses and penalties will be applied to a check after you have rolled the dice but before the check is resolved. If a dice bonus is applied after you roll your dice but before the roll is resolved, then roll the bonus dice and compare the result of the dice pool in question to your bonus dice result and take the higher of the two. If a dice penalty is inflicted after you roll all of your dice but before the roll is resolved, then roll the penalty dice one at a time and compare the result to the previous result. The die that is numerically closest to the penalty die you rolled is removed from the roll, rounding unfavorably, and then repeat this process with any remaining penalty dice. If you have penalty dice remaining when there is only one die left in the dice pool in question, then roll the rest of the penalty dice and take the lowest result."
-   :complex-actions "# Complex Actions
+   :complex-actions "## Complex Actions
 After bonuses and penalties are applied but before the roll is made, you can choose how complex you would like your action to be. Actions are made complex by splintering the base dice pool into multiple fragmentary pools. Each of these fragmentary pools are counted as separate results for the purposes of resolving the check. This allows you to attempt multiple endeavors where you would usually only be able to attempt one. A common example of this is making multiple attacks against an enemy or attacking different enemies simultaneously. If you choose to splinter your base dice pool, each of the fragmentary dice pools must contain at least two dice. Some resources place higher limitations on the size of the fragmentary dice pools you can create. Flat bonuses and penalties must be distributed as evenly as possible amongst the fragmentary dice pools."
-   :careful-and-reckless-actions "# Careful and Reckless Actions
+   :careful-and-reckless-actions "## Careful and Reckless Actions
 The final modification that can be made to a dice pool before rolling is choosing to be careful or reckless. If you choose to act recklessly, then two dice of the same size in the same dice pool may be combined into a single die of the next highest size. On the other hand, if you choose to act carefully, then a single die may be split into two dice of the next smallest size. You can choose your degree of carefulness or recklessness by splitting or combining only some of the dice in the dice pool. In this case, you will end up with a dice pool containing dice of different sizes. This makes no difference in the roll. You will still simply roll all of the dice in the pool and take the highest result."
-   :passive-checks "# Passive Checks
+   :passive-checks "## Passive Checks
 Passive checks may be used by the GM to resolve situations where your character’s stats are relevant but your character doesn't need to do anything to resolve the situation. Checks to determine your character's level of knowledge on a topic or checks to notice something in your surroundings when you aren’t searching will commonly be made as passive checks. The GM will still determine a target number and choose which stats are most relevant, however, instead of modifying that dice pool and rolling those dice, you will add together the following three values to determine the result: half of the size of the dice that make up the dice pool, the number of dice in the dice pool, and the net value of all of the bonuses and penalties. This result cannot exceed the cumulative total of the size of dice that make up the dice pool and the net value of your flat bonuses and penalties. Once the result is determined, it is compared to the target number determined by the GM as usual."})
 
 (def encounter-rules
@@ -334,6 +334,37 @@ Connections represents how many relationships and affiliations a creature has, h
     :ruleset/stats-mental (:mental stats-list)
     :ruleset/stats-social (:social stats-list)}])
 
+(def moderate-ruleset
+  [{:title "Moderate Ruleset"
+    :entity-type "ruleset"
+    :ruleset/complexity "Moderate"
+    :ruleset/skill-check-overview (:overview (skill-check-rules nil))
+    :ruleset/skill-check-base-dice-pool (:base-dice-pool (skill-check-rules nil))
+    :ruleset/skill-check-benefits-and-detriments (:benefits-and-detriments (skill-check-rules nil))
+    :ruleset/complex-actions (:complex-actions (skill-check-rules nil))
+    :ruleset/skill-check-passive-checks (:passive-checks (skill-check-rules nil))
+    :ruleset/encounter-overview (:overview encounter-rules)
+    :ruleset/encounter-actions (:actions encounter-rules)
+    :ruleset/encounter-moments (:moments encounter-rules)
+    :ruleset/encounter-rounds (:rounds encounter-rules)
+    :ruleset/damage-overview (:overview damage-rules)
+    :ruleset/damage-injuries (:injuries damage-rules)
+    :ruleset/damage-conditions (:conditions damage-rules)
+    :ruleset/damage-recover (:recovery damage-rules)
+    :ruleset/conditions-wounded (:wounded condition-list)
+    :ruleset/conditions-incapacitated (:incapacitated condition-list)
+    :ruleset/conditions-dead (:dead condition-list)
+    :ruleset/conditions-exhausted (:exhausted condition-list)
+    :ruleset/conditions-surprised (:surprised condition-list)
+    :ruleset/conditions-blinded (:blinded condition-list)
+    :ruleset/conditions-deafened (:deafened condition-list)
+    :ruleset/conditions-constrained (:constrained condition-list)
+    :ruleset/conditions-frightened (:frightened condition-list)
+    :ruleset/stats-physical (:physical stats-list)
+    :ruleset/stats-spiritual (:spiritual stats-list)
+    :ruleset/stats-mental (:mental stats-list)
+    :ruleset/stats-social (:social stats-list)}])
+
 (def complex-ruleset
   [{:title "Complex Ruleset"
     :entity-type "ruleset"
@@ -341,6 +372,8 @@ Connections represents how many relationships and affiliations a creature has, h
     :ruleset/skill-check-overview (:overview (skill-check-rules nil))
     :ruleset/skill-check-base-dice-pool (:base-dice-pool (skill-check-rules nil))
     :ruleset/skill-check-benefits-and-detriments (:benefits-and-detriments (skill-check-rules nil))
+    :ruleset/complex-actions (:complex-actions (skill-check-rules nil))
+    :ruleset/careful-and-reckless-actions (:careful-and-reckless-actions (skill-check-rules nil))
     :ruleset/skill-check-passive-checks (:passive-checks (skill-check-rules nil))
     :ruleset/encounter-overview (:overview encounter-rules)
     :ruleset/encounter-actions (:actions encounter-rules)
@@ -365,4 +398,4 @@ Connections represents how many relationships and affiliations a creature has, h
     :ruleset/stats-social (:social stats-list)}])
 
 (def example-rulesets
-  simple-ruleset)
+  (concat simple-ruleset moderate-ruleset complex-ruleset))
