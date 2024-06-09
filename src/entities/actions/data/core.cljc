@@ -301,7 +301,6 @@
 
 (defn format-dice-pool-text
   [pool]
-  (println pool)
   (interpose " + " (map (fn [[quantity size modifier]]
                           (str quantity "d" size
                                (cond
@@ -320,8 +319,8 @@
     (conj
      (mapv (fn [[quantity size _]]
              [:> rn/View (map (fn [dice-size]
-                    [:> MaterialCommunityIcons {:key 5 :name (str "dice-d" dice-size) :size 18 :color :white}])
-                  (repeat quantity size))])
+                                [:> MaterialCommunityIcons {:key 5 :name (str "dice-d" dice-size) :size 24 :color (if (> 0 quantity) :black :white)}])
+                              (repeat (abs quantity) size))])
            pool)
      (when (not (= 0 total-modifier))
        (components/default-text
@@ -334,6 +333,17 @@
 (defn format-dice-pools-icons
   [pools]
   (map format-dice-pool-icons pools))
+
+(defn calc-quantity-and-size
+  [quantity size]
+  (let [size-level-diff (- (/ size 2) 2)
+        quantity-level-diff (- quantity 1)
+        total-diff (+ size-level-diff quantity-level-diff)]
+    (if (> 0 total-diff)
+      [quantity-level-diff 4]
+      (let [new-quantity (max quantity 1)
+            new-size (if (> 1 quantity) (- size (* 2 (- 1 quantity))) size)]
+        [new-quantity new-size]))))
 
 (defn get-calculated-action-pool-info
   [conn action-id]
@@ -350,8 +360,9 @@
             resource-flat-mod     (apply + (map :resource/power-value resources))
             dice-mod              (get-dice-modifier conn action-id)
             flat-mod              (get-flat-modifier conn action-id)
-            base-dice-quantity    (+ skill-value resource-dice-mod dice-mod)
-            base-dice-size        ability-value
+            dice-quantity         (+ skill-value resource-dice-mod dice-mod)
+            [base-dice-quantity base-dice-size]
+            (calc-quantity-and-size dice-quantity ability-value)
             base-dice-mod         (+ flat-mod resource-flat-mod)
             splintered-quantities (divide-evenly base-dice-quantity splinters)
             splintered-mods       (divide-evenly base-dice-mod splinters)
