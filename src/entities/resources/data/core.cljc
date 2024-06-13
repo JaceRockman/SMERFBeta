@@ -5,48 +5,6 @@
                           {:db/ident :resource-property/medium}
                           {:db/ident :resource-property/heavy}])
 
-(defn resource-templates
-  [{:title "Weapon"
-    :entity-type "resource"
-    :resource/type "Equipment"
-    :resource/properties []
-    :resource/actions []
-    :resource/quality-title "Quality"
-    :resource/quality-value 1
-    :resource/power-title "Power"
-    :resource/power-value 6
-    :resource/description ""}
-
-   {:title "Armor"}
-
-   {:title "Shield"}
-
-   {:title "Virtue"}
-
-   {:title "Ideal"}
-
-   {:title "Vice"}
-
-   {:title "Goal"}
-
-   {:title "Training"}
-
-   {:title "Knowledge"}
-
-   {:title "Talent"}
-
-   {:title "Experience"}
-
-   {:title "Membership"}
-
-   {:title "Ally"}
-
-   {:title "Rival"}
-
-   {:title "Reputation"}
-
-   {:title "Item"}])
-
 (defn example-resources
   [example-actions]
   [{:title                  "Longsword"

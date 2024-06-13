@@ -46,21 +46,28 @@
         items (type-section-from-resources "Item" resources)]
     (remove nil? [equipment traits expertise affiliations items])))
 
-(defn create-new-resource
-  []
-  (println "new resource!"))
-
 (defn new-resource-modal
   [conn]
-  [:> rn/ScrollView
-   ])
+  [:> rn/ScrollView {:style {:padding 5}}
+   (components/default-text-input (components/default-text "Title:") "type")
+   (components/default-text-input (components/default-text "Type:") "type")
+   (components/default-text-input (components/default-text "Properties:") "type")
+   (components/default-text-input (components/default-text "Actions:") "type")
+   (components/default-text-input (components/default-text "Quality:") "type")
+   (components/default-text-input (components/default-text "Power:") "type")
+   (components/default-text-input (components/default-text "Description:") "type")])
+
+(defn create-new-resource
+  [conn]
+  (reset! components/modal-content
+          {:display? true :fn new-resource-modal :args [conn]}))
 
 (defn resource-list [conn {:keys [resources quantities header on-press-override item-style]}]
   (let [flex-vals [3 1 1 2]]
     (components/search-filter-sort-list
      {:list-header      header
       :items            resources
-      :new-item-fn      create-new-resource
+      :new-item-fn      #(create-new-resource conn)
       :column-headers   ["Title" "Quality" "Power" "Quantity"]
       :column-flex-vals flex-vals
       :item-format-fn   (fn [resource-data]

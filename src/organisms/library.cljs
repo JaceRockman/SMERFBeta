@@ -7,6 +7,7 @@
             [organisms.atoms.buttons :as buttons]
             [organisms.atoms.markdown :as markdown]
             [organisms.atoms.text :as text]
+            [organisms.atoms.text-input :as text-input]
             [organisms.molecules.lists :as lists]
             [organisms.molecules.scroll-position-indicator :as spi]
             [organisms.molecules.decrementor-incrementor :as dec-inc]
@@ -65,6 +66,8 @@
 (def default-text text/default-text)
 (def inverted-text text/inverted-text)
 (def view-header-text text/view-header-text)
+
+(def default-text-input text-input/default-text-input)
 
 (def default-markdown markdown/default-markdown)
 (def default-realm-markdown markdown/default-realm-markdown)
