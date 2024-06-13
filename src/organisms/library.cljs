@@ -9,6 +9,7 @@
             [organisms.atoms.text :as text]
             [organisms.molecules.lists :as lists]
             [organisms.molecules.scroll-position-indicator :as spi]
+            [organisms.molecules.decrementor-incrementor :as dec-inc]
             [organisms.compounds.search-filter-sort-list :as sfs-list]
             [organisms.compounds.nav-bar :refer [nav-bar]]
             [organisms.compounds.tab-bar :refer [tab-bar]]
@@ -70,6 +71,7 @@
 
 (def flat-list lists/FlatList)
 (def search-filter-sort-list sfs-list/search-filter-sort-list)
+(def decrementor-and-incrementor dec-inc/decrementor-and-incrementor)
 
 (def scroll-position-indicator spi/scroll-position-indicator)
 (def ruleset-horizontal-position spi/ruleset-horizontal-position)

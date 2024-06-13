@@ -46,16 +46,21 @@
         items (type-section-from-resources "Item" resources)]
     (remove nil? [equipment traits expertise affiliations items])))
 
-(defn new-resource
+(defn create-new-resource
   []
   (println "new resource!"))
+
+(defn new-resource-modal
+  [conn]
+  [:> rn/ScrollView
+   ])
 
 (defn resource-list [conn {:keys [resources quantities header on-press-override item-style]}]
   (let [flex-vals [3 1 1 2]]
     (components/search-filter-sort-list
      {:list-header      header
       :items            resources
-      :new-item-fn      new-resource
+      :new-item-fn      create-new-resource
       :column-headers   ["Title" "Quality" "Power" "Quantity"]
       :column-flex-vals flex-vals
       :item-format-fn   (fn [resource-data]
