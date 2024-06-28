@@ -308,6 +308,20 @@ Connections represents how many relationships and affiliations a creature has, h
   [{:title "Simple Ruleset"
     :entity-type "ruleset"
     :ruleset/complexity "Simple"
+    :ruleset/minimum-power 4
+    :ruleset/maximum-power 12
+    :ruleset/maximum-quality 10
+    :ruleset/exp-per-level 1
+    :ruleset/stat-granularity "domain"
+    :ruleset/splintering false
+    :ruleset/careful-or-reckless false
+    :ruleset/encounter-style "free"
+    :ruleset/damage-style "wounds"
+    :ruleset/wound-tiers 1
+    :ruleset/wound-first-condition-trigger "threshold"
+    :ruleset/wound-second-condition-trigger "threshold"
+    
+    
     :ruleset/skill-check-overview (:overview (skill-check-rules nil))
     :ruleset/skill-check-base-dice-pool (:base-dice-pool (skill-check-rules nil))
     :ruleset/skill-check-benefits-and-detriments (:benefits-and-detriments (skill-check-rules nil))
@@ -338,6 +352,20 @@ Connections represents how many relationships and affiliations a creature has, h
   [{:title "Moderate Ruleset"
     :entity-type "ruleset"
     :ruleset/complexity "Moderate"
+    :ruleset/minimum-power 4
+    :ruleset/maximum-power 12
+    :ruleset/maximum-quality 10
+    :ruleset/exp-per-level 1
+    :ruleset/stat-granularity "skillbility"
+    :ruleset/splintering true
+    :ruleset/careful-or-reckless false
+    :ruleset/encounter-style "turns"
+    :ruleset/damage-style "wounds"
+    :ruleset/wound-tiers 2
+    :ruleset/wound-first-condition-trigger "check"
+    :ruleset/wound-second-condition-trigger "threshold"
+
+    
     :ruleset/skill-check-overview (:overview (skill-check-rules nil))
     :ruleset/skill-check-base-dice-pool (:base-dice-pool (skill-check-rules nil))
     :ruleset/skill-check-benefits-and-detriments (:benefits-and-detriments (skill-check-rules nil))
@@ -369,6 +397,19 @@ Connections represents how many relationships and affiliations a creature has, h
   [{:title "Complex Ruleset"
     :entity-type "ruleset"
     :ruleset/complexity "Complex"
+    :ruleset/minimum-power 4
+    :ruleset/maximum-power 20
+    :ruleset/maximum-quality 10
+    :ruleset/exp-per-level 1
+    :ruleset/stat-granularity "stats"
+    :ruleset/splintering true
+    :ruleset/careful-or-reckless true
+    :ruleset/encounter-style "simultaneous"
+    :ruleset/damage-style "wounds"
+    :ruleset/wound-tiers 3
+    :ruleset/wound-first-condition-trigger "check"
+    :ruleset/wound-second-condition-trigger "check"
+
     :ruleset/skill-check-overview (:overview (skill-check-rules nil))
     :ruleset/skill-check-base-dice-pool (:base-dice-pool (skill-check-rules nil))
     :ruleset/skill-check-benefits-and-detriments (:benefits-and-detriments (skill-check-rules nil))

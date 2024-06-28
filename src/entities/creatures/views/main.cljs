@@ -1,6 +1,7 @@
 (ns entities.creatures.views.main
   (:require [reagent.core :as r]
             ["react-native" :as rn]
+            ["@expo/vector-icons" :refer [FontAwesome5]]
             [organisms.config :as config]
             [organisms.library :as components]
             [entities.campaigns.data.interface :as campaign-data]
@@ -42,7 +43,10 @@
      [:> rn/View {:style {:flex 1}}
       (components/default-text gender)
       (components/default-text races)
-      (components/default-text description)]]))
+      (components/default-text description)]
+     [:> rn/View {:style {:position :absolute :top 10 :right 10}}
+      [:> rn/Pressable {:on-press #(campaign-data/set-campaign-active-ruleset conn 18)}
+       [:> FontAwesome5 {:name :book :color (:surface-700 @config/palette) :size 20}]]]]))
 
 (defn creature [conn creature-data]
   [:> rn/View {:style {:height "100%"}}
@@ -56,6 +60,7 @@
                                     (creature-data/get-creature-domains conn creature-data)
                                     (creature-data/get-creature-resources-from-data conn creature-data))
      (creature-notes-view/notes conn creature-data)])])
+
 
 (defn creatures-page [conn ^js props]
   (components/view-frame

@@ -2,10 +2,17 @@
   (:require [reagent.core :as r]
             ["react-native" :as rn]
             ["@expo/vector-icons" :refer [FontAwesome5]]
+            [entities.creatures.data.interface :as creature-data]
+            [entities.campaigns.data.interface :as campaigns-data]
             [organisms.config :refer [palette screen-width]]
             [organisms.library :as components]
-            [organisms.environments.modals :as modals]
-            [entities.creatures.data.interface :as creature-data]))
+            [organisms.environments.modals :as modals]))
+
+(defn section-divider []
+  [:> rn/View {:style {:background-color (:surface-700 @palette) :width "80%" :height 2 :align-self :center}}])
+
+(defn stats-section-style []
+  {:padding 10 :width (screen-width) :gap 10})
 
 (defn skill
   [title value]
@@ -61,12 +68,15 @@
 
 (defn domain-damage [conn domain-id]
   (let [minor-wounds (creature-data/get-creature-domain-damage conn domain-id "minor")
+        moderate-wounds (creature-data/get-creature-domain-damage conn domain-id "moderate")
         major-wounds (creature-data/get-creature-domain-damage conn domain-id "major")
-        update-damage-fn #(reset! modals/modal-content {:display? true :fn domain-damage-modal :args [conn domain-id]})]
+        update-damage-fn #(reset! modals/modal-content {:display? true
+                                                        :fn domain-damage-modal
+                                                        :args [conn domain-id]})]
     [:> rn/View {:style {:flex-direction :row :align-items :center}}
      (components/button {:style {:background-color :none}
                          :on-press update-damage-fn}
-                        (str "Damage: " (+ minor-wounds (* 2 major-wounds))))
+                        (str (+ minor-wounds (* 2 moderate-wounds) (* 3 major-wounds))))
      [:> rn/Pressable {:style {:top -6}
                        :on-press update-damage-fn}
       [:> FontAwesome5 {:name :edit :color (:surface-700 @palette) :size 12}]]]))
@@ -77,7 +87,45 @@
 (def selected-skill
   (r/atom nil))
 
-(defn stats-domain
+(defn domain-stat
+  [conn domain-details]
+  (let [flex-vals [3 1 1 1]
+        derive-item (fn [domain-title]
+                      (let [{:keys [:db/id
+                                    :domain/initiation-value
+                                    :domain/reaction-value
+                                    :domain/continuation-value
+                                    :domain/dominance-value
+                                    :domain/competence-value
+                                    :domain/resilience-value
+                                    :domain/minor-wounds]}
+                            (first (filter #(= domain-title (:title %)) domain-details))]
+                        {:title domain-title
+                         :quality (/ (+ initiation-value reaction-value continuation-value) 3)
+                         :power (/ (+ dominance-value competence-value resilience-value) 3)
+                         :id id}))
+        physical-item (derive-item "Physical")
+        spiritual-item (derive-item "Spiritual")
+        mental-item (derive-item "Mental")
+        social-item (derive-item "Social")]
+    [:> rn/ScrollView {:style (stats-section-style)}
+     (components/default-text "Stats" {:font-size 32})
+     (components/flat-list {:items [physical-item spiritual-item mental-item social-item]
+                            :headers ["Title" "Quality" "Power" "Damage"]
+                            :flex-vals flex-vals
+                            :row-constructor (fn [item]
+                                               [:> rn/Pressable {:style {:flex-direction :row}
+                                                                 :on-press (fn [])}
+                                                (components/default-text (:title item)
+                                                                         {:flex (nth flex-vals 0)})
+                                                (components/default-text (:quality item)
+                                                                         {:flex (nth flex-vals 1)})
+                                                (components/default-text (str "d" (:power item))
+                                                                         {:flex (nth flex-vals 2)})
+                                                [:> rn/View {:style {:flex (nth flex-vals 3)}}
+                                                 (domain-damage conn (:id item))]])})]))
+
+(defn skillbility-stat
   [conn
    {:keys
     [:db/id
@@ -89,13 +137,6 @@
      :domain/competence-title :domain/competence-value
      :domain/resilience-title :domain/resilience-value
      :domain/minor-wounds :domain/moderate-wounds :domain/major-wounds]}]
-  #_[:> rn/View
-     (components/default-text {:style {:font-size 24} :text name})
-     [:> rn/View {:style {:flex-direction :row :gap 5 :padding 5 :justify-content :space-evenly}}
-      [skillbility "Initiation" initiation-value dominance-value]
-      [skillbility "Reaction" reaction-value competence-value]
-      [skillbility "Continuation" continuation-value resilience-value]]
-     (domain-damage conn id)]
   (let [flex-vals [3 1 1]
         initiation-item {:title initiation-title :quality initiation-value :power dominance-value}
         reaction-item {:title reaction-title :quality reaction-value :power competence-value}
@@ -116,11 +157,50 @@
                                                                          {:flex (nth flex-vals 1)})])})
      (domain-damage conn id)]))
 
-(defn section-divider []
-  [:> rn/View {:style {:background-color (:surface-700 @palette) :width "80%" :height 2 :align-self :center}}])
+(defn skill-and-ability-stat
+  [conn
+   {:keys
+    [:db/id
+     :title
+     :domain/initiation-title :domain/initiation-value
+     :domain/reaction-title :domain/reaction-value
+     :domain/continuation-title :domain/continuation-value
+     :domain/dominance-title :domain/dominance-value
+     :domain/competence-title :domain/competence-value
+     :domain/resilience-title :domain/resilience-value
+     :domain/minor-wounds :domain/moderate-wounds :domain/major-wounds]}]
+  (let [flex-vals         [3 1 1]
+        initiation-item   {:title initiation-title :value initiation-value}
+        reaction-item     {:title reaction-title :value reaction-value}
+        continuation-item {:title continuation-title :value continuation-value}
+        dominance-item    {:title dominance-title :value dominance-value}
+        competence-item   {:title competence-title :value competence-value}
+        resilience-item   {:item resilience-title :value resilience-value}]
+    [:> rn/View {:style {:padding "0px 10px 0px 10px"}}
+     (components/default-text title {:font-size 24})
+     (components/flat-list {:items           [initiation-item reaction-item continuation-item]
+                            :headers         ["Title" "Quality" "Power"]
+                            :flex-vals       flex-vals
+                            :row-constructor (fn [item]
+                                               [:> rn/Pressable {:style    {:flex-direction :row}
+                                                                 :on-press (fn [])}
+                                                (components/default-text (:title item)
+                                                                         {:flex (nth flex-vals 0)})
+                                                (components/default-text (:quality item)
+                                                                         {:flex (nth flex-vals 1)})
+                                                (components/default-text (str "d" (:power item))
+                                                                         {:flex (nth flex-vals 1)})])})
+     (domain-damage conn id)]))
 
-(defn stats-section-style []
-  {:padding 10 :width (screen-width) :gap 10})
+(defn stats-domain
+  [conn domain-data]
+  (let [ruleset (campaigns-data/get-campaign-active-ruleset conn)]
+    (case (:ruleset/stat-granularity ruleset)
+      "domain" (domain-stat conn domain-data)
+      "skillbility" (skillbility-stat conn domain-data)
+      "stats" (skill-and-ability-stat conn domain-data))))
+
+
 
 #_(defn stats-picker
   [conn creature-details action-id]
@@ -131,8 +211,9 @@
                 (map stats-picker-domain (repeat conn) domain-details (repeat action-id)))]))
 
 (defn stats [conn creature-details]
-  (let [domain-details (creature-data/get-creature-domains conn creature-details)]
-    [:> rn/ScrollView {:style (stats-section-style)}
-     (components/default-text "Stats" {:font-size 32})
-     (interpose (section-divider)
-                (map stats-domain (repeat conn) domain-details))]))
+  (let [ruleset (campaigns-data/get-campaign-active-ruleset conn)
+        domain-details (creature-data/get-creature-domains conn creature-details)]
+    (case (:ruleset/stat-granularity ruleset)
+      "domain" (domain-stat conn domain-details)
+      "skillbility" (map skillbility-stat (repeat conn) domain-details)
+      "stats" (map skill-and-ability-stat (repeat conn) domain-details))))

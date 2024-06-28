@@ -80,7 +80,7 @@
         active-ruleset-data (ruleset-data/get-active-ruleset conn)]
     (cond
       active-ruleset-data (ruleset-details conn active-ruleset-data)
-      active-campaign-data (ruleset-select conn (campaign-data/get-active-campaign-rules conn))
+      active-campaign-data (ruleset-select conn (campaign-data/get-active-campaign-rulesets conn))
       :else (ruleset-select conn (ruleset-data/get-all-rulesets conn)))))
 
 (defn rules [conn ^js props]

@@ -9,7 +9,9 @@
     :campaign/rulesets example-rulesets
     :campaign/creatures example-creatures
     :campaign/domains example-domains
-    :campaign/resources example-resources}
+    :campaign/resources example-resources
+    :campaign/default-ruleset (first example-rulesets)
+    :campaign/active-ruleset (first example-rulesets)}
    {:entity-type "campaign"
     :title "Science Fiction"}
    {:entity-type "campaign"
@@ -50,6 +52,17 @@
   [conn]
   (when-let [active-campaign-data (get-active-campaign conn)]
     (ds/pull-many @conn '[*] (:campaign/rulesets active-campaign-data))))
+
+(defn get-campaign-active-ruleset
+  [conn]
+  (when-let [active-campaign-data (get-active-campaign conn)]
+    (ds/pull @conn '[*] (:campaign/active-ruleset active-campaign-data))))
+
+(defn set-campaign-active-ruleset
+  [conn ruleset-id]
+  (when-let [active-campaign-id (:db/id (get-active-campaign conn))]
+    (ds/transact! conn [{:db/id active-campaign-id
+                         :active/campaign ruleset-id}])))
 
 (defn get-active-campaign-creatures
   [conn]

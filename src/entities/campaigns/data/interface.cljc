@@ -10,12 +10,13 @@
 (def get-active-campaign-default-domains core/get-active-campaign-default-domains)
 (def get-active-campaign-creatures core/get-active-campaign-creatures)
 (def get-active-campaign-realms core/get-active-campaign-realms)
-(def get-active-campaign-rules core/get-active-campaign-rulesets)
+(def get-active-campaign-rulesets core/get-active-campaign-rulesets)
 
 (def update-campaign)
 (def delete-campaign)
 
-
+(def get-campaign-active-ruleset core/get-campaign-active-ruleset)
+(def set-campaign-active-ruleset core/set-campaign-active-ruleset)
 (def set-active-campaign core/set-active-campaign)
 
 
