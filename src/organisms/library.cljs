@@ -73,6 +73,7 @@
 (def default-realm-markdown markdown/default-realm-markdown)
 
 (def flat-list lists/FlatList)
+(def section-list lists/SectionList)
 (def search-filter-sort-list sfs-list/search-filter-sort-list)
 (def decrementor-and-incrementor dec-inc/decrementor-and-incrementor)
 

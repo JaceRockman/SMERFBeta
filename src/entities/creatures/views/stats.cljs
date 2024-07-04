@@ -155,7 +155,7 @@
                                                                          {:flex (nth flex-vals 1)})
                                                 (components/default-text (str "d" (:power item))
                                                                          {:flex (nth flex-vals 1)})])})
-     (domain-damage conn id)]))
+     [:> rn/Text {:style {:color :white}} "Damage: " (domain-damage conn id)]]))
 
 (defn skill-and-ability-stat
   [conn
@@ -169,28 +169,31 @@
      :domain/competence-title :domain/competence-value
      :domain/resilience-title :domain/resilience-value
      :domain/minor-wounds :domain/moderate-wounds :domain/major-wounds]}]
-  (let [flex-vals         [3 1 1]
-        initiation-item   {:title initiation-title :value initiation-value}
-        reaction-item     {:title reaction-title :value reaction-value}
-        continuation-item {:title continuation-title :value continuation-value}
-        dominance-item    {:title dominance-title :value dominance-value}
-        competence-item   {:title competence-title :value competence-value}
-        resilience-item   {:item resilience-title :value resilience-value}]
+  (let [flex-vals         [3 2]
+        initiation-item   {:title initiation-title :value initiation-value :type :skill}
+        reaction-item     {:title reaction-title :value reaction-value :type :skill}
+        continuation-item {:title continuation-title :value continuation-value :type :skill}
+        skill-section     {:title "Skills"
+                           :data  [initiation-item reaction-item continuation-item]}
+        dominance-item    {:title dominance-title :value dominance-value :type :ability}
+        competence-item   {:title competence-title :value competence-value :type :ability}
+        resilience-item   {:item resilience-title :value resilience-value :type :ability}
+        ability-section   {:title "Abilities"
+                           :data  [dominance-item competence-item resilience-item]}]
     [:> rn/View {:style {:padding "0px 10px 0px 10px"}}
-     (components/default-text title {:font-size 24})
-     (components/flat-list {:items           [initiation-item reaction-item continuation-item]
-                            :headers         ["Title" "Quality" "Power"]
-                            :flex-vals       flex-vals
-                            :row-constructor (fn [item]
-                                               [:> rn/Pressable {:style    {:flex-direction :row}
-                                                                 :on-press (fn [])}
-                                                (components/default-text (:title item)
-                                                                         {:flex (nth flex-vals 0)})
-                                                (components/default-text (:quality item)
-                                                                         {:flex (nth flex-vals 1)})
-                                                (components/default-text (str "d" (:power item))
-                                                                         {:flex (nth flex-vals 1)})])})
-     (domain-damage conn id)]))
+     (components/default-text title {:font-size 28})
+     (components/section-list {:items           [skill-section ability-section]
+                               :headers         ["Title" "Value"]
+                               :flex-vals       flex-vals
+                               :row-constructor (fn [item]
+                                                  [:> rn/Pressable {:style    {:flex-direction :row}
+                                                                    :on-press (fn []
+                                                                                (println (:type item)))}
+                                                   (components/default-text (:title item)
+                                                                            {:flex (nth flex-vals 0)})
+                                                   (components/default-text (str (when (= "ability" (:type item)) "d") (:value item))
+                                                                            {:flex (nth flex-vals 1)})])})
+     [:> rn/Text {:style {:color :white}} "Damage: " (domain-damage conn id)]]))
 
 (defn stats-domain
   [conn domain-data]
@@ -215,5 +218,9 @@
         domain-details (creature-data/get-creature-domains conn creature-details)]
     (case (:ruleset/stat-granularity ruleset)
       "domain" (domain-stat conn domain-details)
-      "skillbility" (map skillbility-stat (repeat conn) domain-details)
-      "stats" (map skill-and-ability-stat (repeat conn) domain-details))))
+      "skillbility" [:> rn/ScrollView {:style (stats-section-style)}
+                     (components/default-text "Stats" {:font-size 32})
+                     (map skillbility-stat (repeat conn) domain-details)]
+      "stats" [:> rn/ScrollView {:style (stats-section-style)}
+               (components/default-text "Stats" {:font-size 32})
+               (map skill-and-ability-stat (repeat conn) domain-details)])))

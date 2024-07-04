@@ -32,8 +32,7 @@
         (r/as-element
          [:> rn/View {:style {:background-color (:surface-100 @palette)}}
           (text/default-text clj-section-title
-                             {:font-size  24
-                              :text-align :center
+                             {:font-size  20
                               :padding    10})
           [:> rn/View {:style {:flex-direction :row}}
            (map (fn [header flex]
