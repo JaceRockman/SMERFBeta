@@ -30,6 +30,18 @@
                                                   {:flex (nth flex-vals 1)})])}
      "creatures")))
 
+(defn ruleset-select-modal
+  [conn]
+  (if-let [active-campaign-rulesets (campaign-data/get-active-campaign-rulesets conn)]
+    [:> rn/View {:style {:height "100%"}}
+     (doall (map (fn [ruleset]
+                   [:> rn/Pressable {:on-press (fn []
+                                                 (campaign-data/set-campaign-active-ruleset conn (:db/id ruleset))
+                                                 (reset! components/modal-content nil))}
+                    (components/default-text (:title ruleset))]) active-campaign-rulesets))]
+    [:> rn/View {:style {:height "100%"}}
+     (components/default-text "No rulesets found in active campaign")]))
+
 (defn creature-info [conn creature-details]
   (let [portrait (:creature/portrait creature-details)
         gender (:creature/gender creature-details)
@@ -45,7 +57,8 @@
       (components/default-text races)
       (components/default-text description)]
      [:> rn/View {:style {:position :absolute :top 10 :right 10}}
-      [:> rn/Pressable {:on-press #(campaign-data/set-campaign-active-ruleset conn 18)}
+      [:> rn/Pressable {:on-press #(reset! components/modal-content
+                                          {:display? true :fn ruleset-select-modal :args [conn]})}
        [:> FontAwesome5 {:name :book :color (:surface-700 @config/palette) :size 20}]]]]))
 
 (defn creature [conn creature-data]

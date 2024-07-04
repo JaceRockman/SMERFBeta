@@ -62,7 +62,7 @@
   [conn ruleset-id]
   (when-let [active-campaign-id (:db/id (get-active-campaign conn))]
     (ds/transact! conn [{:db/id active-campaign-id
-                         :active/campaign ruleset-id}])))
+                         :campaign/active-ruleset ruleset-id}])))
 
 (defn get-active-campaign-creatures
   [conn]
