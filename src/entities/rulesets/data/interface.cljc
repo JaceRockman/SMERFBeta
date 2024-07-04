@@ -12,6 +12,7 @@
 
 
 (def get-active-ruleset core/get-active-ruleset)
+(def get-default-ruleset core/get-default-ruleset)
 
 (def set-active-ruleset core/set-active-ruleset)
 

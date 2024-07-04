@@ -1,6 +1,7 @@
 (ns entities.rulesets.data.core
   (:require [clojure.string :as str]
             [datascript.core :as ds]
+            [entities.campaigns.data.interface :as campaign-data]
             [systems.navigation :as navigation]))
 
 (defn get-all-rulesets-ids
@@ -43,6 +44,12 @@
                                     @conn))]
     (get-domains-data conn domain-ids)))
 
+(defn get-default-ruleset
+  [conn]
+  (ds/q '[:find (ds/pull conn '[*] ?e)
+          :where [?e :ruleset/default? true]]
+        @conn))
+
 (defn get-active-ruleset-id
   [conn]
   (let [nav-state (navigation/get-main-nav-state-list conn)]
@@ -64,6 +71,7 @@
 
 (defn set-active-ruleset
   [conn ruleset-id]
+  (campaign-data/set-campaign-active-ruleset conn ruleset-id)
   (navigation/subnavigate conn ruleset-id))
 
 (defn skill-check-rules

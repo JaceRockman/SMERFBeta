@@ -213,14 +213,13 @@
      (interpose (section-divider)
                 (map stats-picker-domain (repeat conn) domain-details (repeat action-id)))]))
 
-(defn stats [conn creature-details]
-  (let [ruleset (campaigns-data/get-campaign-active-ruleset conn)
-        domain-details (creature-data/get-creature-domains conn creature-details)]
+(defn stats [conn domains]
+  (let [ruleset (campaigns-data/get-campaign-active-ruleset conn)]
     (case (:ruleset/stat-granularity ruleset)
-      "domain" (domain-stat conn domain-details)
+      "domain" (domain-stat conn domains)
       "skillbility" [:> rn/ScrollView {:style (stats-section-style)}
                      (components/default-text "Stats" {:font-size 32})
-                     (map skillbility-stat (repeat conn) domain-details)]
+                     (map skillbility-stat (repeat conn) domains)]
       "stats" [:> rn/ScrollView {:style (stats-section-style)}
                (components/default-text "Stats" {:font-size 32})
-               (map skill-and-ability-stat (repeat conn) domain-details)])))
+               (map skill-and-ability-stat (repeat conn) domains)])))
