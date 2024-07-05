@@ -11,8 +11,10 @@
 
 (def delete-action)
 
-(def get-selected-domain core/get-selected-domain)
-(def set-selected-domain core/set-selected-domain)
+(def get-selected-skill-domain core/get-selected-skill-domain)
+(def set-selected-skill-domain core/set-selected-skill-domain)
+(def get-selected-ability-domain core/get-selected-ability-domain)
+(def set-selected-ability-domain core/set-selected-ability-domain)
 (def get-selected-skill core/get-selected-skill)
 (def set-selected-skill core/set-selected-skill)
 (def get-selected-ability core/get-selected-ability)

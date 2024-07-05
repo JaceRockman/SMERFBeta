@@ -30,22 +30,28 @@
 (defn row-style-override
   [conn action-id]
   (fn [item]
-    (let [selected-skill-value-key (action-data/get-selected-skill conn action-id)
-          selected-ability-value-key (action-data/get-selected-ability conn action-id)
-          selected-domain (action-data/get-selected-domain conn action-id)]
-      {:flex-direction :row :background-color (when (and (= (:domain-id item) selected-domain)
-                                                         (or
-                                                          (= (:quality-key item) selected-skill-value-key)
-                                                          (when (:type item) (= (:power-key item) selected-ability-value-key))))
+    (let [selected-skill-domain (action-data/get-selected-skill-domain conn action-id)
+          selected-skill-value-key (action-data/get-selected-skill conn action-id)
+          selected-ability-domain (action-data/get-selected-ability-domain conn action-id)
+          selected-ability-value-key (action-data/get-selected-ability conn action-id)]
+      {:flex-direction :row :background-color (when (or
+                                                     (and (= (:domain-id item) selected-skill-domain)
+                                                          (= (:quality-key item) selected-skill-value-key))
+                                                     (and (= (:domain-id item) selected-ability-domain)
+                                                          (:type item)
+                                                          (= (:power-key item) selected-ability-value-key)))
                                                 (str (:surface-600 @palette) "80"))})))
 
 (defn row-press-override
   [conn action-id]
   (fn [item]
     (fn []
-      (action-data/set-selected-domain conn action-id (:domain-id item))
-      (when (:quality-key item) (action-data/set-selected-skill conn action-id (name (:quality-key item))))
-      (when (:power-key item) (action-data/set-selected-ability conn action-id (name (:power-key item)))))))
+      (when (:quality-key item)
+        (action-data/set-selected-skill conn action-id (name (:quality-key item)))
+        (action-data/set-selected-skill-domain conn action-id (:domain-id item)))
+      (when (:power-key item)
+        (action-data/set-selected-ability conn action-id (name (:power-key item)))
+        (action-data/set-selected-ability-domain conn action-id (:domain-id item))))))
 
 (defn sort-resources-by-type
   [resources]

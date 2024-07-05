@@ -126,20 +126,35 @@
   (ds/transact! conn [{:db/id action-id
                        :action/ability ability}]))
 
-(defn get-selected-domain
+(defn get-selected-skill-domain
   [conn action-id]
   (ffirst
    (ds/q '[:find ?domain
            :in $ ?action-id
-           :where [?action-id :action/domain ?domain]]
+           :where [?action-id :action/skill-domain ?domain]]
          @conn action-id)))
 
-(defn set-selected-domain
+(defn set-selected-skill-domain
   [conn action-id domain-id]
   (reset-splinters conn action-id)
   (reset-combinations conn action-id)
   (ds/transact! conn [{:db/id action-id
-                       :action/domain domain-id}]))
+                       :action/skill-domain domain-id}]))
+
+(defn get-selected-ability-domain
+  [conn action-id]
+  (ffirst
+   (ds/q '[:find ?domain
+           :in $ ?action-id
+           :where [?action-id :action/ability-domain ?domain]]
+         @conn action-id)))
+
+(defn set-selected-ability-domain
+  [conn action-id domain-id]
+  (reset-splinters conn action-id)
+  (reset-combinations conn action-id)
+  (ds/transact! conn [{:db/id action-id
+                       :action/ability-domain domain-id}]))
 
 (defn get-selected-resources
   [conn action-id]
