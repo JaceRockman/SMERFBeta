@@ -174,13 +174,14 @@
         #(action-data/update-combinations conn action-id index dec)
         #(action-data/update-combinations conn action-id index inc)
         true)
-       pool-roll-button)]))
+       [:> rn/View {:style {:align-items :center}}
+        pool-roll-button])]))
 
 (defn pools-tab
   [conn action-id careful-or-reckless?]
   (let [pools (action-data/get-combined-dice-pools conn action-id)]
     [:> rn/View
-     (components/default-text "Combine and Split Dice" {:font-size 24 :text-align :center})
+     (components/default-text (if careful-or-reckless? "Combine and Split Dice" "Roll Dice") {:font-size 24 :text-align :center})
      [:> rn/View {:style {:width (screen-width) :flex-wrap :wrap :flex-direction :row :justify-content :center}}
       (if (nil? pools)
         (components/default-text "No Dice Pools Found")
