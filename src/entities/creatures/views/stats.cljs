@@ -1,5 +1,6 @@
 (ns entities.creatures.views.stats
-  (:require [reagent.core :as r]
+  (:require [clojure.math :as math]
+            [reagent.core :as r]
             ["react-native" :as rn]
             ["@expo/vector-icons" :refer [FontAwesome5]]
             [entities.creatures.data.interface :as creature-data]
@@ -103,9 +104,9 @@
                         {:title domain-title
                          :domain-id id
                          :quality-key :domain/initiation-value
-                         :quality (/ (+ initiation-value reaction-value continuation-value) 3)
+                         :quality (math/round (/ (+ initiation-value reaction-value continuation-value) 3))
                          :power-key :domain/dominance-value
-                         :power (/ (+ dominance-value competence-value resilience-value) 3)}))
+                         :power (* 2 (math/round (/ (+ (quot dominance-value 2) (quot competence-value 2) (quot resilience-value 2)) 3)))}))
         physical-item (derive-item "Physical")
         spiritual-item (derive-item "Spiritual")
         mental-item (derive-item "Mental")
