@@ -99,6 +99,7 @@
 
 (defn example-creatures
   [default-domain-entities example-resources default-actions]
+  (println example-resources)
   [{:creature/domains default-domain-entities
     :title "aleksander"
     :entity-type "creature"

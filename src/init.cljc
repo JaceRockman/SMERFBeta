@@ -20,19 +20,22 @@
         _ (ds/transact! conn ruleset-data/example-rulesets)
         _ (ds/transact! conn action-data/example-actions)
         _ (ds/transact! conn resource-data/resource-properties)
+        _ (ds/transact! conn (resource-data/example-resources (vec (map first (ds/q '[:find ?e
+                                                                                      :where [?e :entity-type "action"]]
+                                                                                    @conn)))))
         init-domain-entities (map first (ds/q '[:find ?e
                                                 :where [?e :entity-type "domain"]]
                                               @conn))
         init-resources (map first (ds/q '[:find ?e
                                           :where [?e :entity-type "resource"]]
                                         @conn))
+        _ (println (ds/q '[:find ?e
+                                          :where [?e :entity-type "resource"]]
+                                        @conn))
         init-actions (map first (ds/q '[:find ?e
                                         :where [?e :entity-type "action"]]
                                       @conn))
         _ (ds/transact! conn (creature-data/example-creatures init-domain-entities init-resources init-actions)) 
-        _ (ds/transact! conn (resource-data/example-resources (vec (map first (ds/q '[:find ?e
-                                                                                     :where [?e :entity-type "action"]]
-                                                                                   @conn)))))
         _ (ds/transact! conn (campaign-data/init-campaigns (vec (map first (ds/q '[:find ?e
                                                                                    :where [?e :entity-type "realm"]]
                                                                                  @conn)))
