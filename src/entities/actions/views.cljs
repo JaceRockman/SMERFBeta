@@ -27,57 +27,25 @@
      {:title "Mental" :data mental-actions}
      {:title "Social" :data social-actions}]))
 
-(defn stats-selector-row
-  [item]
-  (fn [conn action-id initiation-item reaction-item continuation-item id flex-vals]
+(defn row-style-override
+  [conn action-id]
+  (fn [item]
     (let [selected-skill-value-key (action-data/get-selected-skill conn action-id)
-          selected-skill (:title (first (filter #(= selected-skill-value-key (name (:quality-key %)))
-                                                [initiation-item reaction-item continuation-item])))
+          selected-ability-value-key (action-data/get-selected-ability conn action-id)
           selected-domain (action-data/get-selected-domain conn action-id)]
-      [:> rn/Pressable
-       {:style {:flex-direction :row :background-color (when (and (= id selected-domain) (= (:title item) selected-skill)) (str (:surface-600 @palette) "80"))}
-        :on-press (fn []
-                    (action-data/set-selected-domain conn action-id id)
-                    (action-data/set-selected-skill conn action-id (name (:quality-key item)))
-                    (action-data/set-selected-ability conn action-id (name (:power-key item))))}
-       (components/default-text (:title item) {:flex (nth flex-vals 0)})
-       (components/default-text (:quality item) {:flex (nth flex-vals 1)})
-       (components/default-text (str "d" (:power item)) {:flex (nth flex-vals 2)})])))
+      {:flex-direction :row :background-color (when (and (= (:domain-id item) selected-domain)
+                                                         (or
+                                                          (= (:quality-key item) selected-skill-value-key)
+                                                          (when (:type item) (= (:power-key item) selected-ability-value-key))))
+                                                (str (:surface-600 @palette) "80"))})))
 
-(defn stats-selector
-  [conn action-id domains]
-  [:> rn/View {:style {:width (screen-width)}}
-   (components/default-text "Select Stats" {:font-size 24 :text-align :center})
-   (map
-    (fn [{:keys
-          [:db/id
-           :title
-           :domain/initiation-title :domain/initiation-value
-           :domain/reaction-title :domain/reaction-value
-           :domain/continuation-title :domain/continuation-value
-           :domain/dominance-title :domain/dominance-value
-           :domain/competence-title :domain/competence-value
-           :domain/resilience-title :domain/resilience-value
-           :domain/minor-wounds :domain/moderate-wounds :domain/major-wounds]}]
-      (let [flex-vals         [3 1 1]
-            initiation-item   {:title initiation-title
-                               :quality-key :domain/initiation-value :quality initiation-value
-                               :power-key :domain/dominance-value :power dominance-value}
-            reaction-item     {:title reaction-title
-                               :quality-key :domain/reaction-value :quality reaction-value
-                               :power-key :domain/competence-value :power competence-value}
-            continuation-item {:title continuation-title
-                               :quality-key :domain/continuation-value :quality continuation-value
-                               :power-key :domain/resilience-value :power resilience-value}]
-        [:> rn/View {:style {:padding "0px 10px 0px 10px" :width (screen-width)}}
-         (components/default-text title {:font-size 24})
-         (components/flat-list
-          {:items           [initiation-item reaction-item continuation-item]
-           :headers         ["Title" "Quality" "Power"]
-           :flex-vals       flex-vals
-           :row-constructor #((stats-selector-row %)
-                             conn action-id initiation-item reaction-item continuation-item id flex-vals)})]))
-    domains)])
+(defn row-press-override
+  [conn action-id]
+  (fn [item]
+    (fn []
+      (action-data/set-selected-domain conn action-id (:domain-id item))
+      (when (:quality-key item) (action-data/set-selected-skill conn action-id (name (:quality-key item))))
+      (when (:power-key item) (action-data/set-selected-ability conn action-id (name (:power-key item)))))))
 
 (defn sort-resources-by-type
   [resources]
@@ -190,7 +158,9 @@
 (defn construct-roll
   [conn action-data ruleset domains resources]
   (let [stats        {:header    "Stats"
-                      :component (creature-stats-view/stats conn domains)#_(stats-selector conn (:id action-data) domains)}
+                      :component (creature-stats-view/stats conn domains {:damage-hidden? true
+                                                                          :row-press-override (row-press-override conn (:id action-data))
+                                                                          :row-style-override (row-style-override conn (:id action-data))})}
         resources    {:header    "Resources"
                       :component (resource-multi-select conn (:id action-data) resources)}
         modifiers    {:header    "Modifiers"

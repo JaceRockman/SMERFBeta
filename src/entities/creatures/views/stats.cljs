@@ -88,7 +88,7 @@
   (r/atom nil))
 
 (defn domain-stat
-  [conn domain-details]
+  [conn domain-details {:keys [damage-hidden? row-style-override row-press-override]}]
   (let [flex-vals [3 1 1 1]
         derive-item (fn [domain-title]
                       (let [{:keys [:db/id
@@ -101,9 +101,11 @@
                                     :domain/minor-wounds]}
                             (first (filter #(= domain-title (:title %)) domain-details))]
                         {:title domain-title
+                         :domain-id id
+                         :quality-key :domain/initiation-value
                          :quality (/ (+ initiation-value reaction-value continuation-value) 3)
-                         :power (/ (+ dominance-value competence-value resilience-value) 3)
-                         :id id}))
+                         :power-key :domain/dominance-value
+                         :power (/ (+ dominance-value competence-value resilience-value) 3)}))
         physical-item (derive-item "Physical")
         spiritual-item (derive-item "Spiritual")
         mental-item (derive-item "Mental")
@@ -111,19 +113,20 @@
     [:> rn/ScrollView {:style (stats-section-style)}
      (components/default-text "Stats" {:font-size 32})
      (components/flat-list {:items [physical-item spiritual-item mental-item social-item]
-                            :headers ["Title" "Quality" "Power" "Damage"]
+                            :headers (remove nil? ["Title" "Quality" "Power" (when-not damage-hidden? "Damage")])
                             :flex-vals flex-vals
                             :row-constructor (fn [item]
-                                               [:> rn/Pressable {:style {:flex-direction :row}
-                                                                 :on-press (fn [])}
+                                               [:> rn/Pressable {:style (or (row-style-override item) {:flex-direction :row})
+                                                                 :on-press (or (row-press-override item) (fn []))}
                                                 (components/default-text (:title item)
                                                                          {:flex (nth flex-vals 0)})
                                                 (components/default-text (:quality item)
                                                                          {:flex (nth flex-vals 1)})
                                                 (components/default-text (str "d" (:power item))
                                                                          {:flex (nth flex-vals 2)})
-                                                [:> rn/View {:style {:flex (nth flex-vals 3)}}
-                                                 (domain-damage conn (:id item))]])})]))
+                                                (when-not damage-hidden?
+                                                  [:> rn/View {:style {:flex (nth flex-vals 3)}}
+                                                   (domain-damage conn (:id item))])])})]))
 
 (defn skillbility-stat
   [conn
@@ -136,26 +139,42 @@
      :domain/dominance-title :domain/dominance-value
      :domain/competence-title :domain/competence-value
      :domain/resilience-title :domain/resilience-value
-     :domain/minor-wounds :domain/moderate-wounds :domain/major-wounds]}]
+     :domain/minor-wounds :domain/moderate-wounds :domain/major-wounds]}
+   {:keys [damage-hidden? row-style-override row-press-override]}]
   (let [flex-vals [3 1 1]
-        initiation-item {:title initiation-title :quality initiation-value :power dominance-value}
-        reaction-item {:title reaction-title :quality reaction-value :power competence-value}
-        continuation-item {:title continuation-title :quality continuation-value :power resilience-value}]
+        initiation-item {:title initiation-title
+                         :domain-id id
+                         :quality-key :domain/initiation-value
+                         :quality initiation-value
+                         :power-key :domain/dominance-value
+                         :power dominance-value}
+        reaction-item {:title reaction-title
+                       :domain-id id
+                       :quality-key :domain/reaction-value
+                       :quality reaction-value
+                       :power-key :domain/competence-value
+                       :power competence-value}
+        continuation-item {:title continuation-title
+                           :domain-id id
+                           :quality-key :domain/continuation-value
+                           :quality continuation-value
+                           :power-key :domain/resilience-value
+                           :power resilience-value}]
     [:> rn/View {:style {:padding "0px 10px 0px 10px"}}
      (components/default-text title {:font-size 24})
      (components/flat-list {:items [initiation-item reaction-item continuation-item]
                             :headers ["Title" "Quality" "Power"]
                             :flex-vals flex-vals
                             :row-constructor (fn [item]
-                                               [:> rn/Pressable {:style {:flex-direction :row}
-                                                                 :on-press (fn [])}
+                                               [:> rn/Pressable {:style (or (row-style-override item) {:flex-direction :row})
+                                                                 :on-press (or (row-press-override item) (fn []))}
                                                 (components/default-text (:title item)
                                                                          {:flex (nth flex-vals 0)})
                                                 (components/default-text (:quality item)
                                                                          {:flex (nth flex-vals 1)})
                                                 (components/default-text (str "d" (:power item))
                                                                          {:flex (nth flex-vals 1)})])})
-     [:> rn/Text {:style {:color :white}} "Damage: " (domain-damage conn id)]]))
+     (when-not damage-hidden? [:> rn/Text {:style {:color :white}} "Damage: " (domain-damage conn id)])]))
 
 (defn skill-and-ability-stat
   [conn
@@ -168,16 +187,17 @@
      :domain/dominance-title :domain/dominance-value
      :domain/competence-title :domain/competence-value
      :domain/resilience-title :domain/resilience-value
-     :domain/minor-wounds :domain/moderate-wounds :domain/major-wounds]}]
+     :domain/minor-wounds :domain/moderate-wounds :domain/major-wounds]}
+   {:keys [damage-hidden? row-press-override row-style-override]}]
   (let [flex-vals         [3 2]
-        initiation-item   {:title initiation-title :value initiation-value :type :skill}
-        reaction-item     {:title reaction-title :value reaction-value :type :skill}
-        continuation-item {:title continuation-title :value continuation-value :type :skill}
+        initiation-item   {:title initiation-title :domain-id id :quality-key :domain/initiation-value :value initiation-value :type :skill}
+        reaction-item     {:title reaction-title :domain-id id :quality-key :domain/reaction-value :value reaction-value :type :skill}
+        continuation-item {:title continuation-title :domain-id id :quality-key :domain/continuation-value :value continuation-value :type :skill}
         skill-section     {:title "Skills"
                            :data  [initiation-item reaction-item continuation-item]}
-        dominance-item    {:title dominance-title :value dominance-value :type :ability}
-        competence-item   {:title competence-title :value competence-value :type :ability}
-        resilience-item   {:item resilience-title :value resilience-value :type :ability}
+        dominance-item    {:title dominance-title :domain-id id :power-key :domain/dominance-value :value dominance-value :type :ability}
+        competence-item   {:title competence-title :domain-id id :power-key :domain/competence-value :value competence-value :type :ability}
+        resilience-item   {:title resilience-title :domain-id id :power-key :domain/resilience-value :value resilience-value :type :ability}
         ability-section   {:title "Abilities"
                            :data  [dominance-item competence-item resilience-item]}]
     [:> rn/View {:style {:padding "0px 10px 0px 10px"}}
@@ -186,24 +206,15 @@
                                :headers         ["Title" "Value"]
                                :flex-vals       flex-vals
                                :row-constructor (fn [item]
-                                                  [:> rn/Pressable {:style    {:flex-direction :row}
-                                                                    :on-press (fn []
-                                                                                (println (:type item)))}
+                                                  [:> rn/Pressable {:style    (or (row-style-override item) {:flex-direction :row})
+                                                                    :on-press (or (row-press-override item)
+                                                                                  (fn []
+                                                                                    (println (:type item))))}
                                                    (components/default-text (:title item)
                                                                             {:flex (nth flex-vals 0)})
                                                    (components/default-text (str (when (= "ability" (:type item)) "d") (:value item))
                                                                             {:flex (nth flex-vals 1)})])})
-     [:> rn/Text {:style {:color :white}} "Damage: " (domain-damage conn id)]]))
-
-(defn stats-domain
-  [conn domain-data]
-  (let [ruleset (campaigns-data/get-campaign-active-ruleset conn)]
-    (case (:ruleset/stat-granularity ruleset)
-      "domain" (domain-stat conn domain-data)
-      "skillbility" (skillbility-stat conn domain-data)
-      "stats" (skill-and-ability-stat conn domain-data))))
-
-
+     (when-not damage-hidden? [:> rn/Text {:style {:color :white}} "Damage: " (domain-damage conn id)])]))
 
 #_(defn stats-picker
   [conn creature-details action-id]
@@ -213,17 +224,17 @@
      (interpose (section-divider)
                 (map stats-picker-domain (repeat conn) domain-details (repeat action-id)))]))
 
-(defn stats [conn domains]
-  (let [ruleset (campaigns-data/get-campaign-active-ruleset conn)]
-    (let [domain-stats (domain-stat conn domains)
-          skillbility-stats [:> rn/ScrollView {:style (stats-section-style)}
-                     (components/default-text "Stats" {:font-size 32})
-                             (map skillbility-stat (repeat conn) domains)]
-          skill-and-ability-stats [:> rn/ScrollView {:style (stats-section-style)}
-                     (components/default-text "Stats" {:font-size 32})
-                     (map skill-and-ability-stat (repeat conn) domains)]]
-      (case (:ruleset/stat-granularity ruleset)
+(defn stats [conn domains {:keys [damage-hidden? row-press-override row-style-override] :as options}]
+  (let [ruleset                 (campaigns-data/get-campaign-active-ruleset conn)
+        domain-stats            (domain-stat conn domains options)
+        skillbility-stats       [:> rn/ScrollView {:style (stats-section-style)}
+                                 (components/default-text "Stats" {:font-size 32})
+                                 (map skillbility-stat (repeat conn) domains (repeat options))]
+        skill-and-ability-stats [:> rn/ScrollView {:style (stats-section-style)}
+                                 (components/default-text "Stats" {:font-size 32})
+                                 (map skill-and-ability-stat (repeat conn) domains (repeat options))]]
+    (case (:ruleset/stat-granularity ruleset)
       "domain"      domain-stats
       "skillbility" skillbility-stats
       "stats"       skill-and-ability-stats
-      skillbility-stats))))
+      skillbility-stats)))
