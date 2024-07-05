@@ -116,17 +116,19 @@
                             :headers (remove nil? ["Title" "Quality" "Power" (when-not damage-hidden? "Damage")])
                             :flex-vals flex-vals
                             :row-constructor (fn [item]
-                                               [:> rn/Pressable {:style (or (row-style-override item) {:flex-direction :row})
-                                                                 :on-press (or (row-press-override item) (fn []))}
-                                                (components/default-text (:title item)
-                                                                         {:flex (nth flex-vals 0)})
-                                                (components/default-text (:quality item)
-                                                                         {:flex (nth flex-vals 1)})
-                                                (components/default-text (str "d" (:power item))
-                                                                         {:flex (nth flex-vals 2)})
-                                                (when-not damage-hidden?
-                                                  [:> rn/View {:style {:flex (nth flex-vals 3)}}
-                                                   (domain-damage conn (:id item))])])})]))
+                                               (let [row-style (when row-style-override (row-style-override item))
+                                                     row-press (when row-press-override (row-press-override item))]
+                                                 [:> rn/Pressable {:style (or row-style {:flex-direction :row})
+                                                                   :on-press (or row-press (fn []))}
+                                                  (components/default-text (:title item)
+                                                                           {:flex (nth flex-vals 0)})
+                                                  (components/default-text (:quality item)
+                                                                           {:flex (nth flex-vals 1)})
+                                                  (components/default-text (str "d" (:power item))
+                                                                           {:flex (nth flex-vals 2)})
+                                                  (when-not damage-hidden?
+                                                    [:> rn/View {:style {:flex (nth flex-vals 3)}}
+                                                     (domain-damage conn (:id item))])]))})]))
 
 (defn skillbility-stat
   [conn
@@ -166,14 +168,16 @@
                             :headers ["Title" "Quality" "Power"]
                             :flex-vals flex-vals
                             :row-constructor (fn [item]
-                                               [:> rn/Pressable {:style (or (row-style-override item) {:flex-direction :row})
-                                                                 :on-press (or (row-press-override item) (fn []))}
-                                                (components/default-text (:title item)
-                                                                         {:flex (nth flex-vals 0)})
-                                                (components/default-text (:quality item)
-                                                                         {:flex (nth flex-vals 1)})
-                                                (components/default-text (str "d" (:power item))
-                                                                         {:flex (nth flex-vals 1)})])})
+                                               (let [row-style (when row-style-override (row-style-override item))
+                                                     row-press (when row-press-override (row-press-override item))]
+                                                 [:> rn/Pressable {:style (or row-style {:flex-direction :row})
+                                                                   :on-press (or row-press (fn []))}
+                                                  (components/default-text (:title item)
+                                                                           {:flex (nth flex-vals 0)})
+                                                  (components/default-text (:quality item)
+                                                                           {:flex (nth flex-vals 1)})
+                                                  (components/default-text (str "d" (:power item))
+                                                                           {:flex (nth flex-vals 1)})]))})
      (when-not damage-hidden? [:> rn/Text {:style {:color :white}} "Damage: " (domain-damage conn id)])]))
 
 (defn skill-and-ability-stat
@@ -206,14 +210,16 @@
                                :headers         ["Title" "Value"]
                                :flex-vals       flex-vals
                                :row-constructor (fn [item]
-                                                  [:> rn/Pressable {:style    (or (row-style-override item) {:flex-direction :row})
-                                                                    :on-press (or (row-press-override item)
-                                                                                  (fn []
-                                                                                    (println (:type item))))}
-                                                   (components/default-text (:title item)
-                                                                            {:flex (nth flex-vals 0)})
-                                                   (components/default-text (str (when (= "ability" (:type item)) "d") (:value item))
-                                                                            {:flex (nth flex-vals 1)})])})
+                                                  (let [row-style (when row-style-override (row-style-override item))
+                                                        row-press (when row-press-override (row-press-override item))]
+                                                    [:> rn/Pressable {:style    (or row-style {:flex-direction :row})
+                                                                      :on-press (or row-press
+                                                                                    (fn []
+                                                                                      (println (:type item))))}
+                                                     (components/default-text (:title item)
+                                                                              {:flex (nth flex-vals 0)})
+                                                     (components/default-text (str (when (= "ability" (:type item)) "d") (:value item))
+                                                                              {:flex (nth flex-vals 1)})]))})
      (when-not damage-hidden? [:> rn/Text {:style {:color :white}} "Damage: " (domain-damage conn id)])]))
 
 #_(defn stats-picker
@@ -224,7 +230,8 @@
      (interpose (section-divider)
                 (map stats-picker-domain (repeat conn) domain-details (repeat action-id)))]))
 
-(defn stats [conn domains {:keys [damage-hidden? row-press-override row-style-override] :as options}]
+(defn stats
+  [conn domains {:keys [damage-hidden? row-press-override row-style-override] :as options}]
   (let [ruleset                 (campaigns-data/get-campaign-active-ruleset conn)
         domain-stats            (domain-stat conn domains options)
         skillbility-stats       [:> rn/ScrollView {:style (stats-section-style)}
