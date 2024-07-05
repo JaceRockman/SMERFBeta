@@ -215,11 +215,15 @@
 
 (defn stats [conn domains]
   (let [ruleset (campaigns-data/get-campaign-active-ruleset conn)]
-    (case (:ruleset/stat-granularity ruleset)
-      "domain" (domain-stat conn domains)
-      "skillbility" [:> rn/ScrollView {:style (stats-section-style)}
+    (let [domain-stats (domain-stat conn domains)
+          skillbility-stats [:> rn/ScrollView {:style (stats-section-style)}
                      (components/default-text "Stats" {:font-size 32})
-                     (map skillbility-stat (repeat conn) domains)]
-      "stats" [:> rn/ScrollView {:style (stats-section-style)}
-               (components/default-text "Stats" {:font-size 32})
-               (map skill-and-ability-stat (repeat conn) domains)])))
+                             (map skillbility-stat (repeat conn) domains)]
+          skill-and-ability-stats [:> rn/ScrollView {:style (stats-section-style)}
+                     (components/default-text "Stats" {:font-size 32})
+                     (map skill-and-ability-stat (repeat conn) domains)]]
+      (case (:ruleset/stat-granularity ruleset)
+      "domain"      domain-stats
+      "skillbility" skillbility-stats
+      "stats"       skill-and-ability-stats
+      skillbility-stats))))
