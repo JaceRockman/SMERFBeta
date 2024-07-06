@@ -10,6 +10,8 @@
 
 (def delete-ruleset)
 
+(def get-simple-domain-skill-value core/get-simple-domain-skill-value)
+(def get-simple-domain-ability-value core/get-simple-domain-ability-value)
 
 (def get-active-ruleset core/get-active-ruleset)
 (def get-default-ruleset core/get-default-ruleset)

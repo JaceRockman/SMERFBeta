@@ -2,6 +2,8 @@
   (:require [datascript.core :as ds]
             ["react-native" :as rn]
             ["@expo/vector-icons" :refer [MaterialCommunityIcons]]
+            [entities.campaigns.data.interface :as campaign-data]
+            [entities.rulesets.data.interface :as rulesets-data]
             [organisms.library :as components]))
 
 (def example-actions
@@ -371,12 +373,18 @@
                 action/resources
                 action/splinters
                 action/combinations]
-         :as   action-data} (get-action-data conn action-id)]
+         :as   action-data} (get-action-data conn action-id)
+        ruleset-stat-granularity (:ruleset/stat-granularity (campaign-data/get-campaign-active-ruleset conn))]
     (when (and (integer? skill-domain) (integer? ability-domain))
       (let [skill-domain-data     (ds/pull @conn '[*] skill-domain)
             ability-domain-data   (ds/pull @conn '[*] ability-domain)
-            skill-value           (get skill-domain-data (keyword (str "domain/" skill)))
-            ability-value         (get ability-domain-data (keyword (str "domain/" ability)))
+            skill-value           (if (= "domain" ruleset-stat-granularity)
+                                    (rulesets-data/get-simple-domain-skill-value conn skill-domain)
+                                    (get skill-domain-data (keyword (str "domain/" skill))))
+            ability-value         (case ruleset-stat-granularity
+                                    "domain" (rulesets-data/get-simple-domain-ability-value conn skill-domain)
+                                    "skillbility" (get skill-domain-data (keyword (str "domain/" ability)))
+                                    (get ability-domain-data (keyword (str "domain/" ability))))
             resource-dice-mod     (apply + (map :resource/quality-value resources))
             resource-flat-mod     (apply + (map :resource/power-value resources))
             dice-mod              (get-dice-modifier conn action-id)

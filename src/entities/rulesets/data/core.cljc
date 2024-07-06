@@ -1,8 +1,9 @@
 (ns entities.rulesets.data.core
-  (:require [clojure.string :as str]
+  (:require [clojure.math :as math]
             [datascript.core :as ds]
             [entities.campaigns.data.interface :as campaign-data]
-            [systems.navigation :as navigation]))
+            [systems.navigation :as navigation]
+            [react-native :as rn]))
 
 (defn get-all-rulesets-ids
   [conn]
@@ -310,7 +311,16 @@ Connections represents how many relationships and affiliations a creature has, h
                        :domain/moderate-wounds 0
                        :domain/major-wounds 0}])
 
+(defn get-simple-domain-skill-value
+  [conn domain-id]
+  (let [{:keys [domain/initiation-value domain/reaction-value domain/continuation-value]} (ds/pull @conn '[*] domain-id)]
+    (println [initiation-value reaction-value continuation-value])
+    (math/round (/ (+ initiation-value reaction-value continuation-value) 3))))
 
+(defn get-simple-domain-ability-value
+  [conn domain-id]
+  (let [{:keys [domain/dominance-value domain/competence-value domain/resilience-value]} (ds/pull @conn '[*] domain-id)]
+    (* 2 (math/round (/ (+ (/ dominance-value 2) (/ competence-value 2) (/ resilience-value 2)) 3)))))
 
 (def simple-ruleset
   [{:title "Simple Ruleset"
