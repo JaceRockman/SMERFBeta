@@ -8,8 +8,9 @@
   [{:title "Physical Health Check"
     :entity-type "action"
     :action/description ""
-    :action/domain 13
+    :action/skill-domain 13
     :action/skill "continuation-value"
+    :action/ability-domain 13
     :action/ability "resilience-value"
     :action/resources []
     :action/dice-penalty 0
@@ -23,8 +24,9 @@
    {:title "Spiritual Health Check"
     :entity-type "action"
     :action/description ""
-    :action/domain 14
+    :action/skill-domain 14
     :action/skill "continuation-value"
+    :action/ability-domain 14
     :action/ability "resilience-value"
     :action/resources []
     :action/dice-penalty 0
@@ -38,8 +40,9 @@
    {:title "Mental Health Check"
     :entity-type "action"
     :action/description ""
-    :action/domain 15
+    :action/skill-domain 15
     :action/skill "continuation-value"
+    :action/ability-domain 15
     :action/ability "resilience-value"
     :action/resources []
     :action/dice-penalty 0
@@ -53,8 +56,9 @@
    {:title "Social Health Check"
     :entity-type "action"
     :action/description ""
-    :action/domain 16
+    :action/skill-domain 16
     :action/skill "continuation-value"
+    :action/ability-domain 16
     :action/ability "resilience-value"
     :action/resources []
     :action/dice-penalty 0
@@ -362,15 +366,17 @@
 
 (defn get-calculated-action-pool-info
   [conn action-id]
-  (let [{:keys [action/domain action/skill action/ability
+  (let [{:keys [action/skill-domain action/skill
+                action/ability-domain action/ability
                 action/resources
                 action/splinters
                 action/combinations]
          :as   action-data} (get-action-data conn action-id)]
-    (when (integer? domain)
-      (let [domain-data           (when domain (ds/pull @conn '[*] domain))
-            skill-value           (get domain-data (keyword (str "domain/" skill)))
-            ability-value         (get domain-data (keyword (str "domain/" ability)))
+    (when (and (integer? skill-domain) (integer? ability-domain))
+      (let [skill-domain-data     (ds/pull @conn '[*] skill-domain)
+            ability-domain-data   (ds/pull @conn '[*] ability-domain)
+            skill-value           (get skill-domain-data (keyword (str "domain/" skill)))
+            ability-value         (get ability-domain-data (keyword (str "domain/" ability)))
             resource-dice-mod     (apply + (map :resource/quality-value resources))
             resource-flat-mod     (apply + (map :resource/power-value resources))
             dice-mod              (get-dice-modifier conn action-id)
