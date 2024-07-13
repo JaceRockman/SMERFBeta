@@ -42,8 +42,8 @@
 
 (defn damage-severity-tracker
   [conn domain-id {:keys [severity-title damage-quantity]}]
-  [:> rn/View {:style {:flex 1}}
-   (components/default-text (str severity-title " Wounds"))
+  [:> rn/View {:style {:flex 1 }}
+   (components/default-text (str severity-title " Wounds") {:text-align :center})
    [:> rn/View {:style {:flex-direction :row :align-items :center}}
     [:> rn/Image {:style {:flex 1}}]
     (components/button {:style {:padding 2 :background-color :inherit}
@@ -57,15 +57,22 @@
 
 (defn domain-damage-modal
   [conn domain-id]
-  [:> rn/View {:style {:flex-direction :row}}
-   (damage-severity-tracker
-    conn
-    domain-id
-    {:severity-title "Minor" :damage-quantity (creature-data/get-creature-domain-damage conn domain-id "minor")})
-   (damage-severity-tracker
-    conn
-    domain-id
-    {:severity-title "Major" :damage-quantity (creature-data/get-creature-domain-damage conn domain-id "major")})])
+  (let [stat-granularity (:ruleset/stat-granularity (campaigns-data/get-campaign-active-ruleset conn))]
+    [:> rn/View {:style {:margin-top 20 :margin-bottom 20 :gap 20}}
+     (damage-severity-tracker
+      conn
+      domain-id
+      {:severity-title "Minor" :damage-quantity (creature-data/get-creature-domain-damage conn domain-id "minor")})
+     (when (or (= stat-granularity "skillbility") (= stat-granularity "stats"))
+       (damage-severity-tracker
+        conn
+        domain-id
+        {:severity-title "Moderate" :damage-quantity (creature-data/get-creature-domain-damage conn domain-id "moderate")}))
+     (when (= stat-granularity "stats")
+       (damage-severity-tracker
+        conn
+        domain-id
+        {:severity-title "Major" :damage-quantity (creature-data/get-creature-domain-damage conn domain-id "major")}))]))
 
 (defn domain-damage [conn domain-id]
   (let [minor-wounds (creature-data/get-creature-domain-damage conn domain-id "minor")
@@ -129,7 +136,7 @@
                                                                            {:flex (nth flex-vals 2)})
                                                   (when-not damage-hidden?
                                                     [:> rn/View {:style {:flex (nth flex-vals 3)}}
-                                                     (domain-damage conn (:id item))])]))})]))
+                                                     (domain-damage conn (:domain-id item))])]))})]))
 
 (defn skillbility-stat
   [conn
@@ -233,16 +240,12 @@
 
 (defn stats
   [conn domains {:keys [damage-hidden? row-press-override row-style-override] :as options}]
-  (let [ruleset                 (campaigns-data/get-campaign-active-ruleset conn)
-        domain-stats            (domain-stat conn domains options)
-        skillbility-stats       [:> rn/ScrollView {:style (stats-section-style)}
-                                 (components/default-text "Stats" {:font-size 32})
-                                 (map skillbility-stat (repeat conn) domains (repeat options))]
-        skill-and-ability-stats [:> rn/ScrollView {:style (stats-section-style)}
-                                 (components/default-text "Stats" {:font-size 32})
-                                 (map skill-and-ability-stat (repeat conn) domains (repeat options))]]
-    (case (:ruleset/stat-granularity ruleset)
-      "domain"      domain-stats
-      "skillbility" skillbility-stats
-      "stats"       skill-and-ability-stats
-      skillbility-stats)))
+  (let [ruleset (campaigns-data/get-campaign-active-ruleset conn)]
+    (case (or (:ruleset/stat-granularity ruleset) "skillbility")
+      "domain"      (domain-stat conn domains options)
+      "skillbility" [:> rn/ScrollView {:style (stats-section-style)}
+                     (components/default-text "Stats" {:font-size 32})
+                     (map skillbility-stat (repeat conn) domains (repeat options))]
+      "stats"       [:> rn/ScrollView {:style (stats-section-style)}
+                     (components/default-text "Stats" {:font-size 32})
+                     (map skill-and-ability-stat (repeat conn) domains (repeat options))])))
