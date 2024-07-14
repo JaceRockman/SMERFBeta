@@ -61,35 +61,62 @@
 (defn get-domain-damage
   [conn domain-id wound-type]
   (ffirst (ds/q '[:find ?wound-quantity
-                    :in $ ?id ?key
-                    :where [?id ?key ?wound-quantity]]
-                  @conn domain-id wound-type)))
+                  :in $ ?id ?key
+                  :where [?id ?key ?wound-quantity]]
+                @conn domain-id wound-type)))
 
-(defn next-wound-severity
-  [wound-severity]
-  (case wound-severity
-    "minor" "moderate"
-    "moderate" "major"
-    nil))
+(defn unshown-severity?
+  [wound-tiers wound-severity]
+  (case wound-tiers
+    3 false
+    2 (= (str/lower-case wound-severity) "major")
+    1 (not (= (str/lower-case wound-severity) "minor"))))
+
+(defn rebalance-wounds
+  [conn domain-id {:strs [minor moderate major]}]
+  (let [wound-tiers (:ruleset/wound-tiers (campaign-data/get-campaign-active-ruleset conn))]
+    (case wound-tiers
+      3 nil
+      2 (when (< 0 major)
+          (ds/transact! conn [{:db/id domain-id
+                               :domain/major-wounds (dec major)}])
+          (ds/transact! conn [{:db/id domain-id
+                               :domain/moderate-wounds (inc moderate)}])
+          (ds/transact! conn [{:db/id domain-id
+                               :domain/minor-wounds (inc minor)}]))
+      1 (if (< 0 major)
+          (do (ds/transact! conn [{:db/id domain-id
+                                   :domain/major-wounds (dec major)}])
+              (ds/transact! conn [{:db/id domain-id
+                                   :domain/moderate-wounds (inc moderate)}])
+              (ds/transact! conn [{:db/id domain-id
+                                   :domain/minor-wounds (inc minor)}]))
+          (when (< 0 moderate)
+            (ds/transact! conn [{:db/id domain-id
+                                 :domain/moderate-wounds (dec moderate)}])
+            (ds/transact! conn [{:db/id domain-id
+                                 :domain/minor-wounds (inc (inc minor))}]))))))
+
+(defn get-wound-values
+  [conn domain-id]
+  {"minor" (get-domain-damage conn domain-id :domain/minor-wounds)
+   "moderate" (get-domain-damage conn domain-id :domain/moderate-wounds)
+   "major" (get-domain-damage conn domain-id :domain/major-wounds)})
 
 (defn update-wound-value
   [conn domain-id wound-severity update-fn]
-  (let [wound-tiers (:ruleset/wound-tiers (campaign-data/get-campaign-active-ruleset conn))
-        wound-type-keyword (keyword (str "domain/" (str/lower-case wound-severity) "-wounds"))
-        updated-wound-quantity (update-fn (get-domain-damage conn domain-id wound-severity))
-        new-wound-quantity (if (> 0 updated-wound-quantity)
-                             0
-                             updated-wound-quantity)]
-    (ds/transact! conn [{:db/id domain-id
-                         wound-type-keyword new-wound-quantity}])
-    (<= 0 updated-wound-quantity)))
+  (let [wound-type-keyword (keyword (str "domain/" (str/lower-case wound-severity) "-wounds"))
+        wound-values (get-wound-values conn domain-id)
+        new-wound-value (update-fn (get wound-values (str/lower-case wound-severity)))]
+    (if (<= 0 new-wound-value)
+      (ds/transact! conn [{:db/id domain-id
+                           wound-type-keyword new-wound-value}])
+      (rebalance-wounds conn domain-id (assoc wound-values (str/lower-case wound-severity) new-wound-value)))))
 
 (defn get-creature-domain-damage
   [conn domain-id wound-severity]
   (let [wound-tiers (:ruleset/wound-tiers (campaign-data/get-campaign-active-ruleset conn))
-        wound-values {"minor" (get-domain-damage conn domain-id :domain/minor-wounds)
-                      "moderate" (get-domain-damage conn domain-id :domain/moderate-wounds)
-                      "major" (get-domain-damage conn domain-id :domain/major-wounds)}
+        wound-values (get-wound-values conn domain-id)
         wound-value (get wound-values wound-severity)]
     (case wound-tiers
       3 wound-value

@@ -42,7 +42,7 @@
 
 (defn damage-severity-tracker
   [conn domain-id {:keys [severity-title damage-quantity]}]
-  [:> rn/View {:style {:flex 1 }}
+  [:> rn/View {:style {:flex 1}}
    (components/default-text (str severity-title " Wounds") {:text-align :center})
    [:> rn/View {:style {:flex-direction :row :align-items :center}}
     [:> rn/Image {:style {:flex 1}}]
@@ -226,14 +226,6 @@
                                                      (components/default-text (str (when (= "ability" (:type item)) "d") (:value item))
                                                                               {:flex (nth flex-vals 1)})]))})
      (when-not damage-hidden? [:> rn/Text {:style {:color :white}} "Damage: " (domain-damage conn id)])]))
-
-#_(defn stats-picker
-  [conn creature-details action-id]
-  (let [domain-details (creature-data/get-creature-domains conn creature-details)]
-    [:> rn/ScrollView {:style (stats-section-style)}
-     (components/default-text "Stats" {:font-size 32})
-     (interpose (section-divider)
-                (map stats-picker-domain (repeat conn) domain-details (repeat action-id)))]))
 
 (defn stats
   [conn domains {:keys [damage-hidden? row-press-override row-style-override] :as options}]
