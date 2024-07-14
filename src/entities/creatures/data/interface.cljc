@@ -10,6 +10,7 @@
 (def get-creature-races core/get-creature-races)
 (def get-creature-domains core/get-creature-domains)
 (def get-creature-domain-damage core/get-creature-domain-damage)
+(def get-creature-domain-damage-total core/get-creature-domain-damage-total)
 (def get-creature-resources core/get-creature-resources)
 (def get-creature-resources-from-data core/get-creature-resources-from-data)
 (def get-creature-actions core/get-creature-actions)

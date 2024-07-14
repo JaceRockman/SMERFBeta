@@ -2,6 +2,7 @@
   (:require [clojure.string :as str]
             [datascript.core :as ds]
             [systems.navigation :as navigation]
+            [entities.campaigns.data.interface :as campaign-data]
             [entities.rulesets.data.interface :as domains]))
 
 (defn get-all-creature-ids
@@ -57,26 +58,49 @@
   [conn creature-data]
   (ds/pull-many @conn '[*] (:creature/domains creature-data)))
 
+(defn get-domain-damage
+  [conn domain-id wound-type]
+  (ffirst (ds/q '[:find ?wound-quantity
+                    :in $ ?id ?key
+                    :where [?id ?key ?wound-quantity]]
+                  @conn domain-id wound-type)))
+
+(defn next-wound-severity
+  [wound-severity]
+  (case wound-severity
+    "minor" "moderate"
+    "moderate" "major"
+    nil))
+
 (defn update-wound-value
   [conn domain-id wound-severity update-fn]
-  (let [wound-type-keyword (keyword (str "domain/" (str/lower-case wound-severity) "-wounds"))
-        updated-wound-quantity (update-fn (ffirst (ds/q '[:find ?wound-quantity
-                                                          :in $ ?id ?key
-                                                          :where [?id ?key ?wound-quantity]]
-                                                        @conn domain-id wound-type-keyword)))
+  (let [wound-tiers (:ruleset/wound-tiers (campaign-data/get-campaign-active-ruleset conn))
+        wound-type-keyword (keyword (str "domain/" (str/lower-case wound-severity) "-wounds"))
+        updated-wound-quantity (update-fn (get-domain-damage conn domain-id wound-severity))
         new-wound-quantity (if (> 0 updated-wound-quantity)
                              0
                              updated-wound-quantity)]
     (ds/transact! conn [{:db/id domain-id
-                              wound-type-keyword new-wound-quantity}])))
+                         wound-type-keyword new-wound-quantity}])
+    (<= 0 updated-wound-quantity)))
 
 (defn get-creature-domain-damage
   [conn domain-id wound-severity]
-  (let [wound-type-keyword (keyword (str "domain/" (str/lower-case wound-severity) "-wounds"))]
-    (ffirst (ds/q '[:find ?wound-quantity
-                    :in $ ?id ?key
-                    :where [?id ?key ?wound-quantity]]
-                  @conn domain-id wound-type-keyword))))
+  (let [wound-tiers (:ruleset/wound-tiers (campaign-data/get-campaign-active-ruleset conn))
+        wound-values {"minor" (get-domain-damage conn domain-id :domain/minor-wounds)
+                      "moderate" (get-domain-damage conn domain-id :domain/moderate-wounds)
+                      "major" (get-domain-damage conn domain-id :domain/major-wounds)}
+        wound-value (get wound-values wound-severity)]
+    (case wound-tiers
+      3 wound-value
+      2 (+ wound-value (get wound-values "major"))
+      1 (+ wound-value (* 3 (get wound-values "major")) (* 2 (get wound-values "moderate"))))))
+
+(defn get-creature-domain-damage-total
+  [conn domain-id]
+  (+ (get-domain-damage conn domain-id :domain/minor-wounds)
+     (* 2 (get-domain-damage conn domain-id :domain/moderate-wounds))
+     (* 3 (get-domain-damage conn domain-id :domain/major-wounds))))
 
 (defn get-creature-resources
   [conn creature-id]
@@ -99,7 +123,6 @@
 
 (defn example-creatures
   [default-domain-entities example-resources default-actions]
-  (println example-resources)
   [{:creature/domains default-domain-entities
     :title "aleksander"
     :entity-type "creature"

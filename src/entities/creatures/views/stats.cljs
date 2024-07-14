@@ -75,16 +75,13 @@
         {:severity-title "Major" :damage-quantity (creature-data/get-creature-domain-damage conn domain-id "major")}))]))
 
 (defn domain-damage [conn domain-id]
-  (let [minor-wounds (creature-data/get-creature-domain-damage conn domain-id "minor")
-        moderate-wounds (creature-data/get-creature-domain-damage conn domain-id "moderate")
-        major-wounds (creature-data/get-creature-domain-damage conn domain-id "major")
-        update-damage-fn #(reset! modals/modal-content {:display? true
+  (let [update-damage-fn #(reset! modals/modal-content {:display? true
                                                         :fn domain-damage-modal
                                                         :args [conn domain-id]})]
     [:> rn/View {:style {:flex-direction :row :align-items :center}}
      (components/button {:style {:background-color :none}
                          :on-press update-damage-fn}
-                        (str (+ minor-wounds (* 2 moderate-wounds) (* 3 major-wounds))))
+                        (str (creature-data/get-creature-domain-damage-total conn domain-id)))
      [:> rn/Pressable {:style {:top -6}
                        :on-press update-damage-fn}
       [:> FontAwesome5 {:name :edit :color (:surface-700 @palette) :size 12}]]]))
