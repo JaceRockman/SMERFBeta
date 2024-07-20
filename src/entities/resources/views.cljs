@@ -48,14 +48,38 @@
 
 (defn new-resource-modal
   [conn]
-  [:> rn/ScrollView {:style {:padding 5}}
-   (components/default-text-input (components/default-text "Title:") "type")
-   (components/default-text-input (components/default-text "Type:") "type")
-   (components/default-text-input (components/default-text "Properties:") "type")
-   (components/default-text-input (components/default-text "Actions:") "type")
-   (components/default-text-input (components/default-text "Quality:") "type")
-   (components/default-text-input (components/default-text "Power:") "type")
-   (components/default-text-input (components/default-text "Description:") "type")])
+  (let [title-id       (str (random-uuid) "title")
+        type-id        (str (random-uuid) "type")
+        properties-id  (str (random-uuid) "properties")
+        actions-id     (str (random-uuid) "actions")
+        quality-id     (str (random-uuid) "quality")
+        power-id       (str (random-uuid) "power")
+        description-id (str (random-uuid) "description")]
+    [:> rn/ScrollView {:style {:padding 5}}
+     (components/default-text-input (components/default-text "Title:") title-id)
+     (components/default-text-input (components/default-text "Type:") type-id)
+     (components/default-text-input (components/default-text "Properties:") properties-id)
+     (components/default-text-input (components/default-text "Actions:") actions-id)
+     (components/default-text-input (components/default-text "Quality:") quality-id)
+     (components/default-text-input (components/default-text "Power:") power-id)
+     (components/default-text-input (components/default-text "Description:") description-id)
+     (components/button
+      {:on-press #(resource-data/create-resource
+                   conn
+                   [(into {}
+                          (remove
+                           (fn [[_ v]] (println @components/text-input-map) (nil? v))
+                           {:title                  (get @components/text-input-map title-id)
+                            :entity-type            "resource"
+                            :resource/type          (get @components/text-input-map type-id)
+                            :resource/properties    (get @components/text-input-map properties-id)
+                            :resource/actions       (get @components/text-input-map actions-id)
+                            :resource/quality-title "Quality"
+                            :resource/quality-value (get @components/text-input-map quality-id)
+                            :resource/power-title   "Power"
+                            :resource/power-value   (get @components/text-input-map power-id)
+                            :resource/flavor-text   (get @components/text-input-map description-id)}))])}
+      "Save!")]))
 
 (defn create-new-resource
   [conn]

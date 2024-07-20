@@ -1,7 +1,7 @@
 (ns entities.resources.data.interface
   (:require [entities.resources.data.core :as core]))
 
-(def create-resource)
+(def create-resource core/create-resource)
 
 (def get-resource core/get-resource-by-id)
 (def get-resources core/get-resources-by-id)

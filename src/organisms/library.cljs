@@ -68,6 +68,7 @@
 (def view-header-text text/view-header-text)
 
 (def default-text-input text-input/default-text-input)
+(def text-input-map text-input/text-input-map)
 
 (def default-markdown markdown/default-markdown)
 (def default-realm-markdown markdown/default-realm-markdown)

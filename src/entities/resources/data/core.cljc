@@ -400,3 +400,8 @@
 (defn get-resource-by-id
   [conn resource-id]
   (ds/pull @conn '[*] resource-id))
+
+(defn create-resource
+  [conn resource-data]
+  (println resource-data)
+  (ds/transact! conn resource-data))
