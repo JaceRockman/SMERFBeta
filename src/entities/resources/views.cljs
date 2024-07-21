@@ -67,12 +67,28 @@
    (resource-type-select-button type-id "Connections")
    (resource-type-select-button type-id "Items")])
 
+(defn resource-property-select-button
+  [type-id {:keys [resource-property/title db/id]}]
+  [:> rn/Pressable
+   {:style {:background-color (if (= id (get @components/text-input-map type-id)) :green :red)}
+    :on-press (fn []
+                (swap! components/text-input-map #(assoc % type-id id)))}
+   (components/default-text title)])
+
+(defn resource-property-select
+  [conn property-id]
+  (let [resource-properties (resource-data/get-all-resource-properties conn)]
+    [:> rn/View
+     (components/default-text-input (components/default-text "Properties:") property-id)
+     [:> rn/View {:style {:flex-direction :row}}
+      (map resource-property-select-button (repeat property-id) resource-properties)]]))
+
 (defn new-resource-modal
   [conn]
   [:> rn/ScrollView {:style {:padding 5}}
    (components/default-text-input (components/default-text "Title:") "new-resource-title")
    (resource-type-select "new-resource-type")
-   (components/default-text-input (components/default-text "Properties:") "new-resource-properties")
+   (resource-property-select conn "new-resource-properties")
    (components/default-text-input (components/default-text "Actions:") "new-resource-actions")
    (components/default-text-input (components/default-text "Quality:") "new-resource-quality")
    (components/default-text-input (components/default-text "Power:") "new-resource-power")

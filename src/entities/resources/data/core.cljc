@@ -7,7 +7,46 @@
 
 (defn example-resources
   [example-actions]
-  [{:title                  "Longsword"
+  [{:resource-property/title "light"
+    :db/ident :resource-property/light
+    :entity-type "resource-property"}
+   {:resource-property/title "medium"
+    :db/ident :resource-property/medium
+    :entity-type "resource-property"}
+   {:resource-property/title "heavy"
+    :db/ident :resource-property/heavy
+    :entity-type "resource-property"}
+   {:resource-property/title "virtue"
+    :db/ident :resource-property/virtue
+    :entity-type "resource-property"}
+   {:resource-property/title "ideal"
+    :db/ident :resource-property/ideal
+    :entity-type "resource-property"}
+   {:resource-property/title "vice"
+    :db/ident :resource-property/vice
+    :entity-type "resource-property"}
+   {:resource-property/title "goal"
+    :db/ident :resource-property/goal
+    :entity-type "resource-property"}
+   {:resource-property/title "virtue"
+    :db/ident :resource-property/virtue
+    :entity-type "resource-property"}
+   {:resource-property/title "training"
+    :db/ident :resource-property/training
+    :entity-type "resource-property"}
+   {:resource-property/title "reputation"
+    :db/ident :resource-property/reputation
+    :entity-type "resource-property"}
+   {:resource-property/title "membership"
+    :db/ident :resource-property/membership
+    :entity-type "resource-property"}
+   {:resource-property/title "friend"
+    :db/ident :resource-property/friend
+    :entity-type "resource-property"}
+   {:resource-property/title "rival"
+    :db/ident :resource-property/rival
+    :entity-type "resource-property"}
+   {:title                  "Longsword"
     :entity-type            "resource"
     :resource/type          "Equipment"
     :resource/properties    [:resource-property/medium]
@@ -134,7 +173,7 @@
    {:title "Bravery"
     :entity-type "resource"
     :resource/type "Trait"
-    :resource/properties [:virtue]
+    :resource/properties [:resource-property/virtue]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -143,7 +182,7 @@
    {:title "Life"
     :entity-type "resource"
     :resource/type "Trait"
-    :resource/properties [:ideal]
+    :resource/properties [:resource-property/ideal]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -152,7 +191,7 @@
    {:title "Knowledge"
     :entity-type "resource"
     :resource/type "Trait"
-    :resource/properties [:virtue]
+    :resource/properties [:resource-property/virtue]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -161,7 +200,7 @@
    {:title "Protective"
     :entity-type "resource"
     :resource/type "Trait"
-    :resource/properties [:virtue]
+    :resource/properties [:resource-property/virtue]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -170,7 +209,7 @@
    {:title "Greedy"
     :entity-type "resource"
     :resource/type "Trait"
-    :resource/properties [:vice]
+    :resource/properties [:resource-property/vice]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -179,7 +218,7 @@
    {:title "Alcoholic"
     :entity-type "resource"
     :resource/type "Trait"
-    :resource/properties [:vice]
+    :resource/properties [:resource-property/vice]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -188,7 +227,7 @@
    {:title "Selfish"
     :entity-type "resource"
     :resource/type "Trait"
-    :resource/properties [:vice]
+    :resource/properties [:resource-property/vice]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -197,7 +236,7 @@
    {:title "Spread the Faith"
     :entity-type "resource"
     :resource/type "Trait"
-    :resource/properties [:goal]
+    :resource/properties [:resource-property/goal]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -206,7 +245,7 @@
    {:title "Uncover Forgotten Magics"
     :entity-type "resource"
     :resource/type "Trait"
-    :resource/properties [:goal]
+    :resource/properties [:resource-property/goal]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -216,7 +255,7 @@
    {:title "Scout"
     :entity-type "resource"
     :resource/type "Expertise"
-    :resource/properties [:training]
+    :resource/properties [:resource-property/training]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -225,7 +264,7 @@
    {:title "Soldier"
     :entity-type "resource"
     :resource/type "Expertise"
-    :resource/properties [:training]
+    :resource/properties [:resource-property/training]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -234,7 +273,7 @@
    {:title "Sentinel"
     :entity-type "resource"
     :resource/type "Expertise"
-    :resource/properties [:training]
+    :resource/properties [:resource-property/training]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -243,7 +282,7 @@
    {:title "Aethrology"
     :entity-type "resource"
     :resource/type "Expertise"
-    :resource/properties [:knowledge]
+    :resource/properties [:resource-property/knowledge]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -252,7 +291,7 @@
    {:title "Medicine"
     :entity-type "resource"
     :resource/type "Expertise"
-    :resource/properties [:knowledge]
+    :resource/properties [:resource-property/knowledge]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -261,7 +300,7 @@
    {:title "History"
     :entity-type "resource"
     :resource/type "Expertise"
-    :resource/properties [:knowledge]
+    :resource/properties [:resource-property/knowledge]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -270,7 +309,7 @@
    {:title "Light Fingers"
     :entity-type "resource"
     :resource/type "Expertise"
-    :resource/properties [:talent]
+    :resource/properties [:resource-property/talent]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -279,7 +318,7 @@
    {:title "Light Footed"
     :entity-type "resource"
     :resource/type "Expertise"
-    :resource/properties [:talent]
+    :resource/properties [:resource-property/talent]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -289,7 +328,7 @@
    {:title "Adventurer"
     :entity-type "resource"
     :resource/type "Affiliation"
-    :resource/properties [:reputation]
+    :resource/properties [:resource-property/reputation]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -298,7 +337,7 @@
    {:title "Paladin of Heilm"
     :entity-type "resource"
     :resource/type "Affiliation"
-    :resource/properties [:membership]
+    :resource/properties [:resource-property/membership]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -307,7 +346,7 @@
    {:title "Mediker's Guild"
     :entity-type "resource"
     :resource/type "Affiliation"
-    :resource/properties [:membership]
+    :resource/properties [:resource-property/membership]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -316,7 +355,7 @@
    {:title "Arcanist's Guild"
     :entity-type "resource"
     :resource/type "Affiliation"
-    :resource/properties [:membership]
+    :resource/properties [:resource-property/membership]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -325,7 +364,7 @@
    {:title "Thieves' Guild"
     :entity-type "resource"
     :resource/type "Affiliation"
-    :resource/properties [:membership]
+    :resource/properties [:resource-property/membership]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -334,7 +373,7 @@
    {:title "Mentor"
     :entity-type "resource"
     :resource/type "Affiliation"
-    :resource/properties [:friend]
+    :resource/properties [:resource-property/friend]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -343,7 +382,7 @@
    {:title "Friend"
     :entity-type "resource"
     :resource/type "Affiliation"
-    :resource/properties [:friend]
+    :resource/properties [:resource-property/friend]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -352,7 +391,7 @@
    {:title "Enemy"
     :entity-type "resource"
     :resource/type "Affiliation"
-    :resource/properties [:rival]
+    :resource/properties [:resource-property/rival]
     :resource/quality-title "Quality"
     :resource/quality-value 0
     :resource/power-title "Power"
@@ -392,6 +431,13 @@
                                        :where [?eid :entity-type "resource"]]
                                      @conn))]
     (ds/pull-many @conn '[*] resource-ids)))
+
+(defn get-all-resource-properties
+  [conn]
+  (ds/pull-many @conn '[*]
+                (map first (ds/q '[:find ?eid
+                                   :where [?eid :entity-type "resource-property"]]
+                                 @conn))))
 
 (defn get-resources-by-id
   [conn resource-ids]
