@@ -1,5 +1,6 @@
 (ns entities.resources.views
-  (:require ["react-native" :as rn]
+  (:require [reagent.core :as r]
+            ["react-native" :as rn]
             [entities.resources.data.interface :as resource-data]
             [entities.actions.views :refer [action-list]]
             [organisms.config :refer [screen-width]]
@@ -46,40 +47,53 @@
         items (type-section-from-resources "Item" resources)]
     (remove nil? [equipment traits expertise affiliations items])))
 
+(def new-resource-type-selection
+  (r/atom "Equipment"))
+
+(defn resource-type-select-button
+  [type-id type-title]
+  [:> rn/Pressable
+   {:style {:background-color (if (= type-title (get @components/text-input-map type-id)) :green :red)}
+    :on-press (fn []
+                (swap! components/text-input-map #(assoc % type-id type-title)))}
+   (components/default-text type-title)])
+
+(defn resource-type-select
+  [type-id]
+  [:> rn/View {:style {:flex-direction :row}}
+   (resource-type-select-button type-id "Equipment")
+   (resource-type-select-button type-id "Traits")
+   (resource-type-select-button type-id "Expertise")
+   (resource-type-select-button type-id "Connections")
+   (resource-type-select-button type-id "Items")])
+
 (defn new-resource-modal
   [conn]
-  (let [title-id       (str (random-uuid) "title")
-        type-id        (str (random-uuid) "type")
-        properties-id  (str (random-uuid) "properties")
-        actions-id     (str (random-uuid) "actions")
-        quality-id     (str (random-uuid) "quality")
-        power-id       (str (random-uuid) "power")
-        description-id (str (random-uuid) "description")]
-    [:> rn/ScrollView {:style {:padding 5}}
-     (components/default-text-input (components/default-text "Title:") title-id)
-     (components/default-text-input (components/default-text "Type:") type-id)
-     (components/default-text-input (components/default-text "Properties:") properties-id)
-     (components/default-text-input (components/default-text "Actions:") actions-id)
-     (components/default-text-input (components/default-text "Quality:") quality-id)
-     (components/default-text-input (components/default-text "Power:") power-id)
-     (components/default-text-input (components/default-text "Description:") description-id)
-     (components/button
-      {:on-press #(resource-data/create-resource
-                   conn
-                   [(into {}
-                          (remove
-                           (fn [[_ v]] (println @components/text-input-map) (nil? v))
-                           {:title                  (get @components/text-input-map title-id)
-                            :entity-type            "resource"
-                            :resource/type          (get @components/text-input-map type-id)
-                            :resource/properties    (get @components/text-input-map properties-id)
-                            :resource/actions       (get @components/text-input-map actions-id)
-                            :resource/quality-title "Quality"
-                            :resource/quality-value (get @components/text-input-map quality-id)
-                            :resource/power-title   "Power"
-                            :resource/power-value   (get @components/text-input-map power-id)
-                            :resource/flavor-text   (get @components/text-input-map description-id)}))])}
-      "Save!")]))
+  [:> rn/ScrollView {:style {:padding 5}}
+   (components/default-text-input (components/default-text "Title:") "new-resource-title")
+   (resource-type-select "new-resource-type")
+   (components/default-text-input (components/default-text "Properties:") "new-resource-properties")
+   (components/default-text-input (components/default-text "Actions:") "new-resource-actions")
+   (components/default-text-input (components/default-text "Quality:") "new-resource-quality")
+   (components/default-text-input (components/default-text "Power:") "new-resource-power")
+   (components/default-text-input (components/default-text "Description:") "new-resource-description")
+   (components/button
+    {:on-press #(resource-data/create-resource
+                 conn
+                 [(into {}
+                        (remove
+                         (fn [[_ v]] (println @components/text-input-map) (nil? v))
+                         {:title                  (get @components/text-input-map "new-resource-title")
+                          :entity-type            "resource"
+                          :resource/type          (get @components/text-input-map "new-resource-type")
+                          :resource/properties    (get @components/text-input-map "new-resource-properties")
+                          :resource/actions       (get @components/text-input-map "new-resource-actions")
+                          :resource/quality-title "Quality"
+                          :resource/quality-value (get @components/text-input-map "new-resource-quality")
+                          :resource/power-title   "Power"
+                          :resource/power-value   (get @components/text-input-map "new-resource-power")
+                          :resource/flavor-text   (get @components/text-input-map "new-resource-description")}))])}
+    "Save!")])
 
 (defn create-new-resource
   [conn]

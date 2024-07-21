@@ -403,5 +403,4 @@
 
 (defn create-resource
   [conn resource-data]
-  (println resource-data)
   (ds/transact! conn resource-data))
