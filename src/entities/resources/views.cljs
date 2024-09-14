@@ -16,8 +16,8 @@
      (components/default-text (str (:resource/quality-title resource) ": " (:resource/quality-value resource)))
      (components/default-text (str (:resource/power-title resource) ": " (:resource/power-value resource)))
      (components/default-text (str "Quantity: " (or quantity 0)))
-     (action-list conn {:id (:id resource)
-                        :actions (:resource/actions resource)
+     (action-list conn {:id (:db/id resource)
+                        :actions (resource-data/get-resource-actions conn (:db/id resource))
                         :header "Actions"
                         :collapsed? false})]))
 
@@ -98,12 +98,12 @@
                  conn
                  [(into {}
                         (remove
-                         (fn [[_ v]] (println @components/text-input-map) (nil? v))
+                         (fn [[_ v]] (println @components/text-input-map) (or (nil? v) (= "" v)))
                          {:title                  (get @components/text-input-map "new-resource-title")
                           :entity-type            "resource"
                           :resource/type          (get @components/text-input-map "new-resource-type")
                           :resource/properties    (get @components/text-input-map "new-resource-properties")
-                          :resource/actions       (get @components/text-input-map "new-resource-actions")
+                          ;; :resource/actions       (get @components/text-input-map "new-resource-actions")
                           :resource/quality-title "Quality"
                           :resource/quality-value (get @components/text-input-map "new-resource-quality")
                           :resource/power-title   "Power"

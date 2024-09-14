@@ -447,6 +447,17 @@
   [conn resource-id]
   (ds/pull @conn '[*] resource-id))
 
+(defn get-resource-actions
+  [conn resource-id]
+  (println resource-id)
+  (let [result (ds/pull-many @conn '[*]
+                             (map first (ds/q '[:find ?eid
+                       :in $ ?id
+                       :where [?eid :action/resources ?id]]
+                     @conn resource-id)))]
+    (println result)
+    result))
+
 (defn create-resource
   [conn resource-data]
   (ds/transact! conn resource-data))

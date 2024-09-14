@@ -8,6 +8,7 @@
 (def get-all-resources core/get-all-resources)
 
 (def get-all-resource-properties core/get-all-resource-properties)
+(def get-resource-actions core/get-resource-actions)
 
 (def update-resource)
 
