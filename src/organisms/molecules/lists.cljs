@@ -35,9 +35,11 @@
                              {:font-size  20
                               :padding    10})
           [:> rn/View {:style {:flex-direction :row}}
-           (map (fn [header flex]
+           (map (fn [index header flex]
                   (text/default-text header {:flex      flex
-                                             :font-size 16}))
+                                             :font-size 16
+                                             :text-align (when (not= 1 index) :center)}))
+                (range 1 (inc (count flex-vals)))
                 headers
                 flex-vals)]
           (section-separator)])))
