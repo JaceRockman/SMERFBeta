@@ -131,7 +131,7 @@
 
 (defn get-creature-resources
   [conn creature-id]
-  (map first
+  (map ffirst
        (ds/q '[:find ?resources
                :in $ ?creature-id
                :where [?creature-id :creature/resources ?resources]]
@@ -139,7 +139,7 @@
 
 (defn get-creature-resources-from-data
  [conn creature-data]
- (ds/pull-many @conn '[*] (:creature/resources creature-data)))
+ (ds/pull-many @conn '[*] (map first (:creature/resources creature-data))))
 
 (defn get-creature-actions
   [conn creature-id]
@@ -151,7 +151,7 @@
 (defn example-creatures
   [default-domain-entities example-resources default-actions]
   [{:creature/domains default-domain-entities
-    :title "aleksander"
+    :title "Aleksander"
     :entity-type "creature"
     :creature/portrait "https://i.pinimg.com/originals/d8/30/bc/d830bc587482ed8af3639903c5d406b4.png"
     :creature/gender "Male"
@@ -164,7 +164,7 @@
     :creature/notes "Notes about Aleksander"
     :creature/rolls []}
    {:creature/domains default-domain-entities
-    :title "eilonwey"
+    :title "Eilonwey"
     :entity-type "creature"
     :creature/gender "Female"
     :creature/race [:race/elf]
@@ -177,7 +177,7 @@
     :creature/rolls []}
    {:creature/domains default-domain-entities
     :entity-type "creature"
-    :title "durflag"
+    :title "Durflag"
     :creature/race [:race/dwarf]
     :creature/description "Durflag is a badass as well."
     :creature/experience 0

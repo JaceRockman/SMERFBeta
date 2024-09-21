@@ -26,12 +26,10 @@
         init-domain-entities (map first (ds/q '[:find ?e
                                                 :where [?e :entity-type "domain"]]
                                               @conn))
-        init-resources (map first (ds/q '[:find ?e
+        init-resources (map #(conj % 1) (take 8 (ds/q '[:find ?e
                                           :where [?e :entity-type "resource"]]
-                                        @conn))
-        _ (println (ds/q '[:find ?e
-                                          :where [?e :entity-type "resource"]]
-                                        @conn))
+                                        @conn)))
+        _ (println init-resources)
         init-actions (map first (ds/q '[:find ?e
                                         :where [?e :entity-type "action"]]
                                       @conn))

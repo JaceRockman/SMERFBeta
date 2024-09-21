@@ -22,21 +22,23 @@
                         :collapsed? false})]))
 
 (defn resource [conn {:keys [flex-vals on-press-override style]}]
-  (fn [{:keys [id title quality-value power-value] :as resource} quantity]
+  (fn [{{:keys [id title quality-value power-value] :as resource} :resource-data
+       resource-quantity :resource-quantity}]
     [:> rn/Pressable {:style (merge {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"} style)
                       :on-press (or on-press-override
                                     (fn []
                                       (reset! components/modal-content
-                                              {:display? true :fn resource-modal :args [conn id quantity]})))}
+                                              {:display? true :fn resource-modal :args [conn id resource-quantity]})))}
      (components/default-text title {:flex (nth flex-vals 0) :font-size 16})
      (components/default-text quality-value {:flex (nth flex-vals 1) :font-size 16})
      (components/default-text power-value {:flex (nth flex-vals 2) :font-size 16})
-     (components/default-text (or quantity 0) {:flex (nth flex-vals 3) :font-size 16})]))
+     (when (= 4 (count flex-vals))
+       (components/default-text (or resource-quantity 0) {:flex (nth flex-vals 3) :font-size 16}))]))
 
 (defn sort-resources-by-type
   [resources]
   (let [type-section-from-resources (fn [type resources]
-                                      (let [resource-type-section-data (filter #(= type (:resource/type %))
+                                      (let [resource-type-section-data (filter #(= type (:resource/type (:resource-data %)))
                                                                                resources)]
                                         (when-not (empty? resource-type-section-data)
                                           {:title type :data resource-type-section-data})))
@@ -116,7 +118,26 @@
   (reset! components/modal-content
           {:display? true :fn new-resource-modal :args [conn]}))
 
-(defn resource-list [conn {:keys [resources quantities header on-press-override item-style]}]
+(defn resource-list [conn {:keys [resources header on-press-override item-style]}]
+  (let [flex-vals [3 1 1]]
+    (components/search-filter-sort-list
+     {:list-header      header
+      :items            (if (:resource-quantity resources)
+                          resources
+                          (map (fn [resource-data] {:resource-data resource-data}) resources))
+      :new-item-fn      #(create-new-resource conn)
+      :column-headers   ["Title" "Quality" "Power"]
+      :column-flex-vals flex-vals
+      :item-format-fn   (fn [resource-data]
+                          ((resource conn {:flex-vals flex-vals
+                                           :on-press-override on-press-override
+                                           :style item-style})
+                           resource-data))
+      :section-sort-fns [sort-resources-by-type]}
+     "resources")))
+
+(defn creature-resource-list
+  [conn {:keys [resources header on-press-override item-style]}]
   (let [flex-vals [3 1 1 2]]
     (components/search-filter-sort-list
      {:list-header      header
@@ -127,7 +148,8 @@
       :item-format-fn   (fn [resource-data]
                           ((resource conn {:flex-vals flex-vals
                                            :on-press-override on-press-override
-                                           :style item-style}) resource-data (get quantities (:db/id resource))))
+                                           :style item-style})
+                           resource-data))
       :section-sort-fns [sort-resources-by-type]}
      "resources")))
 
