@@ -451,12 +451,28 @@
   [conn resource-id]
   (let [result (ds/pull-many @conn '[*]
                              (map first (ds/q '[:find ?eid
-                       :in $ ?id
-                       :where [?eid :action/resources ?id]]
+                                                :in $ ?id
+                                                :where [?eid :action/resources ?id]]
                      @conn resource-id)))]
-    (println result)
     result))
 
 (defn create-resource
   [conn resource-data]
   (ds/transact! conn resource-data))
+
+(defn fffirst
+  [x]
+  (-> x first first first))
+
+(defn update-creature-resource-quantity
+  [conn creature-id resource-id update-fn]
+  (let [resources (ffirst (ds/q '[:find ?resources
+                                  :in $ ?creature-id
+                                  :where [?creature-id :creature/resources ?resources]]
+                                @conn creature-id))
+        new-quantities (map (fn [[res old-qty]]
+                              (let [new-qty (if (= res resource-id) (update-fn old-qty) old-qty)]
+                                [res new-qty]))
+                            resources)]
+    (ds/transact! conn [{:db/id creature-id
+                                    :creature/resources new-quantities}])))

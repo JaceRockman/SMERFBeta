@@ -4,10 +4,11 @@
             [entities.resources.data.interface :as resources-data]
             [entities.resources.views :as resources-view]))
 
-(defn resources [conn {:keys [:creature/resources]}]
+(defn resources [conn {:keys [:creature/resources :db/id]}]
   (let [resource-details (map (fn [resource]
                                 {:resource-data (resources-data/get-resource conn (first resource))
-                                 :resource-quantity (last resource)}) resources)]
+                                 :resource-quantity (last resource)
+                                 :creature-id id}) resources)]
     [:> rn/View {:style {:width (screen-width) :flex 1}}
      (resources-view/creature-resource-list conn {:resources resource-details
-                                         :header "Resources"})]))
+                                                  :header "Resources"})]))

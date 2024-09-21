@@ -16,3 +16,5 @@
 
 (def resource-properties core/resource-properties)
 (def example-resources core/example-resources)
+
+(def update-creature-resource-quantity core/update-creature-resource-quantity)

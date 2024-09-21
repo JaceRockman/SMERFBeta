@@ -21,9 +21,16 @@
                         :header "Actions"
                         :collapsed? false})]))
 
+(defn resource-quantity-column
+  [conn creature-id resource-id quantity]
+  (let [dec-quantity (fn [] (resource-data/update-creature-resource-quantity conn creature-id resource-id dec))
+        inc-quantity (fn [] (resource-data/update-creature-resource-quantity conn creature-id resource-id inc))]
+    (components/decrementor-and-incrementor nil quantity dec-quantity inc-quantity)))
+
 (defn resource [conn {:keys [flex-vals on-press-override style]}]
   (fn [{{:keys [id title quality-value power-value] :as resource} :resource-data
-       resource-quantity :resource-quantity}]
+       resource-quantity :resource-quantity
+       creature-id :creature-id}]
     [:> rn/Pressable {:style (merge {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"} style)
                       :on-press (or on-press-override
                                     (fn []
@@ -33,7 +40,7 @@
      (components/default-text quality-value {:flex (nth flex-vals 1) :font-size 16})
      (components/default-text power-value {:flex (nth flex-vals 2) :font-size 16})
      (when (= 4 (count flex-vals))
-       (components/default-text (or resource-quantity 0) {:flex (nth flex-vals 3) :font-size 16}))]))
+       (resource-quantity-column conn creature-id id resource-quantity))]))
 
 (defn sort-resources-by-type
   [resources]
