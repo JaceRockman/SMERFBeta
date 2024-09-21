@@ -15,14 +15,17 @@
 
 (defn view-header-text
   [{:keys [style text]}]
-  [:> rn/Text {:style (merge view-header-text-style style)} text])
+  [:> rn/Text {:key (random-uuid)
+               :style (merge view-header-text-style style)} text])
 
 (defn default-text
   [text & [style]]
-  [:> rn/Text {:style (merge default-text-style style)}
+  [:> rn/Text {:key (random-uuid)
+               :style (merge default-text-style style)}
    text])
 
 (defn inverted-text
   [text & [style]]
-  [:> rn/Text {:style (merge default-text-style {:color (:surface-100 @palette)} style)}
+  [:> rn/Text {:key (random-uuid)
+               :style (merge default-text-style {:color (:surface-100 @palette)} style)}
    text])
