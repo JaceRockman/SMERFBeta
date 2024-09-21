@@ -94,10 +94,12 @@
                 :on-press on-press
                 :disabled? disabled?}))
 
-(defn button [{:keys [style text-style on-press
+(defn button [{:keys [key
+                      style text-style on-press
                       disabled? disabled-style disabled-text-style]
                :or {on-press #()}} text]
-  [:> rn/Pressable {:style (cond-> {:font-size        18
+  [:> rn/Pressable {:key (str "pressable-" key)
+                    :style (cond-> {:font-size        18
                                     :padding          6
                                     :border-radius    999
                                     :background-color (:surface-400 @palette)}
@@ -106,7 +108,8 @@
                                               disabled-style))
                     :on-press on-press
                     :disabled disabled?}
-   [:> rn/Text {:style (cond-> {:font-weight   :bold
+   [:> rn/Text {:key (str "text-" key)
+                :style (cond-> {:font-weight   :bold
                                 :font-size     18
                                 :color         (:surface-700 @palette)}
                          :always (merge text-style)

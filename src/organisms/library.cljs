@@ -43,8 +43,9 @@
      (settings-button conn)]))
 
 (defn view-frame
-  [conn content]
-  [:> rn/View {:style {:width (config/screen-width)
+  [conn content key]
+  [:> rn/View {:key key
+               :style {:width (config/screen-width)
                        :align-items :center
                        :background-color (:surface-100 @palette)
                        :color (:surface-700 @palette)
