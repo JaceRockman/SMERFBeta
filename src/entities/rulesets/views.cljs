@@ -39,40 +39,42 @@
                       :horizontal                      true
                       :showsHorizontalScrollIndicator  false
                       :shows-vertical-scroll-indicator false}
-    (map (fn [data-keys section-title]
-           [:> rn/ScrollView {:style {:width  (screen-width)
-                                      :height :auto}}
-            (components/default-text section-title {:font-size 24})
-            (components/default-markdown conn
-                                         (apply str (interpose "\n" (vals (select-keys ruleset-data data-keys)))))])
-         [[:ruleset/skill-check-overview
-           :ruleset/skill-check-base-dice-pool
-           :ruleset/skill-check-benefits-and-detriments
-           :ruleset/complex-actions
-           :ruleset/careful-and-reckless-actions
-           :ruleset/skill-check-passive-checks]
-          [:ruleset/encounter-overview
-           :ruleset/encounter-actions
-           :ruleset/encounter-moments
-           :ruleset/encounter-rounds]
-          [:ruleset/damage-overview
-           :ruleset/damage-injuries
-           :ruleset/damage-conditions
-           :ruleset/damage-recover]
-          [:ruleset/conditions-wounded
-           :ruleset/conditions-incapacitated
-           :ruleset/conditions-dead
-           :ruleset/conditions-exhausted
-           :ruleset/conditions-surprised
-           :ruleset/conditions-blinded
-           :ruleset/conditions-deafened
-           :ruleset/conditions-constrained
-           :ruleset/conditions-frightened]
-          [:ruleset/stats-physical
-           :ruleset/stats-spiritual
-           :ruleset/stats-mental
-           :ruleset/stats-social]]
-         ["Skill Checks" "Encounters" "Damage" "Conditions" "Stats"])]])
+    (doall
+     (map (fn [data-keys section-title]
+            [:> rn/ScrollView {:key (str section-title "-page")
+                               :style {:width  (screen-width)
+                                       :height :auto}}
+             (components/default-text section-title {:font-size 24})
+             (components/default-markdown conn
+                                          (apply str (interpose "\n" (vals (select-keys ruleset-data data-keys)))))])
+          [[:ruleset/skill-check-overview
+            :ruleset/skill-check-base-dice-pool
+            :ruleset/skill-check-benefits-and-detriments
+            :ruleset/complex-actions
+            :ruleset/careful-and-reckless-actions
+            :ruleset/skill-check-passive-checks]
+           [:ruleset/encounter-overview
+            :ruleset/encounter-actions
+            :ruleset/encounter-moments
+            :ruleset/encounter-rounds]
+           [:ruleset/damage-overview
+            :ruleset/damage-injuries
+            :ruleset/damage-conditions
+            :ruleset/damage-recover]
+           [:ruleset/conditions-wounded
+            :ruleset/conditions-incapacitated
+            :ruleset/conditions-dead
+            :ruleset/conditions-exhausted
+            :ruleset/conditions-surprised
+            :ruleset/conditions-blinded
+            :ruleset/conditions-deafened
+            :ruleset/conditions-constrained
+            :ruleset/conditions-frightened]
+           [:ruleset/stats-physical
+            :ruleset/stats-spiritual
+            :ruleset/stats-mental
+            :ruleset/stats-social]]
+          ["Skill Checks" "Encounters" "Damage" "Conditions" "Stats"]))]])
 
 (defn rules-home
   [conn]
@@ -84,4 +86,4 @@
       :else (ruleset-select conn (ruleset-data/get-all-rulesets conn)))))
 
 (defn rules [conn ^js props]
-  (components/view-frame conn (rules-home conn)))
+  (components/view-frame conn (rules-home conn) "rules-page"))

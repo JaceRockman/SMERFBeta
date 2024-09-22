@@ -97,4 +97,4 @@
       :else (realm-select conn (realm-data/get-all-realms conn)))))
 
 (defn realm [conn ^js props]
-  (components/view-frame conn (realm-home conn)))
+  (components/view-frame conn (realm-home conn) "realms-page"))

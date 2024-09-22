@@ -11,9 +11,11 @@
 
 (defn scroll-position-indicator
   [position-atom sections]
-  [:> rn/View {:style {:width "100%" :height 25 :align-items :center :justify-content :center :flex-direction :row :gap 3}}
-      (doall (map (fn [section]
-                    [:> Entypo {:name "dot-single" :color (if (= section (get sections @position-atom)) (:surface-700 @palette) (str (:surface-700 @palette) "50")) :size 20}])
+  [:> rn/View {:key (apply str (interpose "-" sections))
+               :style {:width "100%" :height 25 :align-items :center :justify-content :center :flex-direction :row :gap 3}}
+   (doall
+    (map (fn [section]
+           [:> Entypo {:name "dot-single" :color (if (= section (get sections @position-atom)) (:surface-700 @palette) (str (:surface-700 @palette) "50")) :size 20}])
                   sections))])
 
 (defn indicated-scroll-view

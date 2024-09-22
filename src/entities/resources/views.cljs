@@ -167,5 +167,5 @@
      (resource-list conn {:resources resources})]))
 
 (defn resources [conn ^js props]
-  (components/view-frame conn (resources-main-page conn)))
+  (components/view-frame conn (resources-main-page conn) "resources-page"))
 

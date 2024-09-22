@@ -83,4 +83,5 @@
      (cond
        active-creature-data (creature conn active-creature-data)
        active-campaign-data (creature-select conn (campaign-data/get-active-campaign-creatures conn))
-       :else (creature-select conn (creature-data/get-all-creatures conn))))))
+       :else (creature-select conn (creature-data/get-all-creatures conn))))
+   "creatures-page"))

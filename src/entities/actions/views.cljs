@@ -234,4 +234,4 @@
      (action-list conn {:actions actions})]))
 
 (defn actions [conn ^js props]
-  (components/view-frame conn (actions-details conn)))
+  (components/view-frame conn (actions-details conn) "actions-page"))

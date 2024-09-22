@@ -45,4 +45,5 @@
                                                   :height "100%"}}
       (if (empty? active-campaign-data)
         (campaign-select conn all-campaigns-data)
-        (campaign-summary active-campaign-data))])))
+        (campaign-summary active-campaign-data))]
+     "campaigns-page")))
