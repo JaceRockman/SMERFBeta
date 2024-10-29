@@ -79,17 +79,23 @@
 
 (defn resource-property-select-button
   [type-id {:keys [resource-property/title db/id]}]
-  [:> rn/Pressable
-   {:style {:background-color (if (= id (get @components/text-input-map type-id)) :green :red)}
-    :on-press (fn []
-                (swap! components/text-input-map #(assoc % type-id id)))}
-   (components/default-text title)])
+  (let [selected? (some #(= id %) (get @components/text-input-map type-id))]
+    [:> rn/Pressable
+     {:style {:background-color (if selected? :green :red)}
+      :on-press (fn []
+                  (let [new-property-vals (if selected?
+                                            (filter #(not (= % id))
+                                                    (get @components/text-input-map type-id))
+                                            (conj (get @components/text-input-map type-id) id))]
+                    (swap! components/text-input-map (fn [input-map]
+                                                       (assoc input-map type-id new-property-vals)))))}
+     (components/default-text title)]))
 
 (defn resource-property-select
   [conn property-id]
   (let [resource-properties (resource-data/get-all-resource-properties conn)]
     [:> rn/View
-     (components/default-text-input (components/default-text "Properties:") property-id)
+     (components/default-text (components/default-text "Properties:"))
      [:> rn/View {:style {:flex-direction :row}}
       (map resource-property-select-button (repeat property-id) resource-properties)]]))
 
@@ -104,27 +110,29 @@
    (components/default-text-input (components/default-text "Power:") "new-resource-power")
    (components/default-text-input (components/default-text "Description:") "new-resource-description")
    (components/button
-    {:on-press #(resource-data/create-resource
-                 conn
-                 [(into {}
-                        (remove
-                         (fn [[_ v]] (println @components/text-input-map) (or (nil? v) (= "" v)))
-                         {:title                  (get @components/text-input-map "new-resource-title")
-                          :entity-type            "resource"
-                          :resource/type          (get @components/text-input-map "new-resource-type")
-                          :resource/properties    (get @components/text-input-map "new-resource-properties")
-                          ;; :resource/actions       (get @components/text-input-map "new-resource-actions")
-                          :resource/quality-title "Quality"
-                          :resource/quality-value (get @components/text-input-map "new-resource-quality")
-                          :resource/power-title   "Power"
-                          :resource/power-value   (get @components/text-input-map "new-resource-power")
-                          :resource/flavor-text   (get @components/text-input-map "new-resource-description")}))])}
+    {:on-press (fn []
+                 (resource-data/create-resource
+                  conn
+                  [(into {}
+                         (remove
+                          (fn [[_ v]] (println @components/text-input-map) (or (nil? v) (= "" v)))
+                          {:title                  (get @components/text-input-map "new-resource-title")
+                           :entity-type            "resource"
+                           :resource/type          (get @components/text-input-map "new-resource-type")
+                           :resource/properties    (get @components/text-input-map "new-resource-properties")
+                           ;; :resource/actions       (get @components/text-input-map "new-resource-actions")
+                           :resource/quality-title "Quality"
+                           :resource/quality-value (get @components/text-input-map "new-resource-quality")
+                           :resource/power-title   "Power"
+                           :resource/power-value   (get @components/text-input-map "new-resource-power")
+                           :resource/flavor-text   (get @components/text-input-map "new-resource-description")}))])
+                 (reset! components/text-input-map {}))}
     "Save!")])
 
 (defn create-new-resource
   [conn]
   (reset! components/modal-content
-          {:display? true :fn new-resource-modal :args [conn]}))
+          {:display? true :fn new-resource-modal :args [conn] :close-fn #(reset! components/text-input-map {})}))
 
 (defn resource-list [conn {:keys [resources header on-press-override item-style]}]
   (let [flex-vals [3 1 2]]
