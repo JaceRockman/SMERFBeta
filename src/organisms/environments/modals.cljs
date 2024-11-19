@@ -20,11 +20,13 @@
   (when (:display? @modal-content)
     (let [content (apply (:fn @modal-content) (:args @modal-content))
           save-button (when (:save-fn @modal-content)
-                        (apply (:save-fn @modal-content) (:save-args @modal-content))) ]
+                        (apply (:save-fn @modal-content) (:save-args @modal-content)))]
       [:> rn/View {:style {:position :absolute :width "100%" :height "100%" :background-color "rgba(0, 0, 0, 0.6)" :justify-content :flex-end}}
        [:> rn/Pressable {:style {:flex 100 :width "100%"}
                          :on-press (fn []
-                                     (apply (:close-fn @modal-content) (:close-args @modal-content))
+                                     (when (:close-fn @modal-content)
+                                       (apply (:close-fn @modal-content)
+                                              (:close-args @modal-content)))
                                      (reset! modal-content nil))}]
        [:> rn/View {:style {:border-width 2 :border-color (:surface-700 @palette) :background-color (:surface-100 @palette) :width "100%" :max-height "80%"}}
         content
