@@ -27,13 +27,14 @@
                                                 :where [?e :entity-type "domain"]]
                                               @conn))
         init-resources (map #(conj % 1) (take 8 (ds/q '[:find ?e
-                                          :where [?e :entity-type "resource"]]
-                                        @conn)))
-        _ (println init-resources)
+                                                        :where [?e :entity-type "resource"]]
+                                                      @conn)))
+        _ (println "init resources" init-resources)
         init-actions (map first (ds/q '[:find ?e
                                         :where [?e :entity-type "action"]]
                                       @conn))
-        _ (ds/transact! conn (creature-data/example-creatures init-domain-entities init-resources init-actions)) 
+        _ (println "init actions" init-actions)
+        _ (ds/transact! conn (creature-data/example-creatures init-domain-entities init-resources init-actions))
         _ (ds/transact! conn (campaign-data/init-campaigns (vec (map first (ds/q '[:find ?e
                                                                                    :where [?e :entity-type "realm"]]
                                                                                  @conn)))
@@ -48,6 +49,5 @@
                                                                                  @conn)))
                                                            (vec (map first (ds/q '[:find ?e
                                                                                    :where [?e :entity-type "resource"]]
-                                                                                 @conn)))))
-        ]
+                                                                                 @conn)))))]
     :success))

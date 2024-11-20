@@ -1,0 +1,7 @@
+/.expo/
+*tree~
+*~
+*#
+*package*.json
+*package.json
+*.json

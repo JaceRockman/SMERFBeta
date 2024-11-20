@@ -3,4 +3,8 @@
  :builds       {:app {:target           :react-native
                       :init-fn          main/init
                       :output-dir       "app"
+                      :devtools         {:autoload true}}
+                :dev {:target           :react-native
+                      :init-fn          main/init
+                      :output-dir       "dev"
                       :devtools         {:autoload true}}}}

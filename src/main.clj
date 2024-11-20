@@ -1,4 +1,5 @@
-(ns main)
+(ns main
+  (:require [fluree.db.api :as fluree]))
 
 (defmacro profile [k & body]
   `(let [k# ~k]
