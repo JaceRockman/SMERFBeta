@@ -1,10 +1,10 @@
 {:deps true
 
  :builds       {:app {:target           :react-native
-                      :init-fn          main/init
+                      :init-fn          app/init
                       :output-dir       "app"
                       :devtools         {:autoload true}}
                 :dev {:target           :react-native
-                      :init-fn          main/init
+                      :init-fn          app/init
                       :output-dir       "dev"
                       :devtools         {:autoload true}}}}
