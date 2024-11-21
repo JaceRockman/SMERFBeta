@@ -5,10 +5,12 @@
             [entities.resources.views :as resources-view]))
 
 (defn resources [conn {:keys [:creature/resources :db/id]}]
-  (let [resource-details (map (fn [resource]
-                                {:resource-data (resources-data/get-resource conn (first resource))
-                                 :resource-quantity (last resource)
-                                 :creature-id id}) resources)]
+  (let [resource-details (map (fn [creature-resource-id]
+                                {:resource-data (resources-data/get-resource-from-creature-resource conn creature-resource-id)
+                                 :resource-quantity (resources-data/get-quantity-from-creature-resource conn creature-resource-id)
+                                 :creature-resource-id creature-resource-id
+                                 :creature-id id})
+                              resources)]
     [:> rn/View {:style {:width (screen-width) :flex 1}}
      (resources-view/creature-resource-list conn {:resources resource-details
                                                   :header "Resources"})]))

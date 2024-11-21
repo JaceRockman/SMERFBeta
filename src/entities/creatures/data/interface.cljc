@@ -13,6 +13,7 @@
 (def get-creature-domain-damage-total core/get-creature-domain-damage-total)
 (def get-creature-resources core/get-creature-resources)
 (def get-creature-resources-from-data core/get-creature-resources-from-data)
+(def get-creature-resource-resources core/get-creature-resource-resources)
 (def get-creature-actions core/get-creature-actions)
 
 (def update-creature)

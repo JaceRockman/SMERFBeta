@@ -464,15 +464,22 @@
   [x]
   (-> x first first first))
 
+(defn get-resource-from-creature-resource
+  [conn creature-resource-id]
+  (:creature-resource/resource (ds/pull @conn '[:creature-resource/resource] creature-resource-id)))
+
+(defn get-quantity-from-creature-resource
+  [conn creature-resource-id]
+  (:creature-resource/quantity (ds/pull @conn '[:creature-resource/quantity] creature-resource-id)))
+
 (defn update-creature-resource-quantity
-  [conn creature-id resource-id update-fn]
-  (let [resources (ffirst (ds/q '[:find ?resources
-                                  :in $ ?creature-id
-                                  :where [?creature-id :creature/resources ?resources]]
-                                @conn creature-id))
-        new-quantities (map (fn [[res old-qty]]
-                              (let [new-qty (if (= res resource-id) (update-fn old-qty) old-qty)]
-                                [res new-qty]))
-                            resources)]
-    (ds/transact! conn [{:db/id creature-id
-                                    :creature/resources new-quantities}])))
+  [conn creature-id creature-resource-id update-fn]
+  (let [current-quantity (ffirst (ds/q '[:find ?quantity
+                                 :in $ ?creature-resource-id
+                                 :where [?creature-resource-id :creature-resource/quantity ?quantity]]
+                               @conn creature-resource-id))
+        new-quantity (if (nil? current-quantity)
+                       (update-fn 0)
+                       (update-fn current-quantity))]
+    (ds/transact! conn [{:db/id creature-resource-id
+                         :creature-resource/quantity new-quantity}])))

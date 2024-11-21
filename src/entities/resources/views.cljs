@@ -22,16 +22,15 @@
                         :collapsed? false})]))
 
 (defn resource-quantity-column
-  [conn creature-id resource-id quantity flex-size]
-  (let [dec-quantity (fn [] (resource-data/update-creature-resource-quantity conn creature-id resource-id dec))
-        inc-quantity (fn [] (resource-data/update-creature-resource-quantity conn creature-id resource-id inc))]
+  [conn creature-id creature-resource-id quantity flex-size]
+  (let [dec-quantity (fn [] (resource-data/update-creature-resource-quantity conn creature-id creature-resource-id dec))
+        inc-quantity (fn [] (resource-data/update-creature-resource-quantity conn creature-id creature-resource-id inc))]
     [:> rn/View {:style {:flex flex-size}}
      (components/decrementor-and-incrementor nil quantity dec-quantity inc-quantity)]))
 
 (defn resource [conn {:keys [flex-vals on-press-override style]}]
-  (fn [{{:keys [id title quality-value power-value]} :resource-data
-       resource-quantity :resource-quantity
-       creature-id :creature-id}]
+  (fn [{:keys [resource-quantity creature-resource-id creature-id]
+        {:keys [id title quality-value power-value]} :resource-data}]
     [:> rn/Pressable
      {:style (merge {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"} style)
       :on-press (or on-press-override
@@ -44,7 +43,7 @@
      (components/default-text quality-value {:flex (nth flex-vals 1) :font-size 16 :text-align :center})
      (components/default-text power-value {:flex (nth flex-vals 2) :font-size 16 :text-align :center})
      (when (= 4 (count flex-vals))
-       (resource-quantity-column conn creature-id id resource-quantity (nth flex-vals 3)))]))
+       (resource-quantity-column conn creature-id creature-resource-id resource-quantity (nth flex-vals 3)))]))
 
 (defn sort-resources-by-type
   [resources]

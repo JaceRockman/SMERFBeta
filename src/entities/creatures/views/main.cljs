@@ -71,7 +71,7 @@
      (creature-resources-view/resources conn creature-data)
      (creature-actions-view/actions conn creature-data
                                     (creature-data/get-creature-domains conn creature-data)
-                                    (creature-data/get-creature-resources-from-data conn creature-data))
+                                    (creature-data/get-creature-resource-resources conn creature-data))
      (creature-notes-view/notes conn creature-data)])])
 
 

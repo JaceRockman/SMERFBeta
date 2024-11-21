@@ -26,14 +26,22 @@
         init-domain-entities (map first (ds/q '[:find ?e
                                                 :where [?e :entity-type "domain"]]
                                               @conn))
-        init-resources (map #(conj % 1) (take 8 (ds/q '[:find ?e
-                                          :where [?e :entity-type "resource"]]
-                                        @conn)))
-        _ (println init-resources)
+        init-resources (map first (take 8 (ds/q '[:find ?e
+                                                  :where [?e :entity-type "resource"]]
+                                                @conn)))
+        creature-resources (mapv (fn [resource-id] {:entity-type "creature-resource"
+                                                    :creature-resource/resource resource-id
+                                                    :creature-resource/quantity 1})
+                                 init-resources)
+        _ (ds/transact! conn creature-resources)
+        init-creature-resources (map first (take 8 (ds/q '[:find ?e
+                                                           :where [?e :entity-type "creature-resource"]]
+                                                         @conn)))
+        ;; _ (println (ds/pull-many @conn '[*] init-creature-resources))
         init-actions (map first (ds/q '[:find ?e
                                         :where [?e :entity-type "action"]]
                                       @conn))
-        _ (ds/transact! conn (creature-data/example-creatures init-domain-entities init-resources init-actions)) 
+        _ (ds/transact! conn (creature-data/example-creatures init-domain-entities init-creature-resources init-actions))
         _ (ds/transact! conn (campaign-data/init-campaigns (vec (map first (ds/q '[:find ?e
                                                                                    :where [?e :entity-type "realm"]]
                                                                                  @conn)))
@@ -48,6 +56,5 @@
                                                                                  @conn)))
                                                            (vec (map first (ds/q '[:find ?e
                                                                                    :where [?e :entity-type "resource"]]
-                                                                                 @conn)))))
-        ]
+                                                                                 @conn)))))]
     :success))

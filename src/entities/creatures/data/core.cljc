@@ -131,15 +131,20 @@
 
 (defn get-creature-resources
   [conn creature-id]
-  (map ffirst
+  (map first
        (ds/q '[:find ?resources
                :in $ ?creature-id
                :where [?creature-id :creature/resources ?resources]]
              @conn creature-id)))
 
 (defn get-creature-resources-from-data
- [conn creature-data]
- (ds/pull-many @conn '[*] (map first (:creature/resources creature-data))))
+  [conn creature-data]
+  (ds/pull-many @conn '[*] (:creature/resources creature-data)))
+
+(defn get-creature-resource-resources
+  [conn creature-data]
+  (let [creature-resources (get-creature-resources-from-data conn creature-data)]
+    (map :creature-resource/resource creature-resources)))
 
 (defn get-creature-actions
   [conn creature-id]

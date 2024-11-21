@@ -18,7 +18,13 @@
                                                   :db/isComponent true}
                                :action/resources {:db/cardinality :db.cardinality/many
                                                   :db/valueType :db.type/ref
-                                                  :db/isComponent true}}))
+                                                  :db/isComponent true}
+                               ;; :creature/resources {:db/cardinality :db.cardinality/many
+                                                    ;; :db/valueType :db.type/ref
+                                                    ;; :db/isComponent true}
+                               :creature-resource/resource {:db/cardinality :db.cardinality/one
+                                                            :db/valueType :db.type/ref
+                                                            :db/isComponent true}}))
 
 (defn root [conn]
   (let [main-nav (when (not (nil? conn)) (navigation/get-main-nav-state conn))]
