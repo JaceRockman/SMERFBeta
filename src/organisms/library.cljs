@@ -77,6 +77,7 @@
 (def flat-list lists/FlatList)
 (def section-list lists/SectionList)
 (def search-filter-sort-list sfs-list/search-filter-sort-list)
+(def search-filter-sort-list-2 sfs-list/search-filter-sort-list-2)
 (def decrementor-and-incrementor dec-inc/decrementor-and-incrementor)
 
 (def scroll-position-indicator spi/scroll-position-indicator)

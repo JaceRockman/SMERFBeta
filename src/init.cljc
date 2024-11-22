@@ -1,7 +1,9 @@
 (ns init
   (:require [clojure.string :as str]
+            [clojure.walk :as walk]
             ["react-native" :as rn]
             [datascript.core :as ds]
+            [datascript.impl.entity :as de]
             [entities.campaigns.data.interface :as campaign-data]
             [entities.realms.data.interface :as realm-data]
             [entities.rulesets.data.interface :as ruleset-data]
@@ -37,11 +39,17 @@
         init-creature-resources (map first (take 8 (ds/q '[:find ?e
                                                            :where [?e :entity-type "creature-resource"]]
                                                          @conn)))
+        _ (println (ds/q '[:find ?e
+                           :where [?e :resource/quality-value 3]]
+                         @conn))
         ;; _ (println (ds/pull-many @conn '[*] init-creature-resources))
         init-actions (map first (ds/q '[:find ?e
                                         :where [?e :entity-type "action"]]
                                       @conn))
         _ (ds/transact! conn (creature-data/example-creatures init-domain-entities init-creature-resources init-actions))
+        _ (println (ds/q '[:find ?e
+                           :where [?e :entity-type "creature"]]
+                         @conn))
         _ (ds/transact! conn (campaign-data/init-campaigns (vec (map first (ds/q '[:find ?e
                                                                                    :where [?e :entity-type "realm"]]
                                                                                  @conn)))

@@ -10,8 +10,10 @@
 (def get-all-resource-properties core/get-all-resource-properties)
 (def get-resource-actions core/get-resource-actions)
 
+(def get-creature-resource core/get-creature-resource)
 (def get-resource-from-creature-resource core/get-resource-from-creature-resource)
 (def get-quantity-from-creature-resource core/get-quantity-from-creature-resource)
+(def get-creature-resource-quantity core/get-creature-resource-quantity)
 
 (def update-resource)
 

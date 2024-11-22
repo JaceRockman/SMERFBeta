@@ -1,5 +1,6 @@
 (ns organisms.compounds.search-filter-sort-list
   (:require [clojure.string :as str]
+            [datascript.core :as ds]
             [reagent.core :as r]
             ["react-native" :as rn]
             ["@expo/vector-icons" :refer [FontAwesome5]]
@@ -68,3 +69,55 @@
          :headers column-headers
          :flex-vals column-flex-vals
          :row-constructor item-format-fn}))]))
+
+(defn list-collapse-button
+  [component-key header-text]
+  (buttons/button {:style {:background-color :inherit :align-items :center :justify-content :center}
+                   :on-press #(swap! collapse-state (fn [collapse-map]
+                                                      (update collapse-map component-key not)))}
+                  [:> rn/View {:style {:flex-direction :row :align-items :center :justify-content :center}}
+                   header-text
+                   [:> rn/View {:style {:padding-left 5}}
+                    [:> FontAwesome5 {:name (if (get @collapse-state component-key) :chevron-down :chevron-up) :color (:surface-700 @palette) :size 20}]]]))
+
+(defn search-filter-sort-list-2
+  [{:keys [list-header column-flex-vals column-headers
+           collapsed?
+           items item-format-fn new-item-fn
+           search-filter-sort-component]}
+   component-key]
+  (when (not (nil? collapsed?)) (swap! collapse-state #(assoc % component-key collapsed?)))
+  (let [#_search-fns
+        #_(r/atom (or init-search-fns
+                      [(fn [items]
+                         (filter #(str/includes?
+                                   (str/lower-case (apply str (vals %)))
+                                   (str/lower-case
+                                    (if-let [search-text-atom (get @external-search-text component-key)]
+                                      (deref search-text-atom)
+                                      "")))
+                                 items))]))
+        header-text (text/default-text list-header
+                                       {:font-size 24
+                                        :flex 0
+                                        :text-align :center})]
+    [:> rn/View {:style {:width "100%" :max-height "100%" :flex 100 :padding 10}}
+     (if (not (nil? collapsed?))
+       (list-collapse-button component-key header-text)
+       header-text)
+     (when-not (get @collapse-state component-key)
+       [:> rn/View
+        [:> rn/View {:style {:flex-direction :row :justify-content :center :align-items :center}}
+         #_(search-bar external-search-text component-key)
+         (when new-item-fn
+           [:> rn/Pressable {:style {:padding 10}
+                             :on-press new-item-fn}
+            [:> FontAwesome5 {:name :plus :color (:surface-700 @palette) :size 20}]])]])
+     search-filter-sort-component
+     (when-not (get @collapse-state component-key)
+       (let [list-function (if (:title (first items)) SectionList FlatList)]
+         (list-function
+          {:items items
+           :headers column-headers
+           :flex-vals column-flex-vals
+           :row-constructor item-format-fn})))]))
