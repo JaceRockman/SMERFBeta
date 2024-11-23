@@ -14,6 +14,7 @@
             [organisms.compounds.search-filter-sort-list :as sfs-list]
             [organisms.compounds.nav-bar :refer [nav-bar]]
             [organisms.compounds.tab-bar :refer [tab-bar]]
+            [organisms.molecules.search-bar :as sb]
             [organisms.environments.modals :as modals]))
 
 (defn out-button
@@ -85,3 +86,4 @@
 (def creature-horizontal-position spi/creature-horizontal-position)
 (def roll-horizontal-position spi/roll-horizontal-position)
 (def indicated-scroll-view spi/indicated-scroll-view)
+(def search-bar sb/search-bar)

@@ -1,5 +1,6 @@
 (ns entities.resources.views
-  (:require [reagent.core :as r]
+  (:require [clojure.string :as str]
+            [reagent.core :as r]
             ["react-native" :as rn]
             [datascript.core :as ds]
             [entities.campaigns.data.interface :as campaign-data]
@@ -175,6 +176,22 @@
 
 
 
+(def external-search-text (r/atom {"resources" (r/atom "")}))
+
+(defn creature-resource-search-fn
+  [creature-resources component-key]
+  (filter #(str/includes?
+            (str/lower-case (apply str (vals %)))
+            (str/lower-case
+             (if-let [search-text-atom (get @external-search-text component-key)]
+               (deref search-text-atom)
+               "")))
+          creature-resources))
+
+(defn creature-resource-list-search
+  []
+  (components/search-bar external-search-text "resources"))
+
 (def creature-resource-list-filters
   (r/atom
    {"Equipment" ['?resource-id :resource/type "Equipment"]
@@ -223,10 +240,15 @@
    (toggle-creature-resource-type-filter-button "Affiliation")
    (toggle-creature-resource-type-filter-button "Item")])
 
+(defn creature-resource-list-column-sort
+  [flex-vals])
+
 (defn creature-resource-list-search-filter-sort-component
-  []
+  [flex-vals]
   [:> rn/View
-   (creature-resource-list-simple-filters)])
+   (creature-resource-list-search)
+   (creature-resource-list-simple-filters)
+   (creature-resource-list-column-sort flex-vals)])
 
 (defn creature-resource-list-query
   [conn]
@@ -238,7 +260,9 @@
                                        ':where where-vector}
                                       @conn))
         resources (ds/pull-many @conn '[*] resource-ids)]
-    (reduce #(%2 %1) resources @creature-resource-list-sorts)))
+    (reduce #(%2 %1)
+            (creature-resource-search-fn resources "resources")
+            @creature-resource-list-sorts)))
 
 (defn creature-resource-modal
   [conn
@@ -297,7 +321,7 @@
       :item-format-fn   (creature-resource conn)
       :new-item-fn      #(create-new-resource conn)
       :search-filter-sort-component
-      (creature-resource-list-search-filter-sort-component)}
+      (creature-resource-list-search-filter-sort-component flex-vals)}
      "resources")))
 
 (defn resources-main-page [conn]
