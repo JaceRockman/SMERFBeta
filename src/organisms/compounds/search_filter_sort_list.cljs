@@ -66,7 +66,12 @@
      (when-not (get @collapse-state component-key)
        ((if (empty? section-sort-fns) FlatList SectionList)
         {:items reduced-items
-         :headers column-headers
+         :headers (if (string? (first column-headers))
+                    (into {} (map (fn [header-text]
+                                    [header-text {:header header-text
+                                                  :sort-fn (fn [_] nil)}])
+                                  column-headers))
+                    column-headers)
          :flex-vals column-flex-vals
          :row-constructor item-format-fn}))]))
 
@@ -87,17 +92,7 @@
            search-filter-sort-component]}
    component-key]
   (when (not (nil? collapsed?)) (swap! collapse-state #(assoc % component-key collapsed?)))
-  (let [#_search-fns
-        #_(r/atom (or init-search-fns
-                      [(fn [items]
-                         (filter #(str/includes?
-                                   (str/lower-case (apply str (vals %)))
-                                   (str/lower-case
-                                    (if-let [search-text-atom (get @external-search-text component-key)]
-                                      (deref search-text-atom)
-                                      "")))
-                                 items))]))
-        header-text (text/default-text list-header
+  (let [header-text (text/default-text list-header
                                        {:font-size 24
                                         :flex 0
                                         :text-align :center})]
@@ -107,17 +102,21 @@
        header-text)
      (when-not (get @collapse-state component-key)
        [:> rn/View
-        [:> rn/View {:style {:flex-direction :row :justify-content :center :align-items :center}}
-         #_(search-bar external-search-text component-key)
+        [:> rn/View {:style {:flex-direction :row :justify-content :center :width "100%"}}
+         search-filter-sort-component
          (when new-item-fn
-           [:> rn/Pressable {:style {:padding 10}
+           [:> rn/Pressable {:style {:padding-left 10}
                              :on-press new-item-fn}
             [:> FontAwesome5 {:name :plus :color (:surface-700 @palette) :size 20}]])]])
-     search-filter-sort-component
      (when-not (get @collapse-state component-key)
        (let [list-function (if (:title (first items)) SectionList FlatList)]
          (list-function
           {:items items
-           :headers column-headers
+           :headers (if (string? (first column-headers))
+                      (into {} (map (fn [header-text]
+                                      [header-text {:header header-text
+                                                    :sort-fn (fn [_] nil)}])
+                                    column-headers))
+                      column-headers)
            :flex-vals column-flex-vals
            :row-constructor item-format-fn})))]))

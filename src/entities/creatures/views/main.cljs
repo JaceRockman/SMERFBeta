@@ -74,7 +74,6 @@
                                     (creature-data/get-creature-resource-resources conn creature-data))
      (creature-notes-view/notes conn creature-data)])])
 
-
 (defn creatures-page [conn ^js props]
   (components/view-frame
    conn

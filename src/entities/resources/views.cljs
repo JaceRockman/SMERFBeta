@@ -18,7 +18,14 @@
 (defn resource-column-headers
   [creature?]
   (if creature?
-    ["Title" "Quality" "Power" "Quantity"]
+    {:title {:header "Title"
+             :sort-fn #(get-in % [:creature-resource/resource :title])}
+     :quality {:header "Quality"
+               :sort-fn #(get-in % [:creature-resource/resource :resource/quality-value])}
+     :power {:header "Power"
+             :sort-fn #(get-in % [:creature-resource/resource :resource/power-value])}
+     :quantity {:header "Quantity"
+                :sort-fn #(get % :creature-resource/quantity)}}
     ["Title" "Quality" "Power"]))
 
 (defn resource-modal
@@ -245,7 +252,7 @@
 
 (defn creature-resource-list-search-filter-sort-component
   [flex-vals]
-  [:> rn/View
+  [:> rn/View {:style {:flex "auto"}}
    (creature-resource-list-search)
    (creature-resource-list-simple-filters)
    (creature-resource-list-column-sort flex-vals)])

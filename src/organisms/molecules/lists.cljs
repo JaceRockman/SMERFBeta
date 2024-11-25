@@ -1,8 +1,22 @@
 (ns organisms.molecules.lists
   (:require [reagent.core :as r]
             ["react-native" :as rn]
+            ["@expo/vector-icons" :refer [FontAwesome5]]
             [organisms.config :refer [palette]]
             [organisms.atoms.text :as text]))
+
+(def sort-manager
+  (r/atom {}))
+
+(def header-sort
+  (r/atom {}))
+
+(defn toggle-header-sort
+  [header-key]
+  (case (get-in @header-sort [header-key :val])
+    nil (swap! header-sort #(assoc % header-key {:val true :order (inc (count @header-sort))}))
+    true (swap! header-sort #(assoc-in % [header-key :val] false))
+    false (swap! header-sort #(dissoc % header-key))))
 
 (defn section-separator
   []
@@ -21,25 +35,44 @@
 
 (defn SectionList
   [{:keys [items headers flex-vals row-constructor]}]
+  (swap! sort-manager #(assoc % (apply str headers) true))
   [:> rn/SectionList
    {:sections
-    (clj->js items)
+    (clj->js (if (and (not-empty @header-sort) (get @sort-manager (apply str headers)))
+               (let [ordered-sort-list (sort-by (fn [sort-value]
+                                                  (:order (last sort-value)))
+                                                @header-sort)
+                     column-sort-list (mapv (fn [[k v]]
+                                              (let [sort-criteria (get-in headers [k :sort-fn])]
+                                                #(sort-by sort-criteria (if (:val v) < >) %)))
+                                            ordered-sort-list)]
+                 (mapv (fn [section]
+                         (update section
+                                 :data
+                                 (fn [section-data]
+                                   (reduce #(%2 %1) section-data column-sort-list))))
+                       items))
+               items))
 
     :render-section-header
     (fn [section]
       (let [clj-section       (clojure.walk/keywordize-keys (js->clj section))
             clj-section-title (-> clj-section :section :title)]
         (r/as-element
-         [:> rn/View {:style {:background-color (:surface-100 @palette)}}
+         [:> rn/View
           (text/default-text clj-section-title
                              {:font-size  20
                               :padding    10})
-          [:> rn/View {:style {:flex-direction :row}}
-           (map (fn [index header flex]
-                  (text/default-text header {:flex      flex
-                                             :font-size 16
-                                             :text-align (when (not= 1 index) :center)}))
-                (range 1 (inc (count flex-vals)))
+          [:> rn/View {:style {:flex-direction :row :background-color (:surface-100 @palette)}}
+           (map (fn [[header-key header-data] flex]
+                  [:> rn/Pressable {:style {:flex flex}
+                                    :on-press #(toggle-header-sort header-key)}
+                   (text/default-text (:header header-data))
+                   (let [header-toggle-val (:val (get @header-sort header-key))]
+                     (case header-toggle-val
+                       true [:> FontAwesome5 {:name :chevron-up :color (:surface-700 @palette) :size 10}]
+                       false [:> FontAwesome5 {:name :chevron-down :color (:surface-700 @palette) :size 10}]
+                       nil))])
                 headers
                 flex-vals)]
           (section-separator)])))
@@ -75,14 +108,30 @@
   [{:keys [items headers flex-vals row-constructor]}]
   [:> rn/FlatList
    {:data
-    (clj->js items)
+    (clj->js (if (and (not-empty @header-sort) (get @sort-manager (apply str headers)))
+               (let [ordered-sort-list (sort-by (fn [sort-value]
+                                                  (:order (last sort-value)))
+                                                @header-sort)
+                     column-sort-list (mapv (fn [[k v]]
+                                             (let [sort-criteria (get-in headers [k :sort-fn])]
+                                               #(sort-by sort-criteria (if (:val v) < >) %)))
+                                           ordered-sort-list)]
+                 (reduce #(%2 %1) items column-sort-list))
+               items))
 
     :ListHeaderComponent
     (fn []
       (r/as-element
        [:> rn/View {:style {:flex-direction :row :background-color (:surface-100 @palette)}}
-        (map (fn [header flex]
-               (text/default-text header {:flex flex}))
+        (map (fn [[header-key header-data] flex]
+               [:> rn/Pressable {:style {:flex flex}
+                                 :on-press #(toggle-header-sort header-key)}
+                (text/default-text (:header header-data))
+                (let [header-toggle-val (:val (get @header-sort header-key))]
+                  (case header-toggle-val
+                    true [:> FontAwesome5 {:name :chevron-up :color (:surface-700 @palette) :size 10}]
+                    false [:> FontAwesome5 {:name :chevron-down :color (:surface-700 @palette) :size 10}]
+                    nil))])
              headers
              flex-vals)]))
 
