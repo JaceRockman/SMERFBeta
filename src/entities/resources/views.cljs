@@ -3,10 +3,11 @@
             [reagent.core :as r]
             ["react-native" :as rn]
             [datascript.core :as ds]
+            ["@expo/vector-icons" :refer [FontAwesome5]]
             [entities.campaigns.data.interface :as campaign-data]
             [entities.resources.data.interface :as resource-data]
             [entities.actions.views :refer [action-list]]
-            [organisms.config :refer [screen-width]]
+            [organisms.config :refer [palette screen-width]]
             [organisms.library :as components]))
 
 (defn resource-flex-vals
@@ -201,11 +202,16 @@
 
 (def creature-resource-list-filters
   (r/atom
-   {"Equipment" ['?resource-id :resource/type "Equipment"]
-    "Trait" ['?resource-id :resource/type "Trait"]
-    "Expertise" ['?resource-id :resource/type "Expertise"]
-    "Affiliation" ['?resource-id :resource/type "Affiliation"]
-    "Item" ['?resource-id :resource/type "Item"]}))
+   {"Equipment"   {:icon   :fist-raised
+                   :filter ['?resource-id :resource/type "Equipment"]}
+    "Trait"       {:icon   :eye
+                   :filter ['?resource-id :resource/type "Trait"]}
+    "Expertise"   {:icon   :brain
+                   :filter ['?resource-id :resource/type "Expertise"]}
+    "Affiliation" {:icon   :user-friends
+                   :filter ['?resource-id :resource/type "Affiliation"]}
+    "Item"        {:icon   :suitcase
+                   :filter ['?resource-id :resource/type "Item"]}}))
 
 (def active-creature-resource-list-filters
   (r/atom []))
@@ -231,16 +237,19 @@
 
 (defn toggle-creature-resource-type-filter-button
   [resource-type]
-  [:> rn/Pressable {:on-press #(swap! active-creature-resource-list-filters
-                                      (fn [filters]
-                                        (if (some (fn [filter] (= resource-type filter)) filters)
-                                          (remove (fn [filter] (= resource-type filter)) filters)
-                                          (conj filters resource-type))))}
-   (components/default-text resource-type)])
+  (let [filter-on? (some (fn [filter] (= resource-type filter)) @active-creature-resource-list-filters)]
+    [:> rn/Pressable {:style {:background-color (when filter-on? (:surface-700 @palette))
+                              :align-items :center :width "20%"}
+                      :on-press #(swap! active-creature-resource-list-filters
+                                        (fn [filters]
+                                          (if filter-on?
+                                            (remove (fn [filter] (= resource-type filter)) filters)
+                                            (conj filters resource-type))))}
+     [:> FontAwesome5 {:name (get-in @creature-resource-list-filters [resource-type :icon]) :color (if filter-on? (:surface-100 @palette) (:surface-700 @palette)) :size 20}]]))
 
 (defn creature-resource-list-simple-filters
   []
-  [:> rn/View
+  [:> rn/View {:style {:flex-direction :row}}
    (toggle-creature-resource-type-filter-button "Equipment")
    (toggle-creature-resource-type-filter-button "Trait")
    (toggle-creature-resource-type-filter-button "Expertise")
@@ -262,7 +271,7 @@
   (let [where-vector (vec (concat [['?eid :entity-type "creature-resource"]]
                                   [['?eid :creature-resource/resource '?resource-id]]
                                   (when (not-empty @active-creature-resource-list-filters)
-                                    [(concat ['or] (vec (map #(get @creature-resource-list-filters %) @active-creature-resource-list-filters)))])))
+                                    [(concat ['or] (vec (map #(get-in @creature-resource-list-filters [% :filter]) @active-creature-resource-list-filters)))])))
         resource-ids (map first (ds/q {':find '[?eid]
                                        ':where where-vector}
                                       @conn))
