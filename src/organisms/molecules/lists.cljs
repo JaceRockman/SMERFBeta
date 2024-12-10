@@ -11,12 +11,22 @@
 (def header-sort
   (r/atom {}))
 
+(defn simplify-sort-order
+  []
+  (let [sorts-in-order (sort-by (fn [sort-value]
+                                  (:order (last sort-value)))
+                                @header-sort)]
+    (reset! header-sort
+            (into {}
+                  (map-indexed (fn [idx [k v]] [k (assoc v :order (inc idx))]) sorts-in-order)))))
+
 (defn toggle-header-sort
   [header-key]
-  (case (get-in @header-sort [header-key :val])
-    nil (swap! header-sort #(assoc % header-key {:val true :order (inc (count @header-sort))}))
-    true (swap! header-sort #(assoc-in % [header-key :val] false))
-    false (swap! header-sort #(dissoc % header-key))))
+  (case (get-in @header-sort [header-key :asc?])
+    nil (swap! header-sort #(assoc % header-key {:asc? true :order (inc (count @header-sort))}))
+    true (swap! header-sort #(assoc-in % [header-key :asc?] false))
+    false (do (swap! header-sort #(dissoc % header-key))
+              (simplify-sort-order))))
 
 (defn section-separator
   []
@@ -44,13 +54,13 @@
                                                 @header-sort)
                      column-sort-list (mapv (fn [[k v]]
                                               (let [sort-criteria (get-in headers [k :sort-fn])]
-                                                #(sort-by sort-criteria (if (:val v) < >) %)))
+                                                #(sort-by sort-criteria (if (:asc? v) < >) %)))
                                             ordered-sort-list)]
                  (mapv (fn [section]
                          (update section
                                  :data
                                  (fn [section-data]
-                                   (reduce #(%2 %1) section-data column-sort-list))))
+                                   (reduce #(%2 %1) section-data (reverse column-sort-list)))))
                        items))
                items))
 
@@ -65,13 +75,17 @@
                               :padding    10})
           [:> rn/View {:style {:flex-direction :row :background-color (:surface-100 @palette)}}
            (map (fn [[header-key header-data] flex]
-                  [:> rn/Pressable {:style {:flex flex}
+                  [:> rn/Pressable {:style {:flex flex :flex-direction :row}
                                     :on-press #(toggle-header-sort header-key)}
                    (text/default-text (:header header-data))
-                   (let [header-toggle-val (:val (get @header-sort header-key))]
-                     (case header-toggle-val
-                       true [:> FontAwesome5 {:name :chevron-up :color (:surface-700 @palette) :size 10}]
-                       false [:> FontAwesome5 {:name :chevron-down :color (:surface-700 @palette) :size 10}]
+                   (let [{:keys [asc? order]} (get @header-sort header-key)]
+                     (case asc?
+                       true [:> rn/View
+                             [:> FontAwesome5 {:name :chevron-up :color (:surface-700 @palette) :size 10}]
+                             (text/default-text order)]
+                       false [:> rn/View
+                              [:> FontAwesome5 {:name :chevron-down :color (:surface-700 @palette) :size 10}]
+                              (text/default-text order)]
                        nil))])
                 headers
                 flex-vals)]
@@ -114,7 +128,7 @@
                                                 @header-sort)
                      column-sort-list (mapv (fn [[k v]]
                                              (let [sort-criteria (get-in headers [k :sort-fn])]
-                                               #(sort-by sort-criteria (if (:val v) < >) %)))
+                                               #(sort-by sort-criteria (if (:asc? v) < >) %)))
                                            ordered-sort-list)]
                  (reduce #(%2 %1) items column-sort-list))
                items))
@@ -127,7 +141,7 @@
                [:> rn/Pressable {:style {:flex flex}
                                  :on-press #(toggle-header-sort header-key)}
                 (text/default-text (:header header-data))
-                (let [header-toggle-val (:val (get @header-sort header-key))]
+                (let [header-toggle-val (:asc? (get @header-sort header-key))]
                   (case header-toggle-val
                     true [:> FontAwesome5 {:name :chevron-up :color (:surface-700 @palette) :size 10}]
                     false [:> FontAwesome5 {:name :chevron-down :color (:surface-700 @palette) :size 10}]
