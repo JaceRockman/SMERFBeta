@@ -89,7 +89,7 @@
   [{:keys [list-header column-flex-vals column-headers
            collapsed?
            items item-format-fn new-item-fn
-           search-filter-sort-component]}
+           search-filter-sort-component sort-manager]}
    component-key]
   (when (not (nil? collapsed?)) (swap! collapse-state #(assoc % component-key collapsed?)))
   (let [header-text (text/default-text list-header
@@ -119,4 +119,5 @@
                                     column-headers))
                       column-headers)
            :flex-vals column-flex-vals
-           :row-constructor item-format-fn})))]))
+           :row-constructor item-format-fn
+           :sort-manager sort-manager})))]))

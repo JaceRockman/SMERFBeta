@@ -245,7 +245,9 @@
                                           (if filter-on?
                                             (remove (fn [filter] (= resource-type filter)) filters)
                                             (conj filters resource-type))))}
-     [:> FontAwesome5 {:name (get-in @creature-resource-list-filters [resource-type :icon]) :color (if filter-on? (:surface-100 @palette) (:surface-700 @palette)) :size 20}]]))
+     [:> FontAwesome5 {:name (get-in @creature-resource-list-filters [resource-type :icon])
+                       :color (if filter-on? (:surface-100 @palette) (:surface-700 @palette))
+                       :size 20}]]))
 
 (defn creature-resource-list-simple-filters
   []
@@ -256,22 +258,21 @@
    (toggle-creature-resource-type-filter-button "Affiliation")
    (toggle-creature-resource-type-filter-button "Item")])
 
-(defn creature-resource-list-column-sort
-  [flex-vals])
-
 (defn creature-resource-list-search-filter-sort-component
   [flex-vals]
   [:> rn/View {:style {:flex "auto"}}
    (creature-resource-list-search)
-   (creature-resource-list-simple-filters)
-   (creature-resource-list-column-sort flex-vals)])
+   (creature-resource-list-simple-filters)])
 
 (defn creature-resource-list-query
   [conn]
-  (let [where-vector (vec (concat [['?eid :entity-type "creature-resource"]]
-                                  [['?eid :creature-resource/resource '?resource-id]]
-                                  (when (not-empty @active-creature-resource-list-filters)
-                                    [(concat ['or] (vec (map #(get-in @creature-resource-list-filters [% :filter]) @active-creature-resource-list-filters)))])))
+  (let [where-vector
+        (vec (concat [['?eid :entity-type "creature-resource"]]
+                     [['?eid :creature-resource/resource '?resource-id]]
+                     (when (not-empty @active-creature-resource-list-filters)
+                       [(concat ['or]
+                                (vec (map #(get-in @creature-resource-list-filters [% :filter])
+                                          @active-creature-resource-list-filters)))])))
         resource-ids (map first (ds/q {':find '[?eid]
                                        ':where where-vector}
                                       @conn))
@@ -325,6 +326,9 @@
        (components/default-text power-value {:flex (nth flex-vals 2) :font-size 16 :text-align :center})
        (creature-resource-quantity-column conn id (nth flex-vals 3))])))
 
+(def creature-resource-sort-manager
+  (r/atom {:title {:asc? true :order 1}}))
+
 (defn creature-resource-list-2
   [conn creature-id]
   (let [flex-vals      (resource-flex-vals creature-id)
@@ -336,6 +340,7 @@
       :items            (creature-resource-list-query conn)
       :item-format-fn   (creature-resource conn)
       :new-item-fn      #(create-new-resource conn)
+      :sort-manager     creature-resource-sort-manager
       :search-filter-sort-component
       (creature-resource-list-search-filter-sort-component flex-vals)}
      "resources")))

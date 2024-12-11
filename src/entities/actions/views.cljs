@@ -1,5 +1,8 @@
 (ns entities.actions.views
-  (:require [clojure.math :as math]
+  (:require [clojure.string :as str]
+            [clojure.math :as math]
+            [datascript.core :as ds]
+            ["@expo/vector-icons" :refer [FontAwesome5]]
             [reagent.core :as r]
             ["react-native" :as rn]
             [entities.campaigns.data.interface :as campaign-data]
@@ -53,19 +56,14 @@
         (action-data/set-selected-ability conn action-id (name (:power-key item)))
         (action-data/set-selected-ability-domain conn action-id (:domain-id item))))))
 
-(defn sort-resources-by-type
-  [resources]
-  (let [type-section-from-resources (fn [type resources]
-                                      (let [resource-type-section-data (filter #(= type (:resource/type %))
-                                                                               resources)]
-                                        (when-not (empty? resource-type-section-data)
-                                          {:title type :data resource-type-section-data})))
-        equipment (type-section-from-resources "Equipment" resources)
-        traits (type-section-from-resources "Trait" resources)
-        expertise (type-section-from-resources "Expertise" resources)
-        affiliations (type-section-from-resources "Affiliation" resources)
-        items (type-section-from-resources "Item" resources)]
-    (remove nil? [equipment traits expertise affiliations items])))
+
+
+
+
+
+(defn new-resource
+  []
+  (components/hide-modal-content))
 
 (defn resource
   [conn flex-vals action-id selected-resources]
@@ -79,9 +77,115 @@
      (components/default-text quality-value {:flex (nth flex-vals 1) :font-size 16})
      (components/default-text power-value {:flex (nth flex-vals 2) :font-size 16})]))
 
-(defn new-resource
+
+
+(def external-search-text (r/atom {"action-resources" (r/atom "")}))
+
+(defn action-resource-search-fn
+  [creature-resources component-key]
+  (filter #(str/includes?
+            (str/lower-case (apply str (vals %)))
+            (str/lower-case
+             (if-let [search-text-atom (get @external-search-text component-key)]
+               (deref search-text-atom)
+               "")))
+          creature-resources))
+
+(defn action-resource-list-search
   []
-  (components/hide-modal-content))
+  (components/search-bar external-search-text "action-resources"))
+
+(def resource-multiselect-column-headers
+  {:title {:header "Title"
+           :sort-fn #(get % :title)}
+   :quality {:header "Quality"
+             :sort-fn #(get % :resource/quality-value)}
+   :power {:header "Power"
+           :sort-fn #(get % :resource/power-value)}})
+
+(def action-resource-list-filters
+  (r/atom
+   {"Equipment"   {:icon   :fist-raised
+                   :filter ['?resource-id :resource/type "Equipment"]}
+    "Trait"       {:icon   :eye
+                   :filter ['?resource-id :resource/type "Trait"]}
+    "Expertise"   {:icon   :brain
+                   :filter ['?resource-id :resource/type "Expertise"]}
+    "Affiliation" {:icon   :user-friends
+                   :filter ['?resource-id :resource/type "Affiliation"]}
+    "Item"        {:icon   :suitcase
+                   :filter ['?resource-id :resource/type "Item"]}}))
+
+(def active-action-resource-list-filters
+  (r/atom []))
+
+(defn type-section-from-resources
+  [type resources]
+  (let [resource-type-section-data (filter #(= type (:resource/type %))
+                                           resources)]
+    (when-not (empty? resource-type-section-data)
+      {:title type :data resource-type-section-data})))
+
+(defn sort-resources-by-type
+  [resources]
+  (let [equipment (type-section-from-resources "Equipment" resources)
+        traits (type-section-from-resources "Trait" resources)
+        expertise (type-section-from-resources "Expertise" resources)
+        affiliations (type-section-from-resources "Affiliation" resources)
+        items (type-section-from-resources "Item" resources)]
+    (remove nil? [equipment traits expertise affiliations items])))
+
+(def action-resource-list-sorts
+  (r/atom [sort-resources-by-type]))
+
+(defn toggle-action-resource-type-filter-button
+  [resource-type]
+  (let [filter-on? (some (fn [filter] (= resource-type filter)) @active-action-resource-list-filters)]
+    [:> rn/Pressable {:style {:background-color (when filter-on? (:surface-700 @palette))
+                              :align-items :center :width "20%"}
+                      :on-press #(swap! active-action-resource-list-filters
+                                        (fn [filters]
+                                          (if filter-on?
+                                            (remove (fn [filter] (= resource-type filter)) filters)
+                                            (conj filters resource-type))))}
+     [:> FontAwesome5 {:name (get-in @action-resource-list-filters [resource-type :icon])
+                       :color (if filter-on? (:surface-100 @palette) (:surface-700 @palette))
+                       :size 20}]]))
+
+(defn action-resource-list-simple-filters
+  []
+  [:> rn/View {:style {:flex-direction :row}}
+   (toggle-action-resource-type-filter-button "Equipment")
+   (toggle-action-resource-type-filter-button "Trait")
+   (toggle-action-resource-type-filter-button "Expertise")
+   (toggle-action-resource-type-filter-button "Affiliation")
+   (toggle-action-resource-type-filter-button "Item")])
+
+(defn action-resource-list-search-filter-sort-component
+  [flex-vals]
+  [:> rn/View {:style {:flex "auto"}}
+   (action-resource-list-search)
+   (action-resource-list-simple-filters)])
+
+(defn resource-multiselect-list-query
+  [conn]
+  (let [where-vector
+        (vec (concat [['?resource-id :entity-type "resource"]]
+                     (when (not-empty @active-action-resource-list-filters)
+                       [(concat ['or]
+                                (vec (map #(get-in @action-resource-list-filters [% :filter])
+                                          @active-action-resource-list-filters)))])))
+        _ (println where-vector)
+        resource-ids (map first (ds/q {':find '[?resource-id]
+                                       ':where where-vector}
+                                      @conn))
+        resources (ds/pull-many @conn '[*] resource-ids)]
+    (reduce #(%2 %1)
+            (action-resource-search-fn resources "resources")
+            @action-resource-list-sorts)))
+
+(def action-resource-sort-manager
+  (r/atom {:title {:asc? true :order 1}}))
 
 (defn resource-multi-select
   [conn action-id resources]
@@ -89,13 +193,14 @@
         selected-resources (action-data/get-selected-resources conn action-id)]
     [:> rn/View {:style {:width (screen-width) :flex 1}}
      (components/default-text "Select Resources" {:font-size 24 :text-align :center})
-     (components/search-filter-sort-list
-      {:items            resources
-       :new-item-fn      new-resource
-       :column-headers   ["Title" "Quality" "Power"]
+     (components/search-filter-sort-list-2
+      {:list-header      "Resources"
        :column-flex-vals flex-vals
+       :column-headers   resource-multiselect-column-headers
+       :items            (resource-multiselect-list-query conn)
        :item-format-fn   (fn [resource-data] ((resource conn flex-vals action-id selected-resources) resource-data))
-       :section-sort-fns [sort-resources-by-type]}
+       :search-filter-sort-component (action-resource-list-search-filter-sort-component flex-vals)
+       :sort-manager     action-resource-sort-manager}
       "resources")]))
 
 (defn roll-modifiers-tab
@@ -103,7 +208,8 @@
   [:> rn/View {:style {:width (screen-width) :flex 1 :gap 20 :padding-bottom 20}}
    (components/default-text "Circumstantial Modifiers" {:font-size 24 :text-align :center :flex 0})
    [:> rn/View
-    (components/default-text (str "Dice Modifier: " (action-data/get-dice-modifier conn action-id)) {:flex 0 :text-align :center :font-size 20})
+    (components/default-text (str "Dice Modifier: " (action-data/get-dice-modifier conn action-id))
+                             {:flex 0 :text-align :center :font-size 20})
     [:> rn/View {:style {:flex-direction :row :justify-content :space-evenly}}
      (components/decrementor-and-incrementor "Penalties"
                                              (action-data/get-dice-penalties conn action-id)
@@ -114,7 +220,8 @@
                                              #(action-data/update-dice-bonuses conn action-id dec)
                                              #(action-data/update-dice-bonuses conn action-id inc))]]
    [:> rn/View
-    (components/default-text (str "Flat Modifier: " (action-data/get-flat-modifier conn action-id)) {:flex 0 :text-align :center :font-size 20})
+    (components/default-text (str "Flat Modifier: " (action-data/get-flat-modifier conn action-id))
+                             {:flex 0 :text-align :center :font-size 20})
     [:> rn/View {:style {:flex-direction :row :justify-content :space-evenly}}
      (components/decrementor-and-incrementor "Penalties"
                                   (action-data/get-flat-penalties conn action-id)

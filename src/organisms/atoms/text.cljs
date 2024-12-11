@@ -5,7 +5,7 @@
 (def default-text-style
   {:flex 1
    :color (:surface-700 @palette)
-   :font-size 18})
+   :font-size "100%"})
 
 (def view-header-text-style
   {:text-align :center
