@@ -15,6 +15,8 @@
 (def get-quantity-from-creature-resource core/get-quantity-from-creature-resource)
 (def get-creature-resource-quantity core/get-creature-resource-quantity)
 
+(def add-creature-resource core/add-creature-resource)
+
 (def update-resource)
 
 (def delete-resource)

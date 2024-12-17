@@ -163,22 +163,23 @@
   (reset! components/modal-content
           {:display? true :fn new-resource-modal :args [conn] :close-fn #(reset! components/text-input-map {})}))
 
-(defn resource-list [conn {:keys [resources header on-press-override item-style]}]
+(defn resource-list
+  [conn {:keys [resources header on-press-override item-style]}]
   (let [flex-vals [3 1 2]]
-    (components/search-filter-sort-list
+    (components/search-filter-sort-list-2
      {:list-header      header
+      :column-flex-vals flex-vals
+      :column-headers   ["Title" "Quality" "Power"]
       :items            (if (:resource-quantity resources)
                           resources
                           (map (fn [resource-data] {:resource-data resource-data}) resources))
-      :new-item-fn      #(create-new-resource conn)
-      :column-headers   ["Title" "Quality" "Power"]
-      :column-flex-vals flex-vals
       :item-format-fn   (fn [resource-data]
                           ((resource conn {:flex-vals flex-vals
                                            :on-press-override on-press-override
                                            :style item-style})
                            resource-data))
-      :section-sort-fns [sort-resources-by-type]}
+      :new-item-fn      #(create-new-resource conn)
+      :search-filter-sort-component [:> rn/View]}
      "resources")))
 
 
@@ -308,11 +309,24 @@
     [:> rn/View {:style {:flex flex-size}}
      (components/decrementor-and-incrementor nil quantity dec-quantity inc-quantity)]))
 
+(defn resource-add
+  [conn creature-id]
+  (fn [{:keys [title quality-value power-value id] :as resource}]
+    (let [flex-vals (resource-flex-vals true)]
+      [:> rn/Pressable
+       {:style    {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}
+        :on-press (fn []
+                    (resource-data/add-creature-resource conn creature-id id))}
+       (components/default-text title {:flex (nth flex-vals 0) :font-size 16})
+       (components/default-text quality-value {:flex (nth flex-vals 1) :font-size 16 :text-align :center})
+       (components/default-text power-value {:flex (nth flex-vals 2) :font-size 16 :text-align :center})])))
+
 (defn creature-resource
   [conn]
   (fn [{id                                                     :id
         {:keys [title quality-value power-value] :as resource} :resource
-        quantity                                               :quantity}]
+        quantity                                               :quantity
+        :as stuff}]
     (let [flex-vals (resource-flex-vals true)]
       [:> rn/Pressable
        {:style    {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}
@@ -329,6 +343,21 @@
 (def creature-resource-sort-manager
   (r/atom {:title {:asc? true :order 1}}))
 
+(defn add-resource-to-creature
+  [conn creature-id]
+  (let [flex-vals      (resource-flex-vals false)
+        column-headers (resource-column-headers false)]
+    (components/search-filter-sort-list-2
+     {:list-header      "Resources"
+      :column-flex-vals flex-vals
+      :column-headers   column-headers
+      :items            (resource-data/get-all-resources conn)
+      :item-format-fn   (resource-add conn creature-id)
+      :new-item-fn      #(create-new-resource conn)
+      :sort-manager     creature-resource-sort-manager
+      :search-filter-sort-component [:> rn/View]}
+     "resources")))
+
 (defn creature-resource-list-2
   [conn creature-id]
   (let [flex-vals      (resource-flex-vals creature-id)
@@ -339,7 +368,10 @@
       :column-headers   column-headers
       :items            (creature-resource-list-query conn)
       :item-format-fn   (creature-resource conn)
-      :new-item-fn      #(create-new-resource conn)
+      :new-item-fn      #(reset! components/modal-content
+                                 {:display? true
+                                  :fn add-resource-to-creature
+                                  :args [conn creature-id]})
       :sort-manager     creature-resource-sort-manager
       :search-filter-sort-component
       (creature-resource-list-search-filter-sort-component flex-vals)}

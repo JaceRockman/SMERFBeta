@@ -16,6 +16,8 @@
 (def get-creature-resource-resources core/get-creature-resource-resources)
 (def get-creature-actions core/get-creature-actions)
 
+
+
 (def update-creature)
 (def update-wound-value core/update-wound-value)
 

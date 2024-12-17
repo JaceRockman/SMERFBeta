@@ -73,7 +73,8 @@
                                   column-headers))
                     column-headers)
          :flex-vals column-flex-vals
-         :row-constructor item-format-fn}))]))
+         :row-constructor item-format-fn
+         :sort-manager (r/atom {:title {:asc? true :order 1}})}))]))
 
 (defn list-collapse-button
   [component-key header-text]
@@ -84,6 +85,9 @@
                    header-text
                    [:> rn/View {:style {:padding-left 5}}
                     [:> FontAwesome5 {:name (if (get @collapse-state component-key) :chevron-down :chevron-up) :color (:surface-700 @palette) :size 20}]]]))
+
+(def default-sort-manager
+  (r/atom {:title {:asc? true :order 1}}))
 
 (defn search-filter-sort-list-2
   [{:keys [list-header column-flex-vals column-headers
@@ -109,7 +113,7 @@
                              :on-press new-item-fn}
             [:> FontAwesome5 {:name :plus :color (:surface-700 @palette) :size 20}]])]])
      (when-not (get @collapse-state component-key)
-       (let [list-function (if (:title (first items)) SectionList FlatList)]
+       (let [list-function (if (:data (first items)) SectionList FlatList)]
          (list-function
           {:items items
            :headers (if (string? (first column-headers))
@@ -120,4 +124,4 @@
                       column-headers)
            :flex-vals column-flex-vals
            :row-constructor item-format-fn
-           :sort-manager sort-manager})))]))
+           :sort-manager (or sort-manager default-sort-manager)})))]))

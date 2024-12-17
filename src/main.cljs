@@ -20,8 +20,7 @@
                                                   :db/valueType :db.type/ref
                                                   :db/isComponent true}
                                ;; :creature/resources {:db/cardinality :db.cardinality/many
-                                                    ;; :db/valueType :db.type/ref
-                                                    ;; :db/isComponent true}
+                                                    ;; :db/valueType :db.type/ref}
                                :creature-resource/resource {:db/cardinality :db.cardinality/one
                                                             :db/valueType :db.type/ref
                                                             :db/isComponent true}}))

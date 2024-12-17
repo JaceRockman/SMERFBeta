@@ -466,7 +466,7 @@
 
 (defn get-creature-resource
   [conn creature-resource-id]
-  (ds/entity conn creature-resource-id))
+  (ds/entity @conn creature-resource-id))
 
 (defn get-creature-resource-quantity
   [conn resource-id creature-id]
@@ -496,3 +496,13 @@
                        (update-fn current-quantity))]
     (ds/transact! conn [{:db/id creature-resource-id
                          :creature-resource/quantity new-quantity}])))
+
+(defn add-creature-resource
+  [conn creature-id resource-id]
+  (let [creature-resource-id (inc (:max-eid @conn))]
+    (ds/transact! conn [{:db/id creature-resource-id
+                       :entity-type "creature-resource"
+                       :creature-resource/resource resource-id
+                       :creature-resource/quantity 1}
+                      {:db/id creature-id
+                       :creature/resources [creature-resource-id]}])))
