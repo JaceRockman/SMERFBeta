@@ -73,7 +73,7 @@
                                   column-headers))
                     column-headers)
          :flex-vals column-flex-vals
-         :row-constructor item-format-fn
+         :item-format-fn item-format-fn
          :sort-manager (r/atom {:title {:asc? true :order 1}})}))]))
 
 (defn list-collapse-button
@@ -87,7 +87,7 @@
                     [:> FontAwesome5 {:name (if (get @collapse-state component-key) :chevron-down :chevron-up) :color (:surface-700 @palette) :size 20}]]]))
 
 (def default-sort-manager
-  (r/atom {:title {:asc? true :order 1}}))
+  (r/atom {"Title" {:asc? true :order 1}}))
 
 (defn search-filter-sort-list-2
   [{:keys [list-header column-flex-vals column-headers
@@ -123,5 +123,5 @@
                                     column-headers))
                       column-headers)
            :flex-vals column-flex-vals
-           :row-constructor item-format-fn
+           :item-format-fn item-format-fn
            :sort-manager (or sort-manager default-sort-manager)})))]))

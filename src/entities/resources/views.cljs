@@ -16,21 +16,26 @@
     [3 1 1 2]
     [3 1 1]))
 
-(defn resource-column-headers
-  [creature?]
-  (if creature?
-    {:title {:header "Title"
-             :sort-fn #(get-in % [:creature-resource/resource :title])}
-     :quality {:header "Quality"
+(def creature-resource-column-headers
+  {"Title"    {:header  "Title"
+               :sort-fn #(get-in % [:creature-resource/resource :title])}
+   "Quality"  {:header  "Quality"
                :sort-fn #(get-in % [:creature-resource/resource :resource/quality-value])}
-     :power {:header "Power"
-             :sort-fn #(get-in % [:creature-resource/resource :resource/power-value])}
-     :quantity {:header "Quantity"
-                :sort-fn #(get % :creature-resource/quantity)}}
-    ["Title" "Quality" "Power"]))
+   "Power"    {:header  "Power"
+               :sort-fn #(get-in % [:creature-resource/resource :resource/power-value])}
+   "Quantity" {:header  "Quantity"
+               :sort-fn #(get % :creature-resource/quantity)}})
+
+(def resource-column-headers
+  {"Title"   {:header  "Title"
+              :sort-fn #(get % :title)}
+   "Quality" {:header  "Quality"
+              :sort-fn #(get % :resource/quality-value)}
+   "Power"   {:header  "Power"
+              :sort-fn #(get % :resource/power-value)}})
 
 (defn resource-modal
-  [conn id quantity]
+  [conn id]
   (let [resource (resource-data/get-resource conn id)]
     [:> rn/View {:style {:height "100%"}}
      (components/default-text (:title resource) {:font-size 24})
@@ -38,7 +43,6 @@
      (components/default-text (:resource/description resource))
      (components/default-text (str (:resource/quality-title resource) ": " (:resource/quality-value resource)))
      (components/default-text (str (:resource/power-title resource) ": " (:resource/power-value resource)))
-     (components/default-text (str "Quantity: " (or quantity 0)))
      (action-list conn {:id (:db/id resource)
                         :actions (resource-data/get-resource-actions conn (:db/id resource))
                         :header "Actions"
@@ -52,27 +56,22 @@
      (components/decrementor-and-incrementor nil quantity dec-quantity inc-quantity)]))
 
 (defn resource
-  ([conn] (resource conn {}))
-  ([conn {:keys [flex-vals on-press-override style]}]
-   (fn [{:keys [resource-quantity creature-resource-id creature-id]
-         {:keys [id title quality-value power-value]} :resource-data}]
+  [conn flex-vals]
+  (fn [{:keys [id title quality-value power-value]}]
      [:> rn/Pressable
-      {:style (merge {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"} style)
-       :on-press (or on-press-override
-                     (fn []
-                       (reset! components/modal-content
-                               {:display? true
-                                :fn resource-modal
-                                :args [conn id resource-quantity]})))}
+      {:style    {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}
+       :on-press (fn []
+                   (reset! components/modal-content
+                           {:display? true
+                            :fn       resource-modal
+                            :args     [conn id]}))}
       (components/default-text title {:flex (nth flex-vals 0) :font-size 16})
       (components/default-text quality-value {:flex (nth flex-vals 1) :font-size 16 :text-align :center})
-      (components/default-text power-value {:flex (nth flex-vals 2) :font-size 16 :text-align :center})
-      (when (= 4 (count flex-vals))
-        (resource-quantity-column conn creature-resource-id resource-quantity (nth flex-vals 3)))])))
+      (components/default-text power-value {:flex (nth flex-vals 2) :font-size 16 :text-align :center})]))
 
 (defn type-section-from-resources
   [type resources]
-  (let [resource-type-section-data (filter #(= type (:resource/type (:resource-data %)))
+  (let [resource-type-section-data (filter #(= type (:resource/type %))
                                            resources)]
     (when-not (empty? resource-type-section-data)
       {:title type :data resource-type-section-data})))
@@ -163,24 +162,7 @@
   (reset! components/modal-content
           {:display? true :fn new-resource-modal :args [conn] :close-fn #(reset! components/text-input-map {})}))
 
-(defn resource-list
-  [conn {:keys [resources header on-press-override item-style]}]
-  (let [flex-vals [3 1 2]]
-    (components/search-filter-sort-list-2
-     {:list-header      header
-      :column-flex-vals flex-vals
-      :column-headers   ["Title" "Quality" "Power"]
-      :items            (if (:resource-quantity resources)
-                          resources
-                          (map (fn [resource-data] {:resource-data resource-data}) resources))
-      :item-format-fn   (fn [resource-data]
-                          ((resource conn {:flex-vals flex-vals
-                                           :on-press-override on-press-override
-                                           :style item-style})
-                           resource-data))
-      :new-item-fn      #(create-new-resource conn)
-      :search-filter-sort-component [:> rn/View]}
-     "resources")))
+
 
 
 
@@ -201,20 +183,19 @@
   []
   (components/search-bar external-search-text "resources"))
 
-(def creature-resource-list-filters
-  (r/atom
-   {"Equipment"   {:icon   :fist-raised
-                   :filter ['?resource-id :resource/type "Equipment"]}
-    "Trait"       {:icon   :eye
-                   :filter ['?resource-id :resource/type "Trait"]}
-    "Expertise"   {:icon   :brain
-                   :filter ['?resource-id :resource/type "Expertise"]}
-    "Affiliation" {:icon   :user-friends
-                   :filter ['?resource-id :resource/type "Affiliation"]}
-    "Item"        {:icon   :suitcase
-                   :filter ['?resource-id :resource/type "Item"]}}))
+(def resource-filters
+  {"Equipment"   {:icon   :fist-raised
+                  :filter ['?resource-id :resource/type "Equipment"]}
+   "Trait"       {:icon   :eye
+                  :filter ['?resource-id :resource/type "Trait"]}
+   "Expertise"   {:icon   :brain
+                  :filter ['?resource-id :resource/type "Expertise"]}
+   "Affiliation" {:icon   :user-friends
+                  :filter ['?resource-id :resource/type "Affiliation"]}
+   "Item"        {:icon   :suitcase
+                  :filter ['?resource-id :resource/type "Item"]}})
 
-(def active-creature-resource-list-filters
+(def active-resource-filters
   (r/atom []))
 
 (defn type-section-from-creature-resources
@@ -238,15 +219,15 @@
 
 (defn toggle-creature-resource-type-filter-button
   [resource-type]
-  (let [filter-on? (some (fn [filter] (= resource-type filter)) @active-creature-resource-list-filters)]
+  (let [filter-on? (some (fn [filter] (= resource-type filter)) @active-resource-filters)]
     [:> rn/Pressable {:style {:background-color (when filter-on? (:surface-700 @palette))
                               :align-items :center :width "20%"}
-                      :on-press #(swap! active-creature-resource-list-filters
+                      :on-press #(swap! active-resource-filters
                                         (fn [filters]
                                           (if filter-on?
                                             (remove (fn [filter] (= resource-type filter)) filters)
                                             (conj filters resource-type))))}
-     [:> FontAwesome5 {:name (get-in @creature-resource-list-filters [resource-type :icon])
+     [:> FontAwesome5 {:name (get-in resource-filters [resource-type :icon])
                        :color (if filter-on? (:surface-100 @palette) (:surface-700 @palette))
                        :size 20}]]))
 
@@ -270,16 +251,17 @@
   (let [where-vector
         (vec (concat [['?eid :entity-type "creature-resource"]]
                      [['?eid :creature-resource/resource '?resource-id]]
-                     (when (not-empty @active-creature-resource-list-filters)
+                     (when (not-empty @active-resource-filters)
                        [(concat ['or]
-                                (vec (map #(get-in @creature-resource-list-filters [% :filter])
-                                          @active-creature-resource-list-filters)))])))
+                                (vec (map #(get-in resource-filters [% :filter])
+                                          @active-resource-filters)))])))
         resource-ids (map first (ds/q {':find '[?eid]
                                        ':where where-vector}
                                       @conn))
-        resources (ds/pull-many @conn '[*] resource-ids)]
+        resources (ds/pull-many @conn '[*] resource-ids)
+        search-applied-resources (creature-resource-search-fn resources "resources")]
     (reduce #(%2 %1)
-            (creature-resource-search-fn resources "resources")
+            search-applied-resources
             @creature-resource-list-sorts)))
 
 (defn creature-resource-modal
@@ -322,66 +304,109 @@
        (components/default-text power-value {:flex (nth flex-vals 2) :font-size 16 :text-align :center})])))
 
 (defn creature-resource
-  [conn]
+  [conn flex-vals]
   (fn [{id                                                     :id
         {:keys [title quality-value power-value] :as resource} :resource
         quantity                                               :quantity
         :as stuff}]
-    (let [flex-vals (resource-flex-vals true)]
-      [:> rn/Pressable
-       {:style    {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}
-        :on-press (fn []
-                    (reset! components/modal-content
-                            {:display? true
-                             :fn       creature-resource-modal
-                             :args     [conn resource quantity]}))}
-       (components/default-text title {:flex (nth flex-vals 0) :font-size 16})
-       (components/default-text quality-value {:flex (nth flex-vals 1) :font-size 16 :text-align :center})
-       (components/default-text power-value {:flex (nth flex-vals 2) :font-size 16 :text-align :center})
-       (creature-resource-quantity-column conn id (nth flex-vals 3))])))
+    [:> rn/Pressable
+     {:style    {:flex-direction :row :padding-top 10 :padding-bottom 10 :width "100%"}
+      :on-press (fn []
+                  (reset! components/modal-content
+                          {:display? true
+                           :fn       creature-resource-modal
+                           :args     [conn resource quantity]}))}
+     (components/default-text title {:flex (nth flex-vals 0) :font-size 16})
+     (components/default-text quality-value {:flex (nth flex-vals 1) :font-size 16 :text-align :center})
+     (components/default-text power-value {:flex (nth flex-vals 2) :font-size 16 :text-align :center})
+     (creature-resource-quantity-column conn id (nth flex-vals 3))]))
 
 (def creature-resource-sort-manager
-  (r/atom {:title {:asc? true :order 1}}))
+  (r/atom {"Title" {:asc? true :order 1}}))
 
-(defn add-resource-to-creature
-  [conn creature-id]
-  (let [flex-vals      (resource-flex-vals false)
-        column-headers (resource-column-headers false)]
+
+
+(defn resource-search-filter-query
+  [conn filters-manager]
+  (let [where-vector
+        (vec (concat [['?eid :entity-type "resource"]]
+                     (when (not-empty @filters-manager)
+                       [(concat ['or]
+                                (vec (map #(get-in resource-filters [% :filter])
+                                          @filters-manager)))])))
+        resource-ids (map first (ds/q {':find '[?eid]
+                                       ':where where-vector}
+                                      @conn))
+        resources (ds/pull-many @conn '[*] resource-ids)
+        search-applied-resources (creature-resource-search-fn resources "resources")]
+    (sort-resources-by-type search-applied-resources)))
+
+(defn add-resource-search-filter-sort-component
+  []
+  [:> rn/View {:style {:flex "auto"}}
+   (creature-resource-list-search)
+   (creature-resource-list-simple-filters)])
+
+(defn resource-list
+  [conn {:keys [search-filter-query item-format-fn new-item-fn
+                sort-manager sfs-component
+                quantity? list-key]}]
+  (let [flex-vals (resource-flex-vals quantity?)
+        headers   (if quantity?
+                    creature-resource-column-headers
+                    resource-column-headers)]
     (components/search-filter-sort-list-2
      {:list-header      "Resources"
       :column-flex-vals flex-vals
-      :column-headers   column-headers
-      :items            (resource-data/get-all-resources conn)
-      :item-format-fn   (resource-add conn creature-id)
-      :new-item-fn      #(create-new-resource conn)
-      :sort-manager     creature-resource-sort-manager
-      :search-filter-sort-component [:> rn/View]}
-     "resources")))
-
-(defn creature-resource-list-2
-  [conn creature-id]
-  (let [flex-vals      (resource-flex-vals creature-id)
-        column-headers (resource-column-headers creature-id)]
-    (components/search-filter-sort-list-2
-     {:list-header      "Resources"
-      :column-flex-vals flex-vals
-      :column-headers   column-headers
-      :items            (creature-resource-list-query conn)
-      :item-format-fn   (creature-resource conn)
-      :new-item-fn      #(reset! components/modal-content
-                                 {:display? true
-                                  :fn add-resource-to-creature
-                                  :args [conn creature-id]})
-      :sort-manager     creature-resource-sort-manager
+      :column-headers   headers
+      :items            (or search-filter-query
+                            (resource-search-filter-query conn (r/atom nil)))
+      :item-format-fn   (or item-format-fn
+                            (resource conn flex-vals))
+      :new-item-fn      (or new-item-fn
+                            #(create-new-resource conn))
+      :sort-manager     sort-manager
       :search-filter-sort-component
-      (creature-resource-list-search-filter-sort-component flex-vals)}
-     "resources")))
+      (or sfs-component
+          creature-resource-list-search)}
+     1)))
+
+(def add-resource-filters-manager
+  (r/atom nil))
+
+(defn add-resource-to-creature-list
+  [conn creature-id]
+  (let [flex-vals      (resource-flex-vals creature-id)]
+    (resource-list
+     conn
+     {:search-filter-query (resource-search-filter-query conn add-resource-filters-manager)
+      :item-format-fn      (resource-add conn creature-id)
+      :new-item-fn         #(create-new-resource conn)
+      :sfs-component       (add-resource-search-filter-sort-component)
+      :sort-manager        creature-resource-sort-manager
+      :quantity?           false
+      :list-key            (str "add-resource-list-" creature-id)})))
+
+(defn creature-resource-list
+  [conn creature-id]
+  (let [flex-vals      (resource-flex-vals creature-id)]
+    (resource-list 
+     conn
+     {:search-filter-query (creature-resource-list-query conn)
+      :item-format-fn      (creature-resource conn flex-vals)
+      :new-item-fn         #(reset! components/modal-content
+                                    {:display? true
+                                     :fn       add-resource-to-creature-list
+                                     :args     [conn creature-id]})
+      :sfs-component       (creature-resource-list-search-filter-sort-component flex-vals)
+      :sort-manager        creature-resource-sort-manager
+      :quantity?           true
+      :list-key            (str "creature-resource-list-" creature-id)})))
 
 (defn resources-main-page [conn]
   (let [resources (resource-data/get-all-resources conn)]
     [:> rn/View {:style {:flex :1 :width (screen-width) :align-items :center}}
-     (resource-list conn {:resources resources})]))
+     (resource-list conn {})]))
 
 (defn resources [conn ^js props]
   (components/view-frame conn (resources-main-page conn) "resources-page"))
-

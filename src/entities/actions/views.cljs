@@ -324,15 +324,14 @@
         default-resources (if active-campaign?
                             (campaign-data/get-active-campaign-resources conn)
                             (resources-data/get-all-resources conn))
-        flex-vals         [2 2]]
-    (components/search-filter-sort-list
+        flex-vals         [2 2 1]]
+    (components/search-filter-sort-list-2
      {:list-header      header
-      :collapsed?       collapsed?
-      :items            actions
-      :column-headers   ["Title" "Roll Value" "Start Roll"]
       :column-flex-vals flex-vals
-      :item-format-fn   (action-constructor conn flex-vals ruleset (or domains default-domains) (or resources default-resources))
-      :sort-fns         [sort-by-domain]}
+      :column-headers   ["Title" "Roll Value" "Start Roll"]
+      :collapsed?       collapsed?
+      :items            (sort-by-domain actions)
+      :item-format-fn   (action-constructor conn flex-vals ruleset (or domains default-domains) (or resources default-resources))}
      (str id "actions"))))
 
 (defn actions-details [conn]

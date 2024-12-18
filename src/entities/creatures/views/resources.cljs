@@ -6,4 +6,4 @@
 
 (defn resources [conn {:keys [:db/id]}]
   [:> rn/View {:style {:width (screen-width) :flex 1}}
-   (resources-view/creature-resource-list-2 conn id)])
+   (resources-view/creature-resource-list conn id)])

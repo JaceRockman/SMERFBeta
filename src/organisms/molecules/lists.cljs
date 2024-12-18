@@ -41,7 +41,7 @@
                                        :align-self       :center}}])))
 
 (defn SectionList
-  [{:keys [items headers flex-vals row-constructor sort-manager]}]
+  [{:keys [items headers flex-vals item-format-fn sort-manager]}]
   [:> rn/SectionList
    {:sections
     (clj->js (if (not-empty @sort-manager)
@@ -90,7 +90,7 @@
     :render-item
     (fn [js-item]
       (let [clj-item (js->clj (.-item js-item))]
-        (r/as-element (row-constructor (clojure.walk/keywordize-keys clj-item)))))
+        (r/as-element (item-format-fn (clojure.walk/keywordize-keys clj-item)))))
 
     #_:SectionSeparatorComponent
     #_(fn []
@@ -118,7 +118,7 @@
 
 
 (defn FlatList
-  [{:keys [items headers flex-vals row-constructor]}]
+  [{:keys [items headers flex-vals item-format-fn]}]
   [:> rn/FlatList
    {:data
     (clj->js (if (not-empty @sort-manager)
@@ -151,7 +151,7 @@
     :render-item
     (fn [js-item]
       (let [clj-item (js->clj (.-item js-item))]
-        (r/as-element (row-constructor (clojure.walk/keywordize-keys clj-item)))))
+        (r/as-element (item-format-fn (clojure.walk/keywordize-keys clj-item)))))
 
     :ItemSeparatorComponent
     (item-separator)

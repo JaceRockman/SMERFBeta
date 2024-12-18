@@ -10,13 +10,17 @@
             [entities.realms.data.interface :as realm-data]
             [organisms.library :as components]))
 
+
+
 (defn realm-select
   [conn realms]
+  (println "realm-select")
   (let [flex-vals [1 1]]
-    (components/search-filter-sort-list
-     {:items realms
-      :column-headers ["Title" "Owner"]
+    (components/search-filter-sort-list-2
+     {:list-header "Realms"
       :column-flex-vals flex-vals
+      :column-headers ["Title" "Owner"]
+      :items realms
       :item-format-fn (fn [realm-data]
                         [:> rn/Pressable {:style {:flex-direction :row}
                                           :on-press (fn [] (realm-data/set-active-realm
@@ -53,17 +57,17 @@
       (when realm-data (components/default-text (:realm/entity-details realm-data)))
       (components/search-filter-sort-list
       (merge
-       {:items            subrealm-data
-        :column-headers   ["Title" "Author"]
+       {:list-header "Realms"
         :column-flex-vals flex-vals
-        :item-format-fn   (fn [realm-entity]
+        :column-headers ["Title" "Author"]
+        :items (subrealm-sort subrealm-data)
+        :item-format-fn (fn [realm-entity]
                             [:> rn/Pressable {:style    {:flex-direction :row}
                                               :on-press (set-active-subrealm conn realm-entity)}
                              (components/default-text (:title realm-entity)
                                                       {:flex (nth flex-vals 0)})
                              (components/default-text "System"
-                                                      {:flex (nth flex-vals 0)})])
-        :section-sort-fns [subrealm-sort]}
+                                                      {:flex (nth flex-vals 0)})])}
        list-overrides)
       (str (:title subrealm-data) (:list-header list-overrides)))])))
 

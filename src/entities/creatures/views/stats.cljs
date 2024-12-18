@@ -94,46 +94,46 @@
 
 (defn domain-stat
   [conn domain-details {:keys [damage-hidden? row-style-override row-press-override]}]
-  (let [flex-vals [3 1 1 1]
-        derive-item (fn [domain-title]
-                      (let [{:keys [:db/id
-                                    :domain/initiation-value
-                                    :domain/reaction-value
-                                    :domain/continuation-value
-                                    :domain/dominance-value
-                                    :domain/competence-value
-                                    :domain/resilience-value
-                                    :domain/minor-wounds]}
-                            (first (filter #(= domain-title (:title %)) domain-details))]
-                        {:title domain-title
-                         :domain-id id
-                         :quality-key :domain/initiation-value
-                         :quality (math/round (/ (+ initiation-value reaction-value continuation-value) 3))
-                         :power-key :domain/dominance-value
-                         :power (* 2 (math/round (/ (+ (quot dominance-value 2) (quot competence-value 2) (quot resilience-value 2)) 3)))}))
-        physical-item (derive-item "Physical")
+  (let [flex-vals      [3 1 1 1]
+        derive-item    (fn [domain-title]
+                         (let [{:keys [:db/id
+                                       :domain/initiation-value
+                                       :domain/reaction-value
+                                       :domain/continuation-value
+                                       :domain/dominance-value
+                                       :domain/competence-value
+                                       :domain/resilience-value
+                                       :domain/minor-wounds]}
+                               (first (filter #(= domain-title (:title %)) domain-details))]
+                           {:title       domain-title
+                            :domain-id   id
+                            :quality-key :domain/initiation-value
+                            :quality     (math/round (/ (+ initiation-value reaction-value continuation-value) 3))
+                            :power-key   :domain/dominance-value
+                            :power       (* 2 (math/round (/ (+ (quot dominance-value 2) (quot competence-value 2) (quot resilience-value 2)) 3)))}))
+        physical-item  (derive-item "Physical")
         spiritual-item (derive-item "Spiritual")
-        mental-item (derive-item "Mental")
-        social-item (derive-item "Social")]
+        mental-item    (derive-item "Mental")
+        social-item    (derive-item "Social")]
     [:> rn/ScrollView {:style (stats-section-style)}
      (components/default-text "Stats" {:font-size 32})
-     (components/flat-list {:items [physical-item spiritual-item mental-item social-item]
-                            :headers (remove nil? ["Title" "Quality" "Power" (when-not damage-hidden? "Damage")])
-                            :flex-vals flex-vals
-                            :row-constructor (fn [item]
-                                               (let [row-style (when row-style-override (row-style-override item))
-                                                     row-press (when row-press-override (row-press-override item))]
-                                                 [:> rn/Pressable {:style (or row-style {:flex-direction :row})
-                                                                   :on-press (or row-press (fn []))}
-                                                  (components/default-text (:title item)
-                                                                           {:flex (nth flex-vals 0)})
-                                                  (components/default-text (:quality item)
-                                                                           {:flex (nth flex-vals 1)})
-                                                  (components/default-text (str "d" (:power item))
-                                                                           {:flex (nth flex-vals 2)})
-                                                  (when-not damage-hidden?
-                                                    [:> rn/View {:style {:flex (nth flex-vals 3)}}
-                                                     (domain-damage conn (:domain-id item))])]))})]))
+     (components/flat-list {:items          [physical-item spiritual-item mental-item social-item]
+                            :headers        (remove nil? ["Title" "Quality" "Power" (when-not damage-hidden? "Damage")])
+                            :flex-vals      flex-vals
+                            :item-format-fn (fn [item]
+                                              (let [row-style (when row-style-override (row-style-override item))
+                                                    row-press (when row-press-override (row-press-override item))]
+                                                [:> rn/Pressable {:style    (or row-style {:flex-direction :row})
+                                                                  :on-press (or row-press (fn []))}
+                                                 (components/default-text (:title item)
+                                                                          {:flex (nth flex-vals 0)})
+                                                 (components/default-text (:quality item)
+                                                                          {:flex (nth flex-vals 1)})
+                                                 (components/default-text (str "d" (:power item))
+                                                                          {:flex (nth flex-vals 2)})
+                                                 (when-not damage-hidden?
+                                                   [:> rn/View {:style {:flex (nth flex-vals 3)}}
+                                                    (domain-damage conn (:domain-id item))])]))})]))
 
 (defn skillbility-stat
   [conn
@@ -172,7 +172,7 @@
      (components/flat-list {:items [initiation-item reaction-item continuation-item]
                             :headers ["Title" "Quality" "Power"]
                             :flex-vals flex-vals
-                            :row-constructor (fn [item]
+                            :item-format-fn (fn [item]
                                                (let [row-style (when row-style-override (row-style-override item))
                                                      row-press (when row-press-override (row-press-override item))]
                                                  [:> rn/Pressable {:style (or row-style {:flex-direction :row})
@@ -214,7 +214,7 @@
      (components/section-list {:items           [skill-section ability-section]
                                :headers         ["Title" "Value"]
                                :flex-vals       flex-vals
-                               :row-constructor (fn [item]
+                               :item-format-fn (fn [item]
                                                   (let [row-style (when row-style-override (row-style-override item))
                                                         row-press (when row-press-override (row-press-override item))]
                                                     [:> rn/Pressable {:style    (or row-style {:flex-direction :row})
