@@ -11,7 +11,7 @@
     :entity-type "action"
     :action/description ""
     :action/skill-domain 13
-    :action/skill "continuation-value"
+    :action/skill "Endurance"
     :action/ability-domain 13
     :action/ability "resilience-value"
     :action/resources []
@@ -27,7 +27,7 @@
     :entity-type "action"
     :action/description ""
     :action/skill-domain 14
-    :action/skill "continuation-value"
+    :action/skill "Perseverance"
     :action/ability-domain 14
     :action/ability "resilience-value"
     :action/resources []
@@ -43,7 +43,7 @@
     :entity-type "action"
     :action/description ""
     :action/skill-domain 15
-    :action/skill "continuation-value"
+    :action/skill "Comprehension"
     :action/ability-domain 15
     :action/ability "resilience-value"
     :action/resources []
@@ -59,7 +59,7 @@
     :entity-type "action"
     :action/description ""
     :action/skill-domain 16
-    :action/skill "continuation-value"
+    :action/skill "Connections"
     :action/ability-domain 16
     :action/ability "resilience-value"
     :action/resources []

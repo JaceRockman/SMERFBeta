@@ -14,14 +14,16 @@
             [organisms.environments.modals :as modals]
             [organisms.library :as components]))
 
+(defn filter-by-skills
+  [actions skills]
+  (filter (fn [action]
+            (some #(= (:action/skill action) %)
+                  skills))
+          actions))
+
 (defn sort-by-domain
   [actions]
-  (let [filter-by-skills (fn [actions skills]
-                          (filter (fn [action]
-                                    (some #(= (:action/skill action) %)
-                                          skills))
-                                  actions))
-        physical-actions (filter-by-skills actions ["Coordination" "Reflexes" "Endurance"]) 
+  (let [physical-actions (filter-by-skills actions ["Coordination" "Reflexes" "Endurance"])
         spiritual-actions (filter-by-skills actions ["Exertion" "Instinct" "Perseverance"])
         mental-actions (filter-by-skills actions ["Concentration" "Recognition" "Comprehension"])
         social-actions (filter-by-skills actions ["Persuasion" "Insight" "Connections"])]
