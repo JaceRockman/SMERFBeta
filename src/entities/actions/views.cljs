@@ -41,7 +41,7 @@
           selected-ability-value-key (action-data/get-selected-ability conn action-id)]
       {:flex-direction :row :background-color (when (or
                                                      (and (= (:domain-id item) selected-skill-domain)
-                                                          (= (:quality-key item) selected-skill-value-key))
+                                                          (= (:title item) selected-skill-value-key))
                                                      (and (= (:domain-id item) selected-ability-domain)
                                                           (:type item)
                                                           (= (:power-key item) selected-ability-value-key)))
@@ -51,8 +51,8 @@
   [conn action-id]
   (fn [item]
     (fn []
-      (when (:quality-key item)
-        (action-data/set-selected-skill conn action-id (name (:quality-key item)))
+      (when (:title item)
+        (action-data/set-selected-skill conn action-id (name (:title item)))
         (action-data/set-selected-skill-domain conn action-id (:domain-id item)))
       (when (:power-key item)
         (action-data/set-selected-ability conn action-id (name (:power-key item)))
@@ -177,7 +177,6 @@
                        [(concat ['or]
                                 (vec (map #(get-in @action-resource-list-filters [% :filter])
                                           @active-action-resource-list-filters)))])))
-        _ (println where-vector)
         resource-ids (map first (ds/q {':find '[?resource-id]
                                        ':where where-vector}
                                       @conn))
@@ -273,9 +272,12 @@
 (defn construct-roll
   [conn action-data ruleset domains resources]
   (let [stats        {:header    "Stats"
-                      :component (creature-stats-view/stats conn domains {:damage-hidden? true
-                                                                          :row-press-override (row-press-override conn (:id action-data))
-                                                                          :row-style-override (row-style-override conn (:id action-data))})}
+                      :component (creature-stats-view/stats
+                                  conn
+                                  domains
+                                  {:damage-hidden? true
+                                   :row-press-override (row-press-override conn (:id action-data))
+                                   :row-style-override (row-style-override conn (:id action-data))})}
         resources    {:header    "Resources"
                       :component (resource-multi-select conn (:id action-data) resources)}
         modifiers    {:header    "Modifiers"
