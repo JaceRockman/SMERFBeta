@@ -28,22 +28,25 @@
    (campaign-select-list conn {:campaigns-data campaigns-data :show-header? true})])
 
 (defn campaign-summary
-  [campaign-data]
-  [:> rn/View
-   (components/default-text (:campaign/title campaign-data) {:font-size 24})
-   (components/default-text (str campaign-data))])
+  [conn campaign-data]
+  (components/view-frame
+   conn
+   [:> rn/View
+    (components/default-text (:campaign/title campaign-data) {:font-size 24})
+    (components/default-text (str campaign-data))]
+   "campaign-page"))
 
 (defn campaign
   [conn ^js props]
   (let [active-campaign-data (campaign-data/get-active-campaign conn)
         all-campaigns-data (campaign-data/get-all-campaigns conn)]
-    (components/view-frame
-     conn
-     [:> rn/ScrollView {:style {:flex 1 :width "100%"}
-                        :content-container-style {:align-items :center
-                                                  :justify-content :space-between
-                                                  :height "100%"}}
-      (if (empty? active-campaign-data)
-        (campaign-select conn all-campaigns-data)
-        (campaign-summary active-campaign-data))]
-     "campaigns-page")))
+    (if (empty? active-campaign-data)
+      [:> rn/View {:style {:background-color :black
+                           :width "100%"}}
+       (components/default-text "Campaigns" {:font-size 24 :text-align :center :flex nil})
+       [:> rn/ScrollView {:style {:flex 1 :width "100%"}
+                          :content-container-style {:align-items :center
+                                                    :justify-content :space-between
+                                                    :height "100%"}}
+        (campaign-select conn all-campaigns-data)]]
+      (campaign-summary conn active-campaign-data))))
