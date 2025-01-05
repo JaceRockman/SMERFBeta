@@ -27,10 +27,11 @@
         spiritual-actions (filter-by-skills actions ["Exertion" "Instinct" "Perseverance"])
         mental-actions (filter-by-skills actions ["Concentration" "Recognition" "Comprehension"])
         social-actions (filter-by-skills actions ["Persuasion" "Insight" "Connections"])]
-    [{:title "Physical" :data physical-actions}
-     {:title "Spiritual" :data spiritual-actions}
-     {:title "Mental" :data mental-actions}
-     {:title "Social" :data social-actions}]))
+    (filterv #(not-empty (:data %))
+          [{:title "Physical" :data physical-actions}
+           {:title "Spiritual" :data spiritual-actions}
+           {:title "Mental" :data mental-actions}
+           {:title "Social" :data social-actions}])))
 
 (defn row-style-override
   [conn action-id]
@@ -317,7 +318,7 @@
                               {:flex (nth flex-vals 1) :font-size 16 :align-self :center})]))
 
 (defn action-list
-  [conn {:keys [id actions header collapsed? domains resources]}]
+  [conn {:keys [id actions header collapsed? non-sorted? domains resources]}]
   (let [active-campaign?  (some? (campaign-data/get-active-campaign conn))
         ruleset           (if active-campaign?
                             (campaign-data/get-campaign-active-ruleset conn)
@@ -334,7 +335,7 @@
       :column-flex-vals flex-vals
       :column-headers   ["Title" "Roll Value" "Start Roll"]
       :collapsed?       collapsed?
-      :items            (sort-by-domain actions)
+      :items            (if-not non-sorted? (sort-by-domain actions) actions)
       :item-format-fn   (action-constructor conn flex-vals ruleset (or domains default-domains) (or resources default-resources))}
      (str id "actions"))))
 

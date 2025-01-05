@@ -449,11 +449,12 @@
 
 (defn get-resource-actions
   [conn resource-id]
+  (println @conn)
   (let [result (ds/pull-many @conn '[*]
                              (map first (ds/q '[:find ?eid
                                                 :in $ ?id
-                                                :where [?eid :action/resources ?id]]
-                     @conn resource-id)))]
+                                                :where [?id :resource/actions ?eid]]
+                                              @conn resource-id)))]
     result))
 
 (defn create-resource

@@ -167,10 +167,12 @@
      (components/default-text (:resource/description resource))
      (components/default-text (str (:resource/quality-title resource) ": " (:resource/quality-value resource)))
      (components/default-text (str (:resource/power-title resource) ": " (:resource/power-value resource)))
-     (action-list conn {:id (:db/id resource)
-                        :actions (resource-data/get-resource-actions conn (:db/id resource))
-                        :header "Actions"
-                        :collapsed? false})]))
+     (when-let [resource-actions (resource-data/get-resource-actions conn (:db/id resource))]
+       (action-list conn {:id (:db/id resource)
+                          :actions resource-actions
+                          :header "Actions"
+                          :collapsed? false
+                          :non-sorted? true}))]))
 
 (def new-resource-type-selection
   (r/atom "Equipment"))
