@@ -76,6 +76,18 @@
          :item-format-fn item-format-fn
          :sort-manager (r/atom {:title {:asc? true :order 1}})}))]))
 
+(defn collapse-chevron-down
+  []
+  [:> FontAwesome5 {:name :chevron-down
+                    :color (:surface-700 @palette)
+                    :size 20}])
+
+(defn collapse-chevron-up
+  []
+  [:> FontAwesome5 {:name :chevron-up
+                    :color (:surface-700 @palette)
+                    :size 20}])
+
 (defn list-collapse-button
   [component-key header-text]
   (buttons/button {:style {:background-color :inherit :align-items :center :justify-content :center}
@@ -84,7 +96,9 @@
                   [:> rn/View {:style {:flex-direction :row :align-items :center :justify-content :center}}
                    header-text
                    [:> rn/View {:style {:padding-left 5}}
-                    [:> FontAwesome5 {:name (if (get @collapse-state component-key) :chevron-down :chevron-up) :color (:surface-700 @palette) :size 20}]]]))
+                    (if (get @collapse-state component-key)
+                      (collapse-chevron-down)
+                      (collapse-chevron-up))]]))
 
 (def default-sort-manager
   (r/atom {"Title" {:asc? true :order 1}}))
@@ -95,7 +109,9 @@
            items item-format-fn new-item-fn
            search-filter-sort-component sort-manager]}
    component-key]
-  (when (not (nil? collapsed?)) (swap! collapse-state #(assoc % component-key collapsed?)))
+  (when (and (some? collapsed?)
+             (not (contains? @collapse-state component-key)))
+    (swap! collapse-state #(assoc % component-key collapsed?)))
   (let [header-text (text/default-text list-header
                                        {:font-size 24
                                         :flex 0

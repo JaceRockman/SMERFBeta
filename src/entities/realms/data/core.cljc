@@ -39,13 +39,13 @@
        old-ids
        (recursively-get-children-entities conn (distinct (concat old-ids new-children)) new-children)))))
 
-(defn recursive-realm-parent-details
+(defn get-realm-entity-parents
   [conn realm-entity-id]
   (let [all-entities (filter #(not (= realm-entity-id %)) (recursively-get-parent-entities conn realm-entity-id))]
     (when (seq all-entities)
       (ds/pull-many @conn '[*] all-entities))))
 
-(defn recursive-realm-children-details
+(defn get-realm-entity-children
   [conn realm-id]
   (let [all-entities (filter #(not (= realm-id %)) (recursively-get-children-entities conn realm-id))]
     (when (seq all-entities)

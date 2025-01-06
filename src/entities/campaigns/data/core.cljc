@@ -38,8 +38,8 @@
 
 (defn get-active-campaign [conn]
   (let [active-campaign-id (ds/q '[:find ?campaign 
-                                :where [?eid :active/campaign ?campaign]]
-                              @conn)]
+                                   :where [?eid :active/campaign ?campaign]]
+                                 @conn)]
     (when-not (empty? active-campaign-id)
       (get-campaign-details conn (ffirst active-campaign-id)))))
 

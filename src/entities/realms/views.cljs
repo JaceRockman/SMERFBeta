@@ -48,6 +48,15 @@
        conn
        (:id realm-data)))))
 
+(defn subrealm-entity-row
+  [conn flex-vals realm-entity]
+  [:> rn/Pressable {:style    {:flex-direction :row}
+                    :on-press (set-active-subrealm conn realm-entity)}
+   (components/default-text (:title realm-entity)
+                            {:flex (nth flex-vals 0)})
+   (components/default-text "System"
+                            {:flex (nth flex-vals 0)})])
+
 (defn subrealm-select
   ([conn subrealm-data]
    (subrealm-select conn subrealm-data {}))
@@ -55,21 +64,15 @@
    (let [flex-vals [2 1]]
      [:> rn/View
       (when realm-data (components/default-text (:realm/entity-details realm-data)))
-      (components/search-filter-sort-list
-      (merge
-       {:list-header "Realms"
-        :column-flex-vals flex-vals
-        :column-headers ["Title" "Author"]
-        :items (subrealm-sort subrealm-data)
-        :item-format-fn (fn [realm-entity]
-                            [:> rn/Pressable {:style    {:flex-direction :row}
-                                              :on-press (set-active-subrealm conn realm-entity)}
-                             (components/default-text (:title realm-entity)
-                                                      {:flex (nth flex-vals 0)})
-                             (components/default-text "System"
-                                                      {:flex (nth flex-vals 0)})])}
-       list-overrides)
-      (str (:title subrealm-data) (:list-header list-overrides)))])))
+      (components/search-filter-sort-list-2
+       (merge
+        {:list-header "Realms"
+         :column-flex-vals flex-vals
+         :column-headers ["Title" "Author"]
+         :items (subrealm-sort subrealm-data)
+         :item-format-fn #(subrealm-entity-row conn flex-vals %)}
+        list-overrides)
+       (str (:title subrealm-data) (:list-header list-overrides)))])))
 
 
 

@@ -3,9 +3,9 @@
 
 (def create-realm)
 
-(def get-realm core/recursive-realm-children-details)
-(def get-realm-entity-parents core/recursive-realm-parent-details)
-(def get-realm-entity-children core/recursive-realm-children-details)
+(def get-realm core/get-realm-entity-children)
+(def get-realm-entity-parents core/get-realm-entity-parents)
+(def get-realm-entity-children core/get-realm-entity-children)
 (def get-all-realms core/get-all-realms)
 
 (def update-realm)
