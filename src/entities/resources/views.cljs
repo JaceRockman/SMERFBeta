@@ -98,7 +98,6 @@
 
 (defn resource-list-simple-filters
   [active-filter-list-key]
-  (println active-filter-list-key)
   [:> rn/View {:style {:flex-direction :row}}
    (toggle-resource-type-filter-button active-filter-list-key "Equipment")
    (toggle-resource-type-filter-button active-filter-list-key "Trait")
