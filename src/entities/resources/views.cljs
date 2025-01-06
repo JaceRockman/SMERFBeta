@@ -55,55 +55,40 @@
                   :filter ['?resource-id :resource/type "Item"]}})
 
 (def active-resource-filter-lists
-  (r/atom {}))
+  (r/atom {"resources"          {}
+           "creature-resources" {}
+           "add-resources"      {}}))
 
-(defn get-filter-toggle-state
-  [active-filter-list active-filter-list-key filter-key]
-  (some #(= % filter-key)
-        (get active-filter-list active-filter-list-key)))
-
-(defn toggle-filter-state
-  [filter-on? active-filter-list filter-key]
-  (if filter-on?
-    (remove #(= % filter-key) active-filter-list)
-    (conj active-filter-list filter-key)))
-
-(defn set-filter-toggle-state
-  [active-resource-filter-lists active-filter-list-key filter-key filter-on?]
-  (swap! active-resource-filter-lists
-         (fn [active-filter-lists]
-           (update active-filter-lists active-filter-list-key
-                   #(toggle-filter-state filter-on? % filter-key)))))
+(defn toggle-filter
+  [active-resource-list-filters active-filter-list-key filter-key]
+  (swap! active-resource-list-filters
+         (fn [active-resource-list-filters]
+           (update-in active-resource-list-filters
+                      [active-filter-list-key filter-key]
+                      not))))
 
 (defn toggle-filter-button
-  [active-filter-lists filter-list active-filter-list-key filter-key]
-  (let [active-filter-list (get @active-filter-lists active-filter-list-key)
-        filter-on?         (get-filter-toggle-state active-filter-list active-filter-list-key filter-key)]
+  [resource-type-filters active-filter-lists active-filter-list-key filter-key]
+  (let [filter-on? (get-in @active-filter-lists [active-filter-list-key filter-key])]
     [:> rn/Pressable {:style    {:background-color (when filter-on? (:surface-700 @palette))
                                  :align-items      :center :width "20%"}
-                      :on-press #(set-filter-toggle-state active-filter-lists
-                                                          active-filter-list-key
-                                                          filter-key
-                                                          filter-on?)}
-     [:> FontAwesome5 {:name  (get-in active-filter-lists [filter-key :icon])
+                      :on-press #(toggle-filter active-filter-lists
+                                                active-filter-list-key
+                                                filter-key)}
+     [:> FontAwesome5 {:name  (get-in resource-type-filters [filter-key :icon])
                        :color (if filter-on? (:surface-100 @palette) (:surface-700 @palette))
                        :size  20}]]))
 
-(defn toggle-resource-type-filter-button
-  [active-filter-list-key filter-key]
-  (toggle-filter-button active-resource-filter-lists
-                        resource-type-filters-list
-                        active-filter-list-key
-                        filter-key))
 
 (defn resource-list-simple-filters
   [active-filter-list-key]
   [:> rn/View {:style {:flex-direction :row}}
-   (toggle-resource-type-filter-button active-filter-list-key "Equipment")
-   (toggle-resource-type-filter-button active-filter-list-key "Trait")
-   (toggle-resource-type-filter-button active-filter-list-key "Expertise")
-   (toggle-resource-type-filter-button active-filter-list-key "Affiliation")
-   (toggle-resource-type-filter-button active-filter-list-key "Item")])
+   (doall
+    (map #(toggle-filter-button resource-type-filters-list
+                                active-resource-filter-lists
+                                active-filter-list-key
+                                %)
+         ["Equipment" "Trait" "Expertise" "Affiliation" "Item"]))])
 
 ;;;;;;;;;;;;;;
 ;; Sort fns ;;
@@ -136,14 +121,19 @@
                   {:title section-title
                    :data (get grouped-resources section-title)}))))
 
+(defn sort-sections
+  [grouped-resources resource-type]
+  (when-let [resource-data (get grouped-resources resource-type)]
+    {:title resource-type :data resource-data}))
+
 (defn sort-resources-by-type
   ([resources]
    (sort-resources-by-type resources :resource/type))
   ([resources grouping-logic]
    (let [grouped-resources (group-by grouping-logic resources)]
-     (reduce (sort-as-sections grouped-resources) 
-             []
-             ["Equipment" "Trait" "Expertise" "Affiliation" "Item"]))))
+     (remove nil?
+             (mapv #(sort-sections grouped-resources %)
+                   ["Equipment" "Trait" "Expertise" "Affiliation" "Item"])))))
 
 (defn sort-creature-resources-by-type
   [creature-resources]
@@ -151,6 +141,9 @@
                           #(get-in % [:creature-resource/resource :resource/type])))
 
 (def creature-resource-sort-manager
+  (r/atom {"Title" {:asc? true :order 1}}))
+
+(def resource-sort-manager
   (r/atom {"Title" {:asc? true :order 1}}))
 
 ;;;;;;;;;;;;
@@ -344,12 +337,13 @@
   [active-filter-list]
   (when (not-empty active-filter-list)
     [(concat ['or]
-             (vec (map #(get-in resource-type-filters-list [% :filter])
+             (vec (map (fn [[filter-key filter-value]]
+                         (when filter-value (get-in resource-type-filters-list [filter-key :filter])))
                        active-filter-list)))]))
 
 (defn get-default-resource-where-vector
   [active-filter-list]
-  (vec (concat [['?eid :entity-type "resource"]] (get-disjunctive-filters active-filter-list))))
+  (vec (concat [['?resource-id :entity-type "resource"]] (get-disjunctive-filters active-filter-list))))
 
 (defn get-creature-resource-where-vector
   [active-filter-list]
@@ -359,12 +353,12 @@
 
 (defn resource-search-filter-query
   [conn active-resource-filter-lists list-key]
-  (let [active-filter-list (get @active-resource-filter-lists list-key)
+  (let [active-filter-list (filter #(last %) (get @active-resource-filter-lists list-key))
         creature-resources? (= list-key "creature-resources")
         where-vector (if creature-resources? 
                        (get-creature-resource-where-vector active-filter-list)
                        (get-default-resource-where-vector active-filter-list))
-        resource-ids (map first (ds/q {':find '[?eid]
+        resource-ids (map first (ds/q {':find (if creature-resources? '[?eid] '[?resource-id])
                                        ':where where-vector}
                                       @conn))
         resources (ds/pull-many @conn '[*] resource-ids)
@@ -427,9 +421,14 @@
       :list-key       list-key})))
 
 (defn resources-main-page [conn]
-  (let [resources (resource-data/get-all-resources conn)]
+  (let [list-key "resources"
+        flex-vals (resource-flex-vals false)]
     [:> rn/View {:style {:flex :1 :width (screen-width) :align-items :center}}
-     (resource-list conn {})]))
+     (resource-list conn
+                    {:item-format-fn (resource-row-component conn flex-vals)
+                     :sfs-component  (resource-list-sfs-component list-key)
+                     :sort-manager   resource-sort-manager
+                     :list-key       list-key})]))
 
 (defn resources [conn ^js props]
   (components/view-frame conn (resources-main-page conn) "resources-page"))
