@@ -333,7 +333,7 @@
     (components/search-filter-sort-list
      {:list-header      header
       :column-flex-vals flex-vals
-      :column-headers   ["Title" "Roll Value" "Start Roll"]
+      :column-headers   ["Title" "Roll Value" "Roll"]
       :collapsed?       collapsed?
       :items            (if-not non-sorted? (sort-by-domain actions) actions)
       :item-format-fn   (action-constructor conn flex-vals ruleset (or domains default-domains) (or resources default-resources))}

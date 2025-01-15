@@ -41,18 +41,18 @@
 (def default-sort-manager
   (r/atom {"Title" {:asc? true :order 1}}))
 
-(defn new-item-button
-  [new-item-fn]
+(defn add-item-button
+  [add-item-fn]
   (buttons/button {:style {:background-color (:surface-200 @palette)
                            :align-items :center
                            :justify-content :center}
-                   :on-press new-item-fn}
+                   :on-press add-item-fn}
                   [:> FontAwesome5 {:name :plus :color (:surface-700 @palette) :size 20}]))
 
 (defn search-filter-sort-list
   [{:keys [list-header column-flex-vals column-headers
            collapsed?
-           items item-format-fn new-item-fn add-item-fn
+           items item-format-fn add-item-fn
            search-filter-sort-component sort-manager]}
    component-key]
   (when (and (some? collapsed?)
@@ -69,11 +69,7 @@
      (when-not (get @collapse-state component-key)
        [:> rn/View
         [:> rn/View {:style {:flex-direction :row :justify-content :center :width "100%"}}
-         search-filter-sort-component
-         (when add-item-fn
-           [:> rn/Pressable {:style {:padding-left 10}
-                             :on-press add-item-fn}
-            [:> FontAwesome5 {:name :plus :color (:surface-700 @palette) :size 20}]])]])
+         search-filter-sort-component]])
      (when-not (get @collapse-state component-key)
        (let [list-function (if (:data (first items)) SectionList FlatList)]
          (list-function
@@ -87,4 +83,4 @@
            :flex-vals column-flex-vals
            :item-format-fn item-format-fn
            :sort-manager (or sort-manager default-sort-manager)})))
-     (when new-item-fn (new-item-button new-item-fn))]))
+     (when add-item-fn (add-item-button add-item-fn))]))
