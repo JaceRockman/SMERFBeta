@@ -375,7 +375,7 @@
         headers   (if quantity?
                     creature-resource-column-headers
                     resource-column-headers)]
-    (components/search-filter-sort-list-2
+    (components/search-filter-sort-list
      {:list-header      "Resources"
       :column-flex-vals flex-vals
       :column-headers   headers

@@ -195,7 +195,7 @@
         selected-resources (action-data/get-selected-resources conn action-id)]
     [:> rn/View {:style {:width (screen-width) :flex 1}}
      (components/default-text "Select Resources" {:font-size 24 :text-align :center})
-     (components/search-filter-sort-list-2
+     (components/search-filter-sort-list
       {:list-header      "Resources"
        :column-flex-vals flex-vals
        :column-headers   resource-multiselect-column-headers
@@ -330,7 +330,7 @@
                             (campaign-data/get-active-campaign-resources conn)
                             (resources-data/get-all-resources conn))
         flex-vals         [2 2 1]]
-    (components/search-filter-sort-list-2
+    (components/search-filter-sort-list
      {:list-header      header
       :column-flex-vals flex-vals
       :column-headers   ["Title" "Roll Value" "Start Roll"]

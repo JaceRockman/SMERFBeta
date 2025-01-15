@@ -14,68 +14,6 @@
 (def external-search-text (r/atom {}))
 (def collapse-state (r/atom {}))
 
-(defn search-filter-sort-list
-  [{:keys [list-header column-headers column-flex-vals
-           collapsed?
-           new-item-fn
-           items item-format-fn
-           init-search-fns init-filter-fns item-sort-fns section-sort-fns]}
-   component-key]
-  (when (nil? (get @external-search-text component-key))
-    (swap! external-search-text #(assoc % component-key (r/atom "")))
-    (when (not (nil? collapsed?)) (swap! collapse-state #(assoc % component-key collapsed?))))
-  (let [item-sort-fns* (if (empty? item-sort-fns) [#(sort-by :title %)] item-sort-fns)
-        search-fns
-        (r/atom (or init-search-fns
-                    [(fn [items]
-                       (filter #(str/includes?
-                                 (str/lower-case (apply str (vals %)))
-                                 (str/lower-case
-                                  (if-let [search-text-atom (get @external-search-text component-key)]
-                                    (deref search-text-atom)
-                                    "")))
-                               items))]))
-        full-fn-list (concat @search-fns init-filter-fns item-sort-fns* section-sort-fns)
-        reduced-items (if (empty? full-fn-list)
-                        items
-                        (reduce (fn [list function]
-                                  (function list))
-                                items
-                                full-fn-list))
-        header-text (text/default-text list-header
-                                       {:font-size 24
-                                        :flex 0
-                                        :text-align :center})]
-    [:> rn/View {:style {:width "100%" :max-height "100%" :flex 100 :padding 10}}
-     (if (not (nil? collapsed?))
-       (buttons/button {:style {:background-color :inherit :align-items :center :justify-content :center}
-                        :on-press #(swap! collapse-state (fn [collapse-map]
-                                                           (update collapse-map component-key not)))}
-                       [:> rn/View {:style {:flex-direction :row :align-items :center :justify-content :center}}
-                        header-text
-                        [:> rn/View {:style {:padding-left 5}}
-                         [:> FontAwesome5 {:name (if (get @collapse-state component-key) :chevron-down :chevron-up) :color (:surface-700 @palette) :size 20}]]])
-       header-text)
-     (when-not (get @collapse-state component-key)
-       [:> rn/View {:style {:flex-direction :row :justify-content :center :align-items :center}}
-        (search-bar external-search-text component-key)
-        (when new-item-fn
-          [:> rn/Pressable {:style {:padding 10}
-                            :on-press new-item-fn}
-           [:> FontAwesome5 {:name :plus :color (:surface-700 @palette) :size 20}]])])
-     (when-not (get @collapse-state component-key)
-       ((if (empty? section-sort-fns) FlatList SectionList)
-        {:items reduced-items
-         :headers (if (string? (first column-headers))
-                    (into {} (map (fn [header-text]
-                                    [header-text {:header header-text
-                                                  :sort-fn (fn [_] nil)}])
-                                  column-headers))
-                    column-headers)
-         :flex-vals column-flex-vals
-         :item-format-fn item-format-fn
-         :sort-manager (r/atom {:title {:asc? true :order 1}})}))]))
-
 (defn collapse-chevron-down
   []
   [:> FontAwesome5 {:name :chevron-down
@@ -103,10 +41,18 @@
 (def default-sort-manager
   (r/atom {"Title" {:asc? true :order 1}}))
 
-(defn search-filter-sort-list-2
+(defn new-item-button
+  [new-item-fn]
+  (buttons/button {:style {:background-color (:surface-200 @palette)
+                           :align-items :center
+                           :justify-content :center}
+                   :on-press new-item-fn}
+                  [:> FontAwesome5 {:name :plus :color (:surface-700 @palette) :size 20}]))
+
+(defn search-filter-sort-list
   [{:keys [list-header column-flex-vals column-headers
            collapsed?
-           items item-format-fn new-item-fn
+           items item-format-fn new-item-fn add-item-fn
            search-filter-sort-component sort-manager]}
    component-key]
   (when (and (some? collapsed?)
@@ -124,9 +70,9 @@
        [:> rn/View
         [:> rn/View {:style {:flex-direction :row :justify-content :center :width "100%"}}
          search-filter-sort-component
-         (when new-item-fn
+         (when add-item-fn
            [:> rn/Pressable {:style {:padding-left 10}
-                             :on-press new-item-fn}
+                             :on-press add-item-fn}
             [:> FontAwesome5 {:name :plus :color (:surface-700 @palette) :size 20}]])]])
      (when-not (get @collapse-state component-key)
        (let [list-function (if (:data (first items)) SectionList FlatList)]
@@ -140,4 +86,5 @@
                       column-headers)
            :flex-vals column-flex-vals
            :item-format-fn item-format-fn
-           :sort-manager (or sort-manager default-sort-manager)})))]))
+           :sort-manager (or sort-manager default-sort-manager)})))
+     (when new-item-fn (new-item-button new-item-fn))]))

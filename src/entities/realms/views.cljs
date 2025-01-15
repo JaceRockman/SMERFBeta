@@ -16,7 +16,7 @@
   [conn realms]
   (println "realm-select")
   (let [flex-vals [1 1]]
-    (components/search-filter-sort-list-2
+    (components/search-filter-sort-list
      {:list-header "Realms"
       :column-flex-vals flex-vals
       :column-headers ["Title" "Owner"]
@@ -64,7 +64,7 @@
    (let [flex-vals [2 1]]
      [:> rn/View
       (when realm-data (components/default-text (:realm/entity-details realm-data)))
-      (components/search-filter-sort-list-2
+      (components/search-filter-sort-list
        (merge
         {:list-header "Realms"
          :column-flex-vals flex-vals
