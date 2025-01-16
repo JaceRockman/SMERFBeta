@@ -9,7 +9,8 @@
             [entities.creatures.views.stats :as creature-stats-view]
             [entities.creatures.views.resources :as creature-resources-view]
             [entities.creatures.views.actions :as creature-actions-view]
-            [entities.creatures.views.notes :as creature-notes-view]))
+            [entities.creatures.views.notes :as creature-notes-view]
+            [organisms.environments.modals :as modals]))
 
 (defn creature-select
   [conn creatures]
@@ -27,7 +28,8 @@
                          (components/default-text (:title creature-data)
                                                   {:flex (nth flex-vals 0)})
                          (components/default-text "Avis Industries"
-                                                  {:flex (nth flex-vals 1)})])}
+                                                  {:flex (nth flex-vals 1)})])
+      :add-item-fn organisms.environments.modals/example-new-item-modal}
      "creatures")))
 
 (defn ruleset-select-modal

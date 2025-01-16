@@ -3,6 +3,7 @@
             [reagent.core :as r]
             ["react-native" :as rn]
             [organisms.config :refer [palette]]
+            [organisms.atoms.text-input :as text-input]
             [systems.navigation :as navigation]))
 
 (def modal-content (r/atom nil))
@@ -14,6 +15,39 @@
 (defn show-modal-content
   []
   (swap! modal-content (fn [content] (assoc content :display? true))))
+
+(def example-schema
+  [[:example/number  {:db/valueType  :db.type/long
+                      :db.attr/preds #(and (int? (int %)) (< 0 (int %) 5))}]
+   [:example/string  {:db/valueType :db.type/string
+                      :db.attr/preds #(= "asdf" %)}]
+   [:example/boolean {:db/valueType :db.type/boolean}]
+   [:example/ref     {:db/valueType :db.type/ref}]])
+
+(defn new-item-modal
+  [schema]
+  (let [new-item-modal-content
+        (doall
+         (mapv
+          (fn [[schema-element-title schema-element]]
+            (case (:db/valueType schema-element)
+              :db.type/long (text-input/default-text-input
+                             schema-element-title
+                             schema-element-title
+                             (:db.attr/preds schema-element))
+              :db.type/string (text-input/default-text-input
+                               schema-element-title
+                               schema-element-title
+                               (:db.attr/preds schema-element))
+              :db.type/boolean [:> rn/Text {:style {:color :white}} "Toggle!"]
+              :db.type/ref [:> rn/Text {:style {:color :white}} "Ref!"]))
+          schema))]
+    (vec (concat [:> rn/View] new-item-modal-content))))
+
+
+
+(def example-new-item-modal
+  #(reset! modal-content {:fn new-item-modal :args [example-schema] :display? true}))
 
 (defn modal
   []

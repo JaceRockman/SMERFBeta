@@ -5,21 +5,32 @@
             [entities.campaigns.data.interface :as campaign-data]
             [organisms.library :as components]))
 
+(defn campaign-select-list-item
+  [conn {:keys [title owner id]}]
+  [:> rn/Pressable {:style {:flex-direction :row
+                            :margin-top 5
+                            :margin-bottom 5}
+                    :on-press #(doall
+                                (campaign-data/set-active-campaign conn id)
+                                (navigation/navigate! conn [:campaign]))}
+   (components/default-text title {:color :white})
+   (components/default-text (or owner "Avis Industries") {})])
+
+(defn add-campaign-fn
+  []
+  (reset! organisms.environments.modals/modal-content
+          {:fn organisms.environments.modals/new-item-modal
+           :args [organisms.environments.modals/example-schema]
+           :display? true}))
+
 (defn campaign-select-list
   [conn {:keys [campaigns-data show-header?]}]
   (components/search-filter-sort-list
    {:column-headers ["Campaign Title" "Campaign Owner"]
     :column-flex-vals [1 1]
     :items campaigns-data
-    :item-format-fn (fn [{:keys [title owner id]}]
-                      [:> rn/Pressable {:style {:flex-direction :row
-                                                :margin-top 5
-                                                :margin-bottom 5}
-                                        :on-press #(doall
-                                                    (campaign-data/set-active-campaign conn id)
-                                                    (navigation/navigate! conn [:campaign]))}
-                       (components/default-text title {})
-                       (components/default-text (or owner "Avis Industries") {})])}
+    :item-format-fn #(campaign-select-list-item conn %)
+    :add-item-fn add-campaign-fn}
    (str "campaigns")))
 
 (defn campaign-select
