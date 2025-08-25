@@ -1,0 +1,9 @@
+{
+"version":3,
+"file":"shadow.js.shim.module$$expo$vector_icons.js",
+"lineCount":5,
+"mappings":"AAAAA,IAAKC,CAAAA,OAAL,CAAa,0CAAb,CAAA;AACAD,IAAKC,CAAAA,OAAL,CAAa,iDAAb,CAAA;AACAC,MAAOC,CAAAA,EAAGC,CAAAA,IAAKC,CAAAA,yBAAf,GAA2CC,OAAA,CAAQ,oBAAR,CAA3C;AACAC,+CAAgDC,CAAAA,OAAhD,GAA0DN,MAAOC,CAAAA,EAAGC,CAAAA,IAAKC,CAAAA,yBAAzE;;",
+"sources":["shadow.js.shim.module$$expo$vector_icons.js"],
+"sourcesContent":["goog.provide(\"shadow.js.shim.module$$expo$vector_icons\");\ngoog.provide(\"module$shadow_js_shim_module$$expo$vector_icons\");\nshadow.js.shim.module$$expo$vector_icons = require(\"@expo/vector-icons\");\nmodule$shadow_js_shim_module$$expo$vector_icons.default = shadow.js.shim.module$$expo$vector_icons;\n"],
+"names":["goog","provide","shadow","js","shim","module$$expo$vector_icons","require","module$shadow_js_shim_module$$expo$vector_icons","default"]
+}

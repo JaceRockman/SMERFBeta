@@ -1,0 +1,36 @@
+goog.provide('entities.actions.data.interface$');
+entities.actions.data.interface$.get_all_actions = entities.actions.data.core.get_all_actions;
+entities.actions.data.interface$.get_selected_skill_domain = entities.actions.data.core.get_selected_skill_domain;
+entities.actions.data.interface$.set_selected_skill_domain = entities.actions.data.core.set_selected_skill_domain;
+entities.actions.data.interface$.get_selected_ability_domain = entities.actions.data.core.get_selected_ability_domain;
+entities.actions.data.interface$.set_selected_ability_domain = entities.actions.data.core.set_selected_ability_domain;
+entities.actions.data.interface$.get_selected_skill = entities.actions.data.core.get_selected_skill;
+entities.actions.data.interface$.set_selected_skill = entities.actions.data.core.set_selected_skill;
+entities.actions.data.interface$.get_selected_ability = entities.actions.data.core.get_selected_ability;
+entities.actions.data.interface$.set_selected_ability = entities.actions.data.core.set_selected_ability;
+entities.actions.data.interface$.toggle_resource_selection = entities.actions.data.core.toggle_resource_selection;
+entities.actions.data.interface$.get_selected_resources = entities.actions.data.core.get_selected_resources;
+entities.actions.data.interface$.get_dice_penalties = entities.actions.data.core.get_dice_penalties;
+entities.actions.data.interface$.get_dice_bonuses = entities.actions.data.core.get_dice_bonuses;
+entities.actions.data.interface$.get_dice_modifier = entities.actions.data.core.get_dice_modifier;
+entities.actions.data.interface$.get_flat_penalties = entities.actions.data.core.get_flat_penalties;
+entities.actions.data.interface$.get_flat_bonuses = entities.actions.data.core.get_flat_bonuses;
+entities.actions.data.interface$.get_flat_modifier = entities.actions.data.core.get_flat_modifier;
+entities.actions.data.interface$.update_dice_penalties = entities.actions.data.core.update_dice_penalties;
+entities.actions.data.interface$.update_dice_bonuses = entities.actions.data.core.update_dice_bonuses;
+entities.actions.data.interface$.update_flat_penalties = entities.actions.data.core.update_flat_penalties;
+entities.actions.data.interface$.update_flat_bonuses = entities.actions.data.core.update_flat_bonuses;
+entities.actions.data.interface$.get_splinters = entities.actions.data.core.get_splinters;
+entities.actions.data.interface$.update_splinters = entities.actions.data.core.update_splinters;
+entities.actions.data.interface$.update_combinations = entities.actions.data.core.update_combinations;
+entities.actions.data.interface$.get_dice_pools = entities.actions.data.core.get_dice_pools;
+entities.actions.data.interface$.format_dice_pool_text = entities.actions.data.core.format_dice_pool_text;
+entities.actions.data.interface$.format_dice_pools_text = entities.actions.data.core.format_dice_pools_text;
+entities.actions.data.interface$.format_dice_pool_icons = entities.actions.data.core.format_dice_pool_icons;
+entities.actions.data.interface$.format_dice_pools_icons = entities.actions.data.core.format_dice_pools_icons;
+entities.actions.data.interface$.get_combined_dice_pools = entities.actions.data.core.get_combined_dice_pools;
+entities.actions.data.interface$.get_fully_formatted_roll = entities.actions.data.core.get_fully_formatted_roll;
+entities.actions.data.interface$.example_actions = entities.actions.data.core.example_actions;
+entities.actions.data.interface$.roll_dice_pool = entities.actions.data.core.roll_dice_pool;
+
+//# sourceMappingURL=entities.actions.data.interface.js.map
