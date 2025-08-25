@@ -20,7 +20,10 @@
         "backgroundColor": "#ffffff"
       }
     },
-    "web": {
+      "web": {
+	  "build": {
+	      "outputDir": "docs",
+	  },
       "favicon": "./assets/avis-industries.png"
     },
     "plugins": [
