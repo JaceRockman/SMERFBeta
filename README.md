@@ -9,6 +9,12 @@ https://github.com/user-attachments/assets/336bdcd4-5788-4e2c-bbcd-0dde8b640e31
 ### Resources and Rolls
 https://github.com/user-attachments/assets/7c1c46eb-56ec-46f3-8b7c-e7506b2754bb
 
+## Previous Iterations
+
+Previous iterations of the project can be found in these repos:
+- https://github.com/JaceRockman/jace-and-jace-prototype
+- https://github.com/JaceRockman/modular-roleplaying-framework-beta
+
 ## Next Objectives
 
 - Fix icons so they work for web as well as mobile
