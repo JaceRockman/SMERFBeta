@@ -1,3 +1,21 @@
+## Demo of the Current State
+
+### Realms and Rules
+https://github.com/user-attachments/assets/1e942f43-4f78-4436-a18d-ad003d03c75a
+
+### Characters
+https://github.com/user-attachments/assets/336bdcd4-5788-4e2c-bbcd-0dde8b640e31
+
+### Resources and Rolls
+https://github.com/user-attachments/assets/7c1c46eb-56ec-46f3-8b7c-e7506b2754bb
+
+## Next Objectives
+
+- Fix icons so they work for web as well as mobile
+- Finish making campaigns fully editable
+- Improve expand/collapse animations and menu placement for better UX
+- Implement character complexity modification
+
 ## Installing
 
 To facilitate that you can easily try this out without installing anything globally on your machine, this project installs everything it needs locally in `node_modules`. Then `npx` is used to execute tools like `expo-cli`.
