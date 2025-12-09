@@ -1,0 +1,1 @@
+["^ ","~$actions",["^ ","~:row",7,"~:col",1,"~:fixed-arities",["~#set",[4]],"~:name","^0","~:ns","~$entities.creatures.views.actions","~:top-ns","^7","~:arities",["^ ","~i4",["^ ","~:ret","~:vector","~:arglist-str","[conn {:keys [:db/id :creature/actions]} domains resources]"]],"~:type","~:fn"],"~:filename","/Users/jace/Code/SMERF/src/entities/creatures/views/actions.cljs"]

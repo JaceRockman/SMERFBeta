@@ -1,0 +1,1 @@
+["^ ","~$resources",["^ ","~:row",7,"~:col",1,"~:fixed-arities",["~#set",[2]],"~:name","^0","~:ns","~$entities.creatures.views.resources","~:top-ns","^7","~:arities",["^ ","~i2",["^ ","~:ret","~:vector","~:arglist-str","[conn {:keys [:db/id]}]"]],"~:type","~:fn"],"~:filename","/Users/jace/Code/SMERF/src/entities/creatures/views/resources.cljs"]
