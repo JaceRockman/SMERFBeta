@@ -1,1 +1,0 @@
-["^ ","~:resource-id",["~:shadow.build.modules/append","~:index"],"~:source","\ntry { main.init(); } catch (e) { console.error(\"An error occurred when calling (main/init)\"); console.error(e); }","~:js","\ntry { main.init(); } catch (e) { console.error(\"An error occurred when calling (main/init)\"); console.error(e); }"]

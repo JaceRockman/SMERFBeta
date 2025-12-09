@@ -1,1 +1,0 @@
-["^ ","~$notes",["^ ","~:row",6,"~:col",1,"~:fixed-arities",["~#set",[2]],"~:name","^0","~:ns","~$entities.creatures.views.notes","~:top-ns","^7","~:arities",["^ ","~i2",["^ ","~:ret","~:vector","~:arglist-str","[_conn {:keys [:creature/notes]}]"]],"~:type","~:fn"],"~:filename","/Users/jace/Code/SMERF/src/entities/creatures/views/notes.cljs"]

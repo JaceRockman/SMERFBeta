@@ -1,9 +1,0 @@
-{:deps true
-
- :builds {:app {:target :react-native
-                :output-dir "expo-build" ; Or a suitable directory within your Expo project
-                :asset-path "expo-build/assets"
-                :main main
-                :init-fn main/init
-                :compiler-options {:output-feature-set :es8}
-                :devtools {:after-load main/init-dev-tools}}}}
