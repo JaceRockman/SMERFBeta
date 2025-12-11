@@ -1,18 +1,18 @@
 (ns entities.actions.views
-  (:require [clojure.string :as str]
-            [clojure.math :as math]
-            [datascript.core :as ds]
-            ["@expo/vector-icons" :refer [FontAwesome5]]
-            [reagent.core :as r]
-            ["react-native" :as rn]
-            [entities.campaigns.data.interface :as campaign-data]
-            [entities.creatures.views.stats :as creature-stats-view]
-            [entities.actions.data.interface :as action-data]
-            [entities.rulesets.data.interface :as rulesets-data]
-            [entities.resources.data.interface :as resources-data]
-            [organisms.config :refer [palette screen-width]]
-            [organisms.environments.modals :as modals]
-            [organisms.library :as components]))
+  (:require
+   ["@expo/vector-icons" :refer [FontAwesome5]]
+   ["react-native" :as rn]
+   [clojure.string :as str]
+   [datascript.core :as ds]
+   [entities.actions.data.interface :as action-data]
+   [entities.campaigns.data.interface :as campaign-data]
+   [entities.creatures.views.stats :as creature-stats-view]
+   [entities.resources.data.interface :as resources-data]
+   [entities.rulesets.data.interface :as rulesets-data]
+   [organisms.config :refer [palette screen-width]]
+   [organisms.environments.modals :as modals]
+   [organisms.library :as components]
+   [reagent.core :as r]))
 
 (defn filter-by-skills
   [actions skills]
@@ -144,7 +144,8 @@
 (defn toggle-action-resource-type-filter-button
   [resource-type]
   (let [filter-on? (some (fn [filter] (= resource-type filter)) @active-action-resource-list-filters)]
-    [:> rn/Pressable {:style {:background-color (when filter-on? (:surface-700 @palette))
+    [:> rn/Pressable {:key (str "filter-" resource-type)
+                      :style {:background-color (when filter-on? (:surface-700 @palette))
                               :align-items :center :width "20%"}
                       :on-press #(swap! active-action-resource-list-filters
                                         (fn [filters]
@@ -249,7 +250,7 @@
                                    :border-width 2 :border-color (:surface-500 @palette) :border-radius 4}
                            :on-press #(println (action-data/roll-dice-pool pool))}
                           (into [] (concat [:> rn/View {:style {:flex-direction :row}}] (action-data/format-dice-pool-icons pool)))]]
-    [:> rn/View {:style {:width "33%" :margin-bottom 25}}
+    [:> rn/View {:key (str "pool-" index) :style {:width "33%" :margin-bottom 25}}
      (if careful-or-reckless?
        (components/decrementor-and-incrementor
         nil
@@ -268,7 +269,7 @@
      [:> rn/View {:style {:width (screen-width) :flex-wrap :wrap :flex-direction :row :justify-content :center}}
       (if (nil? pools)
         (components/default-text "No Dice Pools Found")
-        (map-indexed pool-format (map (fn [pool] {:conn conn :action-id action-id :pool pool :careful-or-reckless? careful-or-reckless?}) pools)))]]))
+        (doall (map-indexed pool-format (map (fn [pool] {:conn conn :action-id action-id :pool pool :careful-or-reckless? careful-or-reckless?}) pools))))]]))
 
 (defn construct-roll
   [conn action-data ruleset domains resources]

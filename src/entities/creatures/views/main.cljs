@@ -39,7 +39,8 @@
   (if-let [active-campaign-rulesets (campaign-data/get-active-campaign-rulesets conn)]
     [:> rn/View {:style {:height "100%"}}
      (doall (map (fn [ruleset]
-                   [:> rn/Pressable {:on-press (fn []
+                   [:> rn/Pressable {:key (str "ruleset-" (:db/id ruleset))
+                                     :on-press (fn []
                                                  (campaign-data/set-campaign-active-ruleset conn (:db/id ruleset))
                                                  (reset! components/modal-content nil))}
                     (components/default-text (:title ruleset))]) active-campaign-rulesets))]

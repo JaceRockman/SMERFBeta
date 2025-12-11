@@ -1,14 +1,14 @@
 (ns entities.resources.views
-  (:require [clojure.string :as str]
-            [reagent.core :as r]
-            ["react-native" :as rn]
-            [datascript.core :as ds]
-            ["@expo/vector-icons" :refer [FontAwesome5]]
-            [entities.campaigns.data.interface :as campaign-data]
-            [entities.resources.data.interface :as resource-data]
-            [entities.actions.views :refer [action-list]]
-            [organisms.config :refer [palette screen-width]]
-            [organisms.library :as components]))
+  (:require
+   ["@expo/vector-icons" :refer [FontAwesome5]]
+   ["react-native" :as rn]
+   [clojure.string :as str]
+   [datascript.core :as ds]
+   [entities.actions.views :refer [action-list]]
+   [entities.resources.data.interface :as resource-data]
+   [organisms.config :refer [palette screen-width]]
+   [organisms.library :as components]
+   [reagent.core :as r]))
 
 (defn resource-flex-vals
   [creature?]
@@ -84,10 +84,12 @@
   [active-filter-list-key]
   [:> rn/View {:style {:flex-direction :row}}
    (doall
-    (map #(toggle-filter-button resource-type-filters-list
-                                active-resource-filter-lists
-                                active-filter-list-key
-                                %)
+    (map (fn [filter-key]
+           [:> rn/View {:key (str "filter-" filter-key)}
+            (toggle-filter-button resource-type-filters-list
+                                 active-resource-filter-lists
+                                 active-filter-list-key
+                                 filter-key)])
          ["Equipment" "Trait" "Expertise" "Affiliation" "Item"]))])
 
 ;;;;;;;;;;;;;;

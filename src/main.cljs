@@ -53,6 +53,3 @@
 (defn ^:export init []
   (init/initialize-db app-conn)
   (render app-conn))
-
-(defn init-dev-tools []
-  (println "Dev"))

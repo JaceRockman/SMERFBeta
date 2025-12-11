@@ -11,15 +11,14 @@
   (let [{:keys [page]} (navigation/get-nav-state conn)
         deselect? (= page destination)
         final-destination (if deselect? {:page :campaigns} destination)]
-    (doall
-     (button {:key (str (:page destination) "-" deselect?)
-              :style (if deselect?
-                       {:width "100%" :height "100%" :background-color (:surface-100 @palette) :align-self :center
-                        :padding 0 :border-radius 0 :justify-content :center :align-items :center}
-                       {:width "100%" :height "100%" :background-color (:surface-700 @palette) :align-self :center
-                        :padding 0 :border-radius 0 :justify-content :center :align-items :center})
-              :on-press (fn [] (navigation/navigate! conn final-destination))}
-             (icon (if deselect? (:surface-700 @palette) (:surface-100 @palette)))))))
+    (button {:key (str (:page destination) "-" deselect?)
+             :style (if deselect?
+                      {:width "100%" :height "100%" :background-color (:surface-100 @palette) :align-self :center
+                       :padding 0 :border-radius 0 :justify-content :center :align-items :center}
+                      {:width "100%" :height "100%" :background-color (:surface-700 @palette) :align-self :center
+                       :padding 0 :border-radius 0 :justify-content :center :align-items :center})
+             :on-press (fn [] (navigation/navigate! conn final-destination))}
+            (icon (if deselect? (:surface-700 @palette) (:surface-100 @palette))))))
 
 (defn tab-bar
   ([conn]

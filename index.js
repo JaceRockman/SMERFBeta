@@ -4,14 +4,12 @@
 // Import the compiled ClojureScript bundle
 // shadow-cljs outputs to expo-build/index.js for react-native target
 // The exact filename may vary - check expo-build/ directory after building
-import * as main from './expo-build/index.js';
+import './expo-build/index.js';
 
-// Call the exported init function from main.cljs
-// This initializes the database and renders the root component
-if (main.init) {
-  main.init();
-} else {
-  // Fallback: if init isn't exported, the module import should trigger initialization
-  console.warn('main.init not found - ensure main.cljs exports init function with ^:export');
-}
+// Note: With shadow-cljs :init-fn configuration, main.init is automatically called
+// when the module loads. If you need to call it manually, access it via global scope:
+// const mainInit = global.main?.init;
+// if (mainInit) {
+//   mainInit();
+// }
 

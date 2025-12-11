@@ -1,9 +1,10 @@
 (ns organisms.molecules.scroll-position-indicator
-  (:require [clojure.math :as math]
-            [reagent.core :as r]
-            ["react-native" :as rn]
-            ["@expo/vector-icons" :refer [Entypo]]
-            [organisms.config :refer [palette]]))
+  (:require
+   ["@expo/vector-icons" :refer [Entypo]]
+   ["react-native" :as rn]
+   [clojure.math :as math]
+   [organisms.config :refer [palette]]
+   [reagent.core :as r]))
 
 (def ruleset-horizontal-position (r/atom 0))
 (def creature-horizontal-position (r/atom 0))
@@ -14,9 +15,12 @@
   [:> rn/View {:key (apply str (interpose "-" sections))
                :style {:width "100%" :height 25 :align-items :center :justify-content :center :flex-direction :row :gap 3}}
    (doall
-    (map (fn [section]
-           [:> Entypo {:name "dot-single" :color (if (= section (get sections @position-atom)) (:surface-700 @palette) (str (:surface-700 @palette) "50")) :size 20}])
-                  sections))])
+    (map-indexed (fn [idx section]
+                   [:> Entypo {:key (str "indicator-" idx "-" section)
+                              :name "dot-single"
+                              :color (if (= section (get sections @position-atom)) (:surface-700 @palette) (str (:surface-700 @palette) "50"))
+                              :size 20}])
+                 sections))])
 
 (defn indicated-scroll-view
   [position-tracker-atom sections children]
