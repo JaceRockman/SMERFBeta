@@ -22,7 +22,6 @@
 (defn get-current-nav-state-title
   [conn]
   (let [{:keys [page query-params]} (get-nav-state conn)]
-    (println page query-params)
     (str/capitalize (if (< 0 (count query-params))
                       (ffirst (ds/q '[:find ?title
                                       :in $ ?eid
@@ -40,8 +39,6 @@
 (defn navigate!
   [conn {:keys [page query-params] :as nav-state}]
   (reset-temp-state)
-  (println "navigating to" nav-state)
-  (println (get-nav-history conn))
   (let [history (get-nav-history conn)]
     (when (not (= (:page (first history)) page))
       (ds/transact! conn [[:db/add 1 :navigator/history (vec (cons nav-state history))]]))))
@@ -78,7 +75,6 @@
 
 (defn set-modal-content
   [conn content]
-  (println "setting modal content to" content)
   (let [modal-content-id (:db/id (get-modal-content conn))]
     (ds/transact! conn [(if modal-content-id
                           {:db/id modal-content-id

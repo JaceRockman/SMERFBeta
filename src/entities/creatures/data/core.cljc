@@ -30,9 +30,8 @@
 (defn get-active-creature-tracker
   [conn]
   (let [result (ffirst (ds/q '[:find ?e
-                  :where [?e :active/creature]]
-                @conn))]
-    (println result)
+                               :where [?e :active/creature]]
+                             @conn))]
     result))
 
 (defn set-active-creature

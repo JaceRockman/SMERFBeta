@@ -1,5 +1,6 @@
 (ns entities.resources.data.core
-  (:require [datascript.core :as ds]))
+  (:require
+   [datascript.core :as ds]))
 
 (def resource-properties [{:db/ident :resource-property/light}
                           {:db/ident :resource-property/medium}
@@ -449,7 +450,6 @@
 
 (defn get-resource-actions
   [conn resource-id]
-  (println @conn)
   (let [result (ds/pull-many @conn '[*]
                              (map first (ds/q '[:find ?eid
                                                 :in $ ?id

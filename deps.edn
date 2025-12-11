@@ -3,6 +3,6 @@
  :deps {org.clojure/clojure {:mvn/version "1.12.3"}
         org.clojure/clojurescript {:mvn/version "1.12.116"}
         thheller/shadow-cljs {:mvn/version "3.3.2"}
-        datascript/datascript {:mvn/version "1.7.8"}
+        datascript/datascript {:mvn/version "1.5.4"}
         reagent/reagent {:mvn/version "2.0.1"}
         io.github.nextjournal/markdown {:mvn/version "0.7.222"}}}

@@ -84,7 +84,6 @@
    conn
    (let [active-campaign-data (campaign-data/get-active-campaign conn)
          active-creature-data (creature-data/get-active-creature conn)]
-     (println "active-creature-data:" active-creature-data)
      (cond
        active-creature-data (creature conn active-creature-data)
        active-campaign-data (creature-select conn (campaign-data/get-active-campaign-creatures conn))

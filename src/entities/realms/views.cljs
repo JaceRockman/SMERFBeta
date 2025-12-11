@@ -1,18 +1,13 @@
 (ns entities.realms.views
-  (:require [clojure.string :as str]
-            ["react-native" :as rn]
-            [reagent.core :as r]
-            ["@expo/vector-icons" :refer [FontAwesome5]]
-            [systems.navigation :as navigation]
-            [entities.campaigns.data.interface :as campaign-data]
-            [entities.realms.data.interface :as realm-data]
-            [organisms.library :as components]))
-
-
+  (:require
+   ["react-native" :as rn]
+   [clojure.string :as str]
+   [entities.campaigns.data.interface :as campaign-data]
+   [entities.realms.data.interface :as realm-data]
+   [organisms.library :as components]))
 
 (defn realm-select
   [conn realms]
-  (println "realm-select")
   (let [flex-vals [1 1]]
     (components/search-filter-sort-list
      {:list-header "Realms"

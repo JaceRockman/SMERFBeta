@@ -25,7 +25,6 @@
 
 (defn root [conn]
   (let [nav-state (when (not (nil? conn)) (navigation/get-nav-state conn))]
-    (println "nav-state" nav-state)
     (case (:page nav-state)
       :settings (views/no-page conn {})
       :asset-library (views/asset-library conn {})
@@ -40,15 +39,13 @@
 
 
 (defn render
-  [conn]
-  (expo-root/render-root (r/as-element (root conn))))
-
+  [& conn]
+  (expo-root/render-root (r/as-element [root (or (first conn) app-conn)])))
 
 ;; re-render on every DB change
 (ds/listen! app-conn
             (fn [tx-report]
-              ;; Use app-conn directly since it's already been updated by transact!
-              (render app-conn)))
+              (render (r/atom (:db-after tx-report)))))
 
 (defn ^:export init []
   (init/initialize-db app-conn)

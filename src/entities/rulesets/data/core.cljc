@@ -314,7 +314,6 @@ Connections represents how many relationships and affiliations a creature has, h
 (defn get-simple-domain-skill-value
   [conn domain-id]
   (let [{:keys [domain/initiation-value domain/reaction-value domain/continuation-value]} (ds/pull @conn '[*] domain-id)]
-    (println [initiation-value reaction-value continuation-value])
     (math/round (/ (+ initiation-value reaction-value continuation-value) 3))))
 
 (defn get-simple-domain-ability-value

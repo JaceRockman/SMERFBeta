@@ -410,7 +410,7 @@
 (defn creature-resource-list
   [conn creature-id]
   (let [list-key "creature-resources"]
-    (resource-list 
+    (resource-list
      conn
      {:item-format-fn (creature-resource-row-component conn)
       :new-item-fn    #(reset! components/modal-content
