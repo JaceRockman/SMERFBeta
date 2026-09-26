@@ -1,2 +1,31 @@
 *~
-*.json
+
+# Clojure
+.cpcache/
+.clj-kondo/.cache/
+
+# ClojureDart / Dart / Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+build/
+coverage/
+lib/cljd-out/
+.lsp/
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Legacy ClojureScript / Node build products
+node_modules/
+.shadow-cljs/
+
+# ClojureDart
+.cpcache/
+.clojuredart/
+lib/cljd-out/
+test/cljd-out/

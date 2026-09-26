@@ -1,3 +1,25 @@
+## ClojureDart rebuild foundation
+
+The production rebuild now lives alongside the legacy prototype in three modules:
+
+- `domain/` — portable `.cljc` contracts
+- `backend/` — JVM ingress and composition
+- `frontend/` — ClojureDart/Flutter application
+
+Common checks:
+
+```sh
+clojure -M:test
+clojure -M:test:cljd test smerf.domain.contract-test
+clojure -M:format
+clojure -M:lint
+clojure -M:check
+clojure -M:cljd compile
+flutter analyze
+```
+
+See `plans/CLOJUREDART_REBUILD_PLAN.md` and `docs/adr/` for the architecture and accepted foundation decisions. The sections below describe the legacy ClojureScript/Expo prototype.
+
 ## Demo of the Current State
 
 ### Realms and Rules
