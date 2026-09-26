@@ -1,17 +1,30 @@
-{:paths ["src"]
+{:paths ["domain/src"
+         "backend/src"
+         "frontend/src"]
 
- :deps {org.clojure/clojure {:mvn/version "1.11.1"}
-        org.clojure/clojurescript {:mvn/version "1.11.60"}
-        ;; org.clojure/tools.deps {:mvn/version "0.16.1264"}
-        thheller/shadow-cljs {:mvn/version "2.25.2"}
-        com.google.javascript/closure-compiler-unshaded {:mvn/version "v20230411"}
-        party.donut/system {:mvn/version "0.0.211"}
-        ;; com.datomic/dev-local {:mvn/version "1.0.243"}
-        io.pedestal/pedestal.log {:mvn/version "0.5.11-beta-1"}
-        ;; io.pedestal/pedestal.service {:mvn/version "0.5.11-beta-1"}
-        ;; io.pedestal/pedestal.jetty {:mvn/version "0.5.11-beta-1"}
-        ;; io.pedestal/pedestal.interceptor {:mvn/version "0.5.11-beta-1"}
-        ;; io.pedestal/pedestal.route {:mvn/version "0.5.11-beta-1"}
-        datascript/datascript {:mvn/version "1.4.2"}
-        reagent/reagent {:mvn/version "1.2.0"}
-        io.github.nextjournal/markdown {:mvn/version "0.4.130"}}}
+ :deps
+ {org.clojure/clojure {:mvn/version "1.12.6"}
+  org.clojure/data.json {:mvn/version "2.5.2"}
+  tensegritics/clojuredart
+  {:git/url "https://github.com/Tensegritics/ClojureDart.git"
+   :git/sha "9f9cef5e0735026b667c28372e6967dcf43dc13e"}}
+
+ :aliases
+ {:cljd {:main-opts ["-m" "cljd.build"]}
+  :test {:extra-paths ["domain/test"
+                       "backend/test"
+                       "frontend/test"]
+         :main-opts ["-m" "smerf.test-runner"]}
+  :backend {:main-opts ["-m" "smerf.backend.system"]}
+  :format {:extra-deps {dev.weavejester/cljfmt {:mvn/version "0.16.5"}}
+           :main-opts ["-m" "cljfmt.main" "check"
+                       "domain" "backend" "frontend" "dev"]}
+  :lint {:extra-deps {clj-kondo/clj-kondo {:mvn/version "2026.08.04"}}
+         :main-opts ["-m" "clj-kondo.main" "--lint"
+                     "domain" "backend" "frontend" "dev"]}
+  :check {:extra-paths ["dev"]
+          :main-opts ["-m" "smerf.check"]}}
+
+ :cljd/opts
+ {:kind :flutter
+  :main smerf.frontend.main}}

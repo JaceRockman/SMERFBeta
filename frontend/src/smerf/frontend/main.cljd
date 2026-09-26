@@ -1,0 +1,18 @@
+(ns smerf.frontend.main
+  (:require ["package:flutter/material.dart" :as m]
+            [cljd.flutter :as f]))
+
+(defn app-system
+  [remote-send]
+  {:remote/send remote-send})
+
+(defn main
+  []
+  (f/run
+   (m/MaterialApp
+    .title "SMERF"
+    .home
+    (m/Scaffold
+     .appBar (m/AppBar .title (m/Text "SMERF"))
+     .body (m/Center
+            .child (m/Text "Foundation tracer ready"))))))
