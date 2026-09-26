@@ -5,7 +5,7 @@ Depends on: [Step 02](../02-logical-schema-contracts/PLAN.md)
 
 ## Objective
 
-Provide reliable persisted synchronized and local Dartascript stores, strict write ownership, cross-database projection queries, and safe reactive invalidation.
+Provide one reliable persisted Dartascript database with synchronized and local ownership zones, strict write ownership, same-database projection queries, and safe reactive invalidation.
 
 ## Non-goals
 
@@ -15,15 +15,15 @@ Provide reliable persisted synchronized and local Dartascript stores, strict wri
 
 ## Inherited decisions
 
-- Synchronized and local facts use separate connections.
+- Synchronized and local facts use disjoint namespaces and schema/version metadata within one physical database.
 - Only `SyncApplier` writes synchronized data; only `LocalTransact` writes local data.
 - Synchronized data is disposable; local data has explicit retention policy.
-- Cross-connection references use logical-ID scalars, not native refs.
+- Cross-zone references use logical-ID scalars, not shared entity-ID assumptions.
 
 ## Interfaces and contracts
 
-- `SynchronizedStore`, `LocalStore`, `SyncApplier`, `LocalTransact`, and `ProjectionQuery`.
-- Persisted envelope containing store kind, device, principal, scope, schema version, checksum, and cursor where applicable.
+- `SynchronizedZone`, `LocalZone`, `SyncApplier`, `LocalTransact`, and `ProjectionQuery`.
+- Persisted database envelope containing engine version, synchronized-zone version, local-zone version, device, principal, scope, checksum, and cursor where applicable.
 - Subscription/invalidation contract with listener-failure isolation.
 
 ## Artifacts
@@ -35,13 +35,13 @@ Provide reliable persisted synchronized and local Dartascript stores, strict wri
 
 ## Implementation tasks
 
-1. Create independent connections and enforce write capabilities.
-2. Define storage keys, envelopes, checksums, and version handling.
-3. Implement stage-write, durability barrier, and atomic activation.
+1. Create one Dartascript database with disjoint synchronized/local namespaces and enforce zone write capabilities.
+2. Define database keys, zone envelopes, checksums, and independent zone-version handling.
+3. Implement synchronized-zone stage-write, durability barrier, and atomic activation without replacing local facts.
 4. Restore without exposing partially loaded state.
 5. Recover from interrupted writes, corruption, and unsupported versions.
 6. Enforce device/principal/scope isolation.
-7. Implement two-input `ProjectionQuery` and logical-ID resolution across connections.
+7. Implement `ProjectionQuery` across synchronized and local zones using logical IDs.
 8. Batch invalidations and isolate subscriber exceptions.
 9. Benchmark lookup, joins, pull, snapshot load, persistence, and rerender invalidation.
 
@@ -49,27 +49,27 @@ Provide reliable persisted synchronized and local Dartascript stores, strict wri
 
 - Termination during save/restore.
 - Corrupt or wrong-scope cache.
-- Local writer reaches synchronized facts.
+- Local writer reaches synchronized facts or synchronized replacement reaches local facts.
 - Listener exceptions or invalidation storms.
-- Cross-database reads observe incompatible generations.
+- Cross-zone reads observe incompatible generations.
 - Startup or query performance exceeds budgets.
 
 ## Tests and observability
 
 - Crash/interruption and corruption-recovery tests.
 - Account/scope isolation and write-ownership tests.
-- Cross-database query correctness.
+- Same-database cross-zone query correctness.
 - Listener exception, cleanup, and batching tests.
 - Metrics for persisted size, load/save/query duration, invalidation count, and failure reason.
 
 ## Migration and rollback
 
-Use versioned keys and preserve the previously activated file until replacement succeeds. Discard/rebuild synchronized storage on rollback. Preserve or explicitly migrate local data; never load it under another account/scope.
+Use versioned keys and preserve the previously activated database snapshot until replacement succeeds. Replace or rebuild only the synchronized zone on rollback. Preserve or explicitly purge/migrate local data according to its account/device policy; never load it under another account or scope.
 
 ## Exit criteria
 
 - Interrupted writes never replace the last valid store.
-- Corrupt synchronized data recovers without damaging local data.
+- Corrupt synchronized data recovers without damaging local data in the same database.
 - Write ownership and account/scope isolation are proven.
 - Listener failures cannot break commits or other subscribers.
 - Documented performance budgets pass representative fixtures.

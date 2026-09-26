@@ -22,7 +22,7 @@ Establish the production monorepo skeleton, pinned toolchain, CI, foundational A
 ## Inherited decisions
 
 - Modules are `domain/`, `backend/`, and `frontend/`.
-- Datomic is authoritative; Dartascript stores synchronized and local client data separately.
+- Datomic is authoritative; one physical Dartascript database stores synchronized and local client data in separate ownership zones.
 - Logical IDs cross boundaries; storage EIDs do not.
 - Direct responses and synchronization are separate paths.
 

@@ -70,7 +70,7 @@ Datomic transaction log -> sync orchestration -> sync formulation -> fanout
 
 Frontend:
 UI -> intent dispatch -> remote or local action execution
-   -> synchronized or local database update -> UI rerender
+   -> synchronized or local zone update -> UI rerender
 ```
 
 Recommended top-level modules mirror those boundaries:
@@ -560,12 +560,12 @@ Local projection migrations are optional. If rebuilding from a snapshot is safe 
 
 ## Frontend data ownership
 
-The frontend has two explicit ownership zones:
+The frontend has two explicit ownership zones in one physical Dartascript database:
 
 - The synchronized cache stores authoritative facts received from the server plus its scope and `applied-through` cursor. Only `SyncApplier` writes it.
-- The local device database stores client-owned facts created by local actions. Only `LocalTransact` writes it.
+- The local zone stores client-owned facts created by local actions. Only `LocalTransact` writes it.
 
-Separate database connections are preferred because ownership, reset, and recovery remain obvious. If one physical database is used, server-owned and local attributes require disjoint namespaces, separate transaction APIs, and snapshot replacement that provably preserves local facts.
+The synchronized and local zones use disjoint namespaces, separate transaction APIs, separate schema/version metadata, and separate persistence envelopes within the same database. Only synchronized facts are replaced during snapshot recovery; local facts are preserved unless an explicit account/device reset policy removes them. Cross-zone references use logical IDs rather than shared entity-ID assumptions.
 
 Both may be persisted between application sessions, but they have different semantics:
 
@@ -577,7 +577,7 @@ When one preference has device and account values, precedence is device override
 
 Every persisted local record is scoped to the device, principal/account, and relevant synchronization scope. Logout, account removal, account switching, authorization loss, and synchronized-entity removal have explicit purge or reconciliation policies. Sensitive caches use platform-appropriate protected storage or encryption.
 
-The following normally belong to the local database or ephemeral view state, never to the synchronized ownership zone:
+The following normally belong to the local zone or ephemeral view state, never to the synchronized ownership zone:
 
 - route and navigation state;
 - form drafts;
@@ -586,7 +586,7 @@ The following normally belong to the local database or ephemeral view state, nev
 - transient dialogs and selections;
 - cached presentation artifacts.
 
-Views use `ProjectionQuery` to combine synchronized facts, local facts, and ephemeral state. Database listeners invalidate queries or trigger reactive rebuilding; database and synchronization code never manipulate widgets directly.
+Views use `ProjectionQuery` to combine synchronized facts, local facts, and ephemeral state from the two ownership zones. Database listeners invalidate queries or trigger reactive rebuilding; database and synchronization code never manipulate widgets directly.
 
 ### Frontend intent pipeline
 
@@ -595,10 +595,10 @@ Views use `ProjectionQuery` to combine synchronized facts, local facts, and ephe
 3. Remote intents go through `RemoteIntentClient` to backend intent ingress.
 4. Local intents go through `LocalActionExecutor`, which returns a `LocalActionPlan`.
 5. `LocalTransact` applies local plans only to the client-owned database.
-6. Backend fanout reaches `SyncReceiver`; `SyncApplier` validates and applies it only to the synchronized database.
+6. Backend fanout reaches `SyncReceiver`; `SyncApplier` validates and applies it only to the synchronized zone.
 7. Projection listeners rerun view queries and the UI rerenders.
 
-A remote acknowledgement does not write synchronized facts. The corresponding sync package is the only normal path by which a remote action changes the synchronized database.
+A remote acknowledgement does not write synchronized facts. The corresponding sync package is the only normal path by which a remote action changes the synchronized zone.
 
 Remote command lifecycle state is owned by a dedicated local controller/store:
 
@@ -752,7 +752,7 @@ For each remote vertical slice:
 5. Read the committed transaction from the durable log.
 6. Formulate an authorized range delta.
 7. Deliver it through the real transport codec.
-8. Apply it to the synchronized database.
+8. Apply it to the synchronized zone.
 9. Assert that the view-facing query returns the expected result.
 
 For each local vertical slice:
