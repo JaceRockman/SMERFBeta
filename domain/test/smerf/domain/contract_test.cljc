@@ -5,6 +5,7 @@
             [smerf.domain.identifiers :as identifiers]
             [smerf.domain.intents :as intents]
             [smerf.domain.responses :as responses]
+            [smerf.domain.schema :as schema]
             [smerf.domain.sync :as sync]
             [smerf.fixtures.contract :as fixture]))
 
@@ -30,6 +31,18 @@
   (let [decoded (-> fixture/envelope codec/encode codec/decode)]
     (is (= fixture/envelope decoded))
     (is (intents/valid-envelope? decoded))))
+
+(deftest shared-logical-schema
+  (is (schema/valid-schema?))
+  (is (= schema/attributes
+         (-> schema/attributes codec/encode codec/decode)))
+  (is (schema/synchronized-attribute?
+       :entity/character
+       :character/notes))
+  (is (schema/reference-attribute? :character/campaign))
+  (is (not (schema/synchronized-attribute?
+            :entity/campaign
+            :character/notes))))
 
 (deftest supported-intents
   (doseq [[intent-type payload]
@@ -121,7 +134,13 @@
            (-> ref codec/encode codec/decode)))
     (is (not (sync/fact? (assoc scalar :fact/ref reference))))
     (is (not (sync/fact? (assoc scalar :fact/value {:nested true}))))
-    (is (not (sync/fact? (assoc scalar :fact/subject "not-an-id"))))))
+    (is (not (sync/fact? (assoc scalar :fact/subject "not-an-id"))))
+    (is (not (sync/fact? (assoc scalar
+                                :fact/attribute
+                                :campaign/name))))
+    (is (not (sync/fact? (assoc scalar
+                                :fact/attribute
+                                :character/campaign))))))
 
 (deftest snapshot-and-delta-shapes
   (let [facts [(sync/scalar-fact

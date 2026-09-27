@@ -16,7 +16,7 @@ update wounds and notes, and execute a server-authoritative roll.
   synchronized results.
 - `IntentClient` submits note, wound, and roll intents.
 - `IntentHandler` dispatches current play operations.
-- `AuthoritativeStore` reads rules and commits authoritative updates/results.
+- The Datomic adapter reads rules and commits authoritative updates/results.
 - `SyncSource` and `SyncApplier` deliver committed state.
 
 ## Files
@@ -47,7 +47,7 @@ general rules engine.
   algorithm.
 - [ ] Add backend validation for character/action existence and required
   relationships.
-- [ ] Implement note and wound transactions through `AuthoritativeStore`.
+- [ ] Implement note and wound transactions in the Datomic adapter.
 - [ ] Implement server-side random roll execution and optional roll-record
   transaction.
 - [ ] Build a character play view with:

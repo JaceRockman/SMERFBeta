@@ -37,8 +37,9 @@ The HTTP poller is an adapter between `SyncSource` responses and
 
 - [ ] Add the pinned Dartascript dependency and prove one small database/query
   works in ClojureDart.
-- [ ] Define synchronized and local attribute namespaces in one Dartascript
-  database.
+- [ ] Derive synchronized Dartascript attributes from the shared logical
+  schema, and define frontend-owned local attributes separately in one
+  Dartascript database.
 - [ ] Implement Datomic entity/reference conversion to logical UUID facts.
 - [ ] Implement `SyncSource/snapshot` from one current Datomic basis.
 - [ ] Implement `SyncSource/deltas-after` using ordered Datomic transaction

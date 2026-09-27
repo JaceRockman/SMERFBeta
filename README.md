@@ -10,7 +10,8 @@ production architecture is preserved in the
 
 ## Current repository structure
 
-- `domain/` — portable `.cljc` contracts compiled on JVM and ClojureDart
+- `domain/` — portable `.cljc` contracts and the shared logical schema,
+  compiled on JVM and ClojureDart
 - `backend/` — Clojure/JVM backend and future Datomic integration
 - `frontend/` — ClojureDart/Flutter implementation; frontend-owned source is
   `.cljd`
@@ -31,9 +32,22 @@ flutter analyze
 ```
 
 The MVP currently contains the shared codec, identifier, intent/result
-contracts, a Flutter foundation screen, generic frontend codec boundaries, and
-the initial dependency checks. Datomic persistence, HTTP, Dartascript sync, and
-campaign UI are implemented in later MVP slices.
+contracts, logical schema, a seeded local Datomic backend derived from that
+schema, intent HTTP handling, a Flutter foundation screen, generic frontend
+codec boundaries, and the initial dependency checks. The Dartascript adapter
+will derive its synchronized schema from the same logical descriptors in
+Slice 3.
+
+## Run the development backend
+
+```sh
+clojure -M:backend
+```
+
+The server listens on `http://localhost:8080` and persists its seeded Datomic
+Local database under `.smerf-datomic/`. Set `PORT` or `SMERF_DATOMIC_DIR` to
+override those defaults. `POST /api/intents` is active; the snapshot and delta
+routes return `501` until Slice 3.
 
 ## Development direction
 

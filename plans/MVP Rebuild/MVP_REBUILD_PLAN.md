@@ -55,13 +55,11 @@ A user can:
 
 ## Active architecture
 
-The MVP uses seven explicit interfaces:
+The MVP uses six explicit interfaces:
 
 - `IntentClient`: sends a domain intent and returns an accepted or rejected
   result.
 - `IntentHandler`: dispatches supported intents to current backend operations.
-- `AuthoritativeStore`: exposes only the Datomic reads and transactions needed
-  by the current journey.
 - `SyncSource`: produces a snapshot or the deltas after a cursor.
 - `SyncApplier`: applies backend snapshots and deltas to the synchronized
   Dartascript zone.
@@ -75,8 +73,8 @@ flowchart LR
   UI["Flutter UI"] --> IntentClient
   IntentClient --> HttpIntentAdapter["HTTP intent adapter"]
   HttpIntentAdapter --> IntentHandler
-  IntentHandler --> AuthoritativeStore
-  AuthoritativeStore --> Datomic
+  IntentHandler --> DatomicAdapter["Datomic adapter"]
+  DatomicAdapter --> Datomic
   Datomic --> SyncSource
   SyncSource --> HttpSyncAdapter["HTTP sync adapter"]
   HttpSyncAdapter --> SyncApplier
@@ -97,6 +95,8 @@ they are not intended to form a generic application framework.
 `domain/` owns only portable data required by the MVP:
 
 - canonical logical IDs;
+- the unversioned logical entity/attribute schema consumed by backend and
+  frontend storage adapters;
 - campaign, ruleset, world, character, action, and roll shapes;
 - intent and result shapes;
 - logical synchronization facts;
@@ -104,15 +104,16 @@ they are not intended to form a generic application framework.
 - basic context-free validation;
 - the existing tagged-JSON codec.
 
-The existing registry foundation may be reused, but the MVP will not expand it
-into a generalized schema-evolution system.
+The MVP keeps a small concrete logical schema as the source of truth for both
+storage adapters, but does not expand it into the Full Rebuild's generalized
+schema-versioning and migration system.
 
 ### Backend
 
 `backend/` owns:
 
-- Datomic schema and seed loading;
-- the `AuthoritativeStore` Datomic adapter;
+- Datomic schema derivation from the shared logical schema and seed loading;
+- operation-specific Datomic queries and transactions;
 - the `IntentHandler` for currently supported operations;
 - the `SyncSource` snapshot/delta adapter;
 - simple HTTP request handlers;
@@ -121,10 +122,9 @@ into a generalized schema-evolution system.
 - snapshot construction;
 - Datomic transaction-range to logical-delta conversion.
 
-Intent handlers call the small authoritative-store interface rather than
-embedding Datomic calls. The Datomic adapter may remain straightforward and
-operation-specific. Durable orchestrators, effect systems, generic action
-plans, and workflow persistence are deferred.
+Intent handlers call operation-specific functions in the concrete Datomic
+adapter rather than embedding Client API calls. Durable orchestrators, effect
+systems, generic action plans, and workflow persistence are deferred.
 
 ### Frontend
 
@@ -150,8 +150,8 @@ state-management framework or a complete UI component taxonomy.
 - [x] Foundation tracer and cross-runtime tagged-JSON codec
 - [x] [Slice 0 — Simplify the existing foundation](00-simplify-existing-foundation/PLAN.md)
 - [x] [Slice 1 — Minimal domain and sync contracts](01-minimal-domain-sync-contracts/PLAN.md)
-- [ ] [Slice 2 — Seeded Datomic backend](02-seeded-datomic-backend/PLAN.md) — next
-- [ ] [Slice 3 — Snapshot and polling-delta synchronization](03-snapshot-delta-sync/PLAN.md)
+- [x] [Slice 2 — Seeded Datomic backend](02-seeded-datomic-backend/PLAN.md)
+- [ ] [Slice 3 — Snapshot and polling-delta synchronization](03-snapshot-delta-sync/PLAN.md) — next
 - [ ] [Slice 4 — Campaign browsing frontend](04-campaign-browsing-frontend/PLAN.md)
 - [ ] [Slice 5 — Character builder](05-character-builder/PLAN.md)
 - [ ] [Slice 6 — Character play](06-character-play/PLAN.md)
@@ -196,8 +196,7 @@ contracts, persistence, synchronization, and UI work begin in later slices.
 - Validate required fields, logical IDs, known intent types, and basic value
   types.
 - Define the input/output contracts for `IntentClient`, `IntentHandler`,
-  `AuthoritativeStore`, `SyncSource`, `SyncApplier`, `LocalTransact`, and
-  `ProjectionQuery`.
+  `SyncSource`, `SyncApplier`, `LocalTransact`, and `ProjectionQuery`.
 
 ### Accept
 
@@ -221,7 +220,6 @@ classification.
   example characters, and basic actions.
 - Direct query functions for the campaign workspace.
 - Direct transactions for character creation, notes, wounds, and rolls.
-- Implement those operations behind the narrow `AuthoritativeStore` interface.
 - Implement intent dispatch through `IntentHandler`.
 - HTTP endpoints:
   - `GET /api/sync/snapshot`

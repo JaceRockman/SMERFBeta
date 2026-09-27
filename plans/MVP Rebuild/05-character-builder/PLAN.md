@@ -14,7 +14,7 @@ using direct intents and authoritative synchronized results.
 
 - `IntentClient` submits create and explicit notes intents.
 - `IntentHandler` performs backend validation and dispatch.
-- `AuthoritativeStore` commits character facts.
+- The Datomic adapter commits character facts.
 - `SyncSource` and `SyncApplier` deliver committed state.
 - `LocalTransact` may hold an in-progress device-local form draft.
 - `ProjectionQuery` supplies campaign/ruleset options and saved character data.
@@ -42,8 +42,7 @@ Do not model optional character concepts until the play slice uses them.
 - [ ] Finalize create-character and update-notes intent payloads.
 - [ ] Add context-free payload validation in `domain/`.
 - [ ] Add backend checks that campaign and referenced ruleset values exist.
-- [ ] Implement create and update-notes transactions through
-  `AuthoritativeStore`.
+- [ ] Implement create and update-notes transactions in the Datomic adapter.
 - [ ] Return accepted/rejected results through `IntentHandler`.
 - [ ] Define a small local form-draft shape and operations through
   `LocalTransact`; keep it ephemeral if persistence adds complexity.

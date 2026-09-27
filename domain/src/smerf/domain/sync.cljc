@@ -1,16 +1,9 @@
 (ns smerf.domain.sync
   "Minimal logical facts, snapshots, and deltas for the MVP."
-  (:require [smerf.domain.identifiers :as identifiers]))
+  (:require [smerf.domain.identifiers :as identifiers]
+            [smerf.domain.schema :as schema]))
 
 (def fact-operations #{:add :retract})
-
-(defn- scalar-value?
-  [value]
-  (or (nil? value)
-      (string? value)
-      (boolean? value)
-      (number? value)
-      (keyword? value)))
 
 (defn scalar-fact
   "Creates a logical fact whose value is not a database reference."
@@ -41,10 +34,18 @@
            (keyword? (:fact/entity fact))
            (identifiers/canonical-uuid? (:fact/subject fact))
            (keyword? (:fact/attribute fact))
+           (schema/synchronized-attribute?
+            (:fact/entity fact)
+            (:fact/attribute fact))
            (not= has-value has-reference)
            (if has-reference
-             (identifiers/canonical-uuid? (:fact/ref fact))
-             (scalar-value? (:fact/value fact)))))))
+             (and (schema/reference-attribute? (:fact/attribute fact))
+                  (identifiers/canonical-uuid? (:fact/ref fact)))
+             (and (not (schema/reference-attribute?
+                        (:fact/attribute fact)))
+                  (schema/valid-scalar-value?
+                   (:fact/attribute fact)
+                   (:fact/value fact))))))))
 
 (defn snapshot
   "Creates a complete synchronized projection at a Datomic transaction t."

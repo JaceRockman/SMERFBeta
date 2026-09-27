@@ -15,7 +15,6 @@ complete the Full Rebuild's generalized compatibility system.
 
 - `IntentClient`: accepts an intent envelope and returns a direct result.
 - `IntentHandler`: accepts the same envelope on the backend.
-- `AuthoritativeStore`: declares current journey-specific reads and writes.
 - `SyncSource`: returns either a snapshot or deltas after a cursor.
 - `SyncApplier`: applies one snapshot or delta package.
 - `LocalTransact`: applies client-owned local operations.
@@ -51,8 +50,9 @@ shared contracts:
 - `fixtures/contract.cljc`: cross-runtime contract values.
 
 Slice 1 will add only the concrete synchronization data needed by the MVP:
-logical facts, snapshots, deltas, and their focused validation. It will not
-recreate the removed registry or generalized envelope catalog.
+logical facts, snapshots, deltas, and their focused validation. Slice 2 may
+add an unversioned logical attribute schema shared by the physical adapters;
+the removed generalized registry and envelope catalog remain deferred.
 - [x] Freeze the unversioned MVP intent, result, snapshot, and delta shapes.
 - [x] Define logical scalar facts and reference facts using canonical UUID
   strings for subjects and references.
@@ -69,7 +69,7 @@ recreate the removed registry or generalized envelope catalog.
 - [x] Reuse the existing intent/result and snapshot/delta constructors and
   predicates for the shared `IntentClient`, `IntentHandler`, `SyncSource`, and
   `SyncApplier` values.
-- [x] Keep `AuthoritativeStore`, `LocalTransact`, and `ProjectionQuery`
+- [x] Keep backend Datomic operations, `LocalTransact`, and `ProjectionQuery`
   concrete and slice-owned; define their function shapes in the backend and
   frontend implementation slices instead of adding speculative shared-domain
   wrappers.
