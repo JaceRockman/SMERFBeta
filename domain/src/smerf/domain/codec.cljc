@@ -3,8 +3,6 @@
             #?(:cljd ["dart:convert" :as convert]
                :clj [clojure.data.json :as json])))
 
-(def codec-version 1)
-
 (declare to-wire from-wire)
 
 (defn- ordered
@@ -109,18 +107,12 @@
 
 (defn encode
   [value]
-  (let [document {"codec-version" codec-version
-                  "payload" (to-wire value)}]
+  (let [document {"payload" (to-wire value)}]
     #?(:cljd (convert/jsonEncode document)
        :clj (json/write-str document :escape-slash false))))
 
 (defn decode
   [encoded]
   (let [document #?(:cljd (convert/jsonDecode encoded)
-                    :clj (json/read-str encoded))
-        version (get document "codec-version")]
-    (when-not (= codec-version version)
-      (throw (ex-info "Unsupported codec version"
-                      {:error/type :codec/unsupported-version
-                       :error/version version})))
+                    :clj (json/read-str encoded))]
     (from-wire (get document "payload"))))

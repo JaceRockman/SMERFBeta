@@ -26,7 +26,7 @@ flowchart LR
 
 Use a monorepo with three top-level modules:
 
-- [`ARCHITECTURE.md`](../ARCHITECTURE.md): reusable architecture principles, synchronization invariants, module boundaries, failure handling, testing strategy, and decision rules. Project-specific plans must conform to it or record an explicit architecture decision.
+- [`ARCHITECTURE.md`](../../ARCHITECTURE.md): reusable architecture principles, synchronization invariants, module boundaries, failure handling, testing strategy, and decision rules. Project-specific plans must conform to it or record an explicit architecture decision.
 - `domain/`: portable `.cljc` data definitions compiled by both `:clj` and `:cljd`. It owns stable attribute and intent keywords, entity structure definitions, enums, request/response/sync shapes, schema versions, and context-free validation. It does not execute commands or perform database operations.
 - `backend/`: Clojure/JVM service with Datomic as the source of truth. The command pipeline is intent ingress -> root orchestration -> capability/action execution -> atomic database operation -> direct response. The independently recoverable sync pipeline is durable Datomic log -> sync orchestration -> range formulation -> sync-only fanout.
 - `frontend/`: ClojureDart/Flutter app with one persisted Dartascript database containing separate synchronized-cache and client-owned-device-data zones. Its pipeline is UI -> intent dispatch -> remote or local execution -> synchronized or local zone update -> UI rerender; infrastructure lifecycle events use state machines rather than the intent registry.
@@ -122,16 +122,16 @@ Initial synchronization sends the authorized Dartascript schema and filtered dat
 
 ## Frontend feature map from current entities
 
-- Campaigns from [`src/entities/campaigns`](../src/entities/campaigns): campaign picker, add campaign form, campaign summary/workspace, active campaign context, campaign-scoped worlds/rulesets/characters/resources, and active play-ruleset selector. Replace the raw entity dump and example-only modal with real views.
-- Worlds from [`src/entities/realms`](../src/entities/realms): searchable/sortable world list, nested entries grouped by type, ancestor/child navigation, markdown lore, and internal lore links. Use client-owned Dartascript navigation state for the selected path rather than synchronized “active realm” records.
-- Rulesets from [`src/entities/rulesets`](../src/entities/rulesets): campaign/global picker, complexity display, five reference sections, horizontal/page navigation, stat granularity, wound tiers, and ruleset switching. Preserve the current rule text as importable seed content.
-- Characters from [`src/entities/creatures`](../src/entities/creatures): picker, create/edit flow, portrait/header, ruleset selector, and Stats/Resources/Actions/Notes pages. Preserve domain/skillbility/stat presentations and wound editing; make notes editable.
-- Resources from [`src/entities/resources`](../src/entities/resources): catalog search, type filters, sorting, details, properties, quality/power, linked actions, create/edit form, character inventory, add-to-character, and quantity controls. Scope inventory by character and normalize resource type names.
-- Actions from [`src/entities/actions`](../src/entities/actions): grouped action list and complete roll builder—stats, resources, modifiers, optional splinters, pool split/merge, dice roll, and save. Character pages must use character-linked actions rather than all actions. Show and optionally persist roll results instead of printing them.
+- Campaigns from [`src/entities/campaigns`](../../src/entities/campaigns): campaign picker, add campaign form, campaign summary/workspace, active campaign context, campaign-scoped worlds/rulesets/characters/resources, and active play-ruleset selector. Replace the raw entity dump and example-only modal with real views.
+- Worlds from [`src/entities/realms`](../../src/entities/realms): searchable/sortable world list, nested entries grouped by type, ancestor/child navigation, markdown lore, and internal lore links. Use client-owned Dartascript navigation state for the selected path rather than synchronized “active realm” records.
+- Rulesets from [`src/entities/rulesets`](../../src/entities/rulesets): campaign/global picker, complexity display, five reference sections, horizontal/page navigation, stat granularity, wound tiers, and ruleset switching. Preserve the current rule text as importable seed content.
+- Characters from [`src/entities/creatures`](../../src/entities/creatures): picker, create/edit flow, portrait/header, ruleset selector, and Stats/Resources/Actions/Notes pages. Preserve domain/skillbility/stat presentations and wound editing; make notes editable.
+- Resources from [`src/entities/resources`](../../src/entities/resources): catalog search, type filters, sorting, details, properties, quality/power, linked actions, create/edit form, character inventory, add-to-character, and quantity controls. Scope inventory by character and normalize resource type names.
+- Actions from [`src/entities/actions`](../../src/entities/actions): grouped action list and complete roll builder—stats, resources, modifiers, optional splinters, pool split/merge, dice roll, and save. Character pages must use character-linked actions rather than all actions. Show and optionally persist roll results instead of printing them.
 
 ## Frontend UI hierarchy from current organisms
 
-Rebuild [`src/organisms`](../src/organisms) as Flutter-focused layers:
+Rebuild [`src/organisms`](../../src/organisms) as Flutter-focused layers:
 
 - Theme/tokens from `config.cljs`: Material theme extensions, typography, spacing, and responsive dimensions through `MediaQuery`; retain dark mode and add light-mode readiness.
 - Basics: button variants, text styles, icons, raw form fields, spacing/layout primitives, and basic validation-message display.

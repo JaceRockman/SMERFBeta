@@ -1,0 +1,12 @@
+(ns smerf.frontend.transport
+  (:require [smerf.domain.codec :as codec]))
+
+(defn codec-transport
+  "Creates the frontend codec transport boundary."
+  [request]
+  {:remote/send
+   (fn [envelope]
+     (-> envelope
+         codec/encode
+         request
+         codec/decode))})

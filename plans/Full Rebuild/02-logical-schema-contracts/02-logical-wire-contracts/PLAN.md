@@ -38,7 +38,7 @@ Define:
 ## Implementation tasks
 
 1. [x] Add logical-fact and envelope namespaces under `domain/src/smerf/domain/`.
-2. Define required, optional, and forbidden keys for each envelope.
+2. [x] Define required, optional, and forbidden keys for each envelope.
 3. Define fact validation against the registry, including scalar/reference exclusivity.
 4. Define snapshot/delta cursor and scope invariants.
 5. Define stable result and error types while preserving correlation metadata.

@@ -4,9 +4,9 @@
             [smerf.domain.codec :as codec]
             [smerf.domain.identifiers :as identifiers]
             [smerf.domain.intents :as intents]
-            [smerf.domain.registry :as registry]
-            [smerf.fixtures.registry :as registry-fixture]
-            [smerf.fixtures.tracer :as fixture]))
+            [smerf.domain.responses :as responses]
+            [smerf.domain.sync :as sync]
+            [smerf.fixtures.contract :as fixture]))
 
 (defn error-type
   [thunk]
@@ -17,308 +17,140 @@
       (:error/type (ex-data error)))))
 
 (deftest canonical-identifiers
-  (is (identifiers/canonical-uuid? (:command/id fixture/ids)))
+  (is (identifiers/canonical-uuid? fixture/correlation-id))
   (is (not (identifiers/canonical-uuid?
             "AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA")))
   (is (not (identifiers/canonical-uuid? "not-an-id"))))
-
-(deftest registry-descriptors-and-lookups
-  (let [status (registry/enum-descriptor
-                :character/status
-                #{:active :retired}
-                {:enum/labels {:active "Active"
-                               :retired "Retired"}})
-        name (registry/attribute-descriptor
-              :character/name
-              :entity/character
-              :scalar/string
-              :one
-              {:attribute/required? true})
-        character (registry/entity-descriptor
-                   :entity/character
-                   :entity/id
-                   [:entity/id :character/name])
-        schema (registry/registry character name status)]
-    (is (= character (registry/find-entity schema :entity/character)))
-    (is (= name (registry/find-attribute schema :character/name)))
-    (is (= status (registry/find-enum schema :character/status)))
-    (is (nil? (registry/find-entity schema :entity/missing)))
-    (is (= #{:entity/id :character/name}
-           (:entity/attributes
-            (registry/find-entity schema :entity/character))))))
-
-(deftest registry-vocabulary
-  (testing "logical types"
-    (is (registry/supported-logical-type? :scalar/string))
-    (is (registry/supported-logical-type? :scalar/uuid-string))
-    (is (not (registry/supported-logical-type? :scalar/unknown))))
-  (testing "cardinalities"
-    (is (registry/supported-cardinality? :one))
-    (is (registry/supported-cardinality? :many))
-    (is (not (registry/supported-cardinality? :some))))
-  (testing "ownership zones"
-    (is (registry/supported-ownership-zone? :shared))
-    (is (registry/supported-ownership-zone? :backend))
-    (is (registry/supported-ownership-zone? :local))
-    (is (not (registry/supported-ownership-zone? :remote))))
-  (testing "constraint forms"
-    (is (registry/supported-constraint-form? :constraint/enum))
-    (is (registry/supported-constraint-form? :constraint/non-negative))
-    (is (not (registry/supported-constraint-form? :constraint/unknown)))))
-
-(deftest registry-version-families
-  (doseq [family [:codec/version
-                  :protocol/version
-                  :intent/version
-                  :result/version
-                  :projection/version
-                  :storage/datomic-version
-                  :storage/dartascript-version
-                  :attribute/contract-version
-                  :scope/version]]
-    (testing (str "version family " family)
-      (is (registry/supported-version-family? family))
-      (is (= {:major 1 :minor 0}
-             (registry/current-version family)))
-      (is (= family
-             (:version/family (registry/version-family family))))))
-  (testing "Dartascript zones share one physical storage version"
-    (let [metadata (registry/version-family :storage/dartascript-version)]
-      (is (= :dartascript (:version/storage-kind metadata)))
-      (is (= {:major 1 :minor 0}
-             (get-in metadata [:version/zones :synchronized])))
-      (is (= {:major 1 :minor 0}
-             (get-in metadata [:version/zones :local])))))
-  (is (not (registry/supported-version-family? :unknown/version)))
-  (is (nil? (registry/version-family :unknown/version)))
-  (is (nil? (registry/current-version :unknown/version))))
-
-(deftest registry-validation
-  (let [campaign-id
-        (registry/attribute-descriptor
-         :campaign/id
-         :entity/campaign
-         :scalar/uuid-string
-         :one
-         {:attribute/required? true
-          :attribute/identity? true
-          :attribute/unique? true
-          :attribute/immutable? true
-          :attribute/nullable? false})
-        campaign-name
-        (registry/attribute-descriptor
-         :campaign/name
-         :entity/campaign
-         :scalar/string
-         :one)
-        character-id
-        (registry/attribute-descriptor
-         :character/id
-         :entity/character
-         :scalar/uuid-string
-         :one
-         {:attribute/required? true
-          :attribute/identity? true
-          :attribute/unique? true
-          :attribute/immutable? true
-          :attribute/nullable? false})
-        character-campaign
-        (registry/attribute-descriptor
-         :character/campaign
-         :entity/character
-         :reference
-         :one
-         {:attribute/reference :entity/campaign
-          :attribute/sync? true})
-        campaign
-        (registry/entity-descriptor
-         :entity/campaign
-         :campaign/id
-         [:campaign/id :campaign/name])
-        character
-        (registry/entity-descriptor
-         :entity/character
-         :character/id
-         [:character/id :character/campaign])
-        schema
-        (registry/registry
-         campaign-id
-         campaign-name
-         character-id
-         character-campaign
-         campaign
-         character)]
-    (is (registry/valid-registry? schema))
-    (is (= {:valid? true :errors [] :warnings []}
-           (registry/validate-registry schema)))))
-
-(deftest registry-validation-failures
-  (let [identity-a
-        (registry/attribute-descriptor
-         :entity/id-a
-         :entity/example
-         :scalar/uuid-string
-         :one
-         {:attribute/identity? true})
-        identity-b
-        (registry/attribute-descriptor
-         :entity/id-b
-         :entity/example
-         :scalar/uuid-string
-         :one
-         {:attribute/identity? true})
-        invalid-reference
-        (registry/attribute-descriptor
-         :example/reference
-         :entity/example
-         :reference
-         :one
-         {:attribute/reference :entity/missing})
-        invalid-type
-        (registry/attribute-descriptor
-         :example/invalid
-         :entity/example
-         :scalar/unknown
-         :many)
-        leaked
-        (registry/attribute-descriptor
-         :example/backend-only
-         :entity/example
-         :scalar/string
-         :one
-         {:attribute/ownership :backend
-          :attribute/sync? true})
-        example
-        (registry/entity-descriptor
-         :entity/example
-         :entity/id-a
-         [:entity/id-a
-          :entity/id-b
-          :example/reference
-          :example/invalid
-          :example/backend-only])
-        schema
-        (registry/registry
-         identity-a
-         identity-a
-         identity-b
-         invalid-reference
-         invalid-type
-         leaked
-         example)
-        errors (:errors (registry/validate-registry schema))
-        codes (set (map :error/code errors))]
-    (is (contains? codes :registry/duplicate-id))
-    (is (contains? codes :registry/conflicting-identity))
-    (is (contains? codes :registry/identity-not-required))
-    (is (contains? codes :registry/identity-nullable))
-    (is (contains? codes :registry/identity-not-unique))
-    (is (contains? codes :registry/identity-mutable))
-    (is (contains? codes :registry/unknown-reference-target))
-    (is (contains? codes :registry/unsupported-logical-type))
-    (is (contains? codes :registry/ownership-leak))
-    (is (not (registry/valid-registry? schema)))))
-
-(deftest registry-constraint-validation-and-warnings
-  (let [unknown-constraint
-        (assoc-in
-         registry-fixture/registry
-         [:registry/attributes :character/name :attribute/constraints]
-         {:constraint/unknown true})
-        unknown-enum
-        (assoc-in
-         registry-fixture/registry
-         [:registry/attributes :character/status :attribute/constraints]
-         {:constraint/enum :enum/missing})
-        malformed-descriptor
-        (registry/registry
-         {:not-a :descriptor}
-         "also-not-a-descriptor")
-        unknown-constraint-result
-        (registry/validate-registry unknown-constraint)
-        unknown-enum-result
-        (registry/validate-registry unknown-enum)
-        warning-result
-        (registry/validate-registry malformed-descriptor)]
-    (is (contains?
-         (set (map :error/code (:errors unknown-constraint-result)))
-         :registry/unsupported-constraint-form))
-    (is (contains?
-         (set (map :error/code (:errors unknown-enum-result)))
-         :registry/unknown-enum))
-    (is (:valid? warning-result))
-    (is (= 2 (count (:warnings warning-result))))
-    (is (every? #(= :registry/unknown-descriptor
-                    (:warning/code %))
-                (:warnings warning-result)))))
-
-(deftest representative-registry-fixture
-  (is (registry/valid-registry? registry-fixture/registry))
-  (is (= :scalar/uuid-string
-         (:attribute/logical-type
-          (registry/find-attribute
-           registry-fixture/registry
-           :character/id))))
-  (is (= :enum/character-status
-         (get-in
-          (registry/find-attribute
-           registry-fixture/registry
-           :character/status)
-          [:attribute/constraints :constraint/enum])))
-  (let [campaign-reference
-        (registry/find-attribute
-         registry-fixture/registry
-         :character/campaign)
-        resource-references
-        (registry/find-attribute
-         registry-fixture/registry
-         :character/resources)
-        backend-only
-        (registry/find-attribute
-         registry-fixture/registry
-         :character/backend-note)
-        local-only
-        (registry/find-attribute
-         registry-fixture/registry
-         :character/local-selection)]
-    (is (= :reference (:attribute/logical-type campaign-reference)))
-    (is (= :entity/campaign (:attribute/reference campaign-reference)))
-    (is (= :many (:attribute/cardinality resource-references)))
-    (is (= :entity/resource (:attribute/reference resource-references)))
-    (is (= :backend (:attribute/ownership backend-only)))
-    (is (not (:attribute/sync? backend-only)))
-    (is (= :local (:attribute/ownership local-only)))
-    (is (not (:attribute/sync? local-only)))))
 
 (deftest representative-values-round-trip
   (is (= fixture/representative-values
          (-> fixture/representative-values codec/encode codec/decode))))
 
-(deftest representative-values-wire-fixture
-  (is (= fixture/representative-values-json
-         (codec/encode fixture/representative-values))))
-
-(deftest envelope-round-trip
+(deftest intent-round-trip
   (let [decoded (-> fixture/envelope codec/encode codec/decode)]
     (is (= fixture/envelope decoded))
     (is (intents/valid-envelope? decoded))))
 
+(deftest supported-intents
+  (doseq [[intent-type payload]
+          {:character/create
+           {:character/campaign-id "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+            :character/name "Aria"
+            :character/ruleset-id "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"}
+           :character/update-notes
+           {:character/id "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+            :character/notes "Notes"}
+           :character/update-wounds
+           {:character/id "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+            :character/wounds 1}
+           :character/roll
+           {:character/id "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+            :action/id "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"}}]
+    (is (intents/valid-intent?
+         (intents/ui-intent intent-type payload))))
+  (is (not (intents/supported-intent-type? :system/unknown)))
+  (is (not (intents/valid-intent?
+            (intents/ui-intent :system/unknown {}))))
+  (is (not (intents/valid-intent?
+            (intents/ui-intent
+             :character/update-notes
+             {:character/id "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+              :character/notes "Notes"
+              :character/extra true})))))
+
+(deftest result-contracts
+  (let [roll (responses/roll-result
+              "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+              [4 2]
+              6
+              :success)
+        accepted (responses/accepted fixture/envelope roll)
+        rejected (responses/rejected
+                  fixture/envelope
+                  (responses/structured-error
+                   :validation/invalid-request
+                   "Invalid request."))]
+    (is (responses/remote-result? accepted))
+    (is (= :remote/accepted (:result/type accepted)))
+    (is (responses/roll-result? (:result/value accepted)))
+    (is (= roll
+           (-> roll codec/encode codec/decode)))
+    (is (responses/remote-result? rejected))
+    (is (= :remote/rejected (:result/type rejected)))
+    (is (= rejected
+           (-> rejected codec/encode codec/decode)))))
+
+(deftest shared-mvp-fixtures
+  (is (sync/snapshot? fixture/snapshot))
+  (is (sync/delta? fixture/delta))
+  (is (every? sync/fact? fixture/campaign-facts))
+  (is (every? sync/fact? fixture/character-update-additions))
+  (is (every? sync/fact? fixture/character-update-retractions))
+  (is (every? intents/valid-intent? fixture/intents))
+  (is (responses/remote-result? fixture/accepted-result))
+  (is (responses/remote-result? fixture/rejected-result))
+  (is (= fixture/snapshot
+         (-> fixture/snapshot codec/encode codec/decode)))
+  (is (= fixture/delta
+         (-> fixture/delta codec/encode codec/decode)))
+  (is (= fixture/accepted-result
+         (-> fixture/accepted-result codec/encode codec/decode)))
+  (is (= fixture/rejected-result
+         (-> fixture/rejected-result codec/encode codec/decode))))
+
+(deftest logical-facts
+  (let [subject "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+        reference "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+        scalar (sync/scalar-fact
+                :add
+                :entity/character
+                subject
+                :character/name
+                "Aria")
+        ref (sync/reference-fact
+             :retract
+             :entity/character
+             subject
+             :character/campaign
+             reference)]
+    (is (sync/fact? scalar))
+    (is (sync/fact? ref))
+    (is (= scalar
+           (-> scalar codec/encode codec/decode)))
+    (is (= ref
+           (-> ref codec/encode codec/decode)))
+    (is (not (sync/fact? (assoc scalar :fact/ref reference))))
+    (is (not (sync/fact? (assoc scalar :fact/value {:nested true}))))
+    (is (not (sync/fact? (assoc scalar :fact/subject "not-an-id"))))))
+
+(deftest snapshot-and-delta-shapes
+  (let [facts [(sync/scalar-fact
+                :add
+                :entity/character
+                "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+                :character/name
+                "Aria")]
+        snapshot (sync/snapshot 10 facts)
+        delta (sync/delta 10 12 facts [])]
+    (is (sync/snapshot? snapshot))
+    (is (= snapshot
+           (-> snapshot codec/encode codec/decode)))
+    (is (sync/delta? delta))
+    (is (= delta
+           (-> delta codec/encode codec/decode)))))
+
 (deftest malformed-codec-cases
-  (testing "unknown versions are rejected"
-    (is (= :codec/unsupported-version
-           (error-type #(codec/decode
-                         "{\"codec-version\":99,\"payload\":null}")))))
   (testing "unknown tags are rejected"
     (is (= :codec/unknown-tag
            (error-type #(codec/decode
-                         "{\"codec-version\":1,\"payload\":{\"$type\":\"future\"}}")))))
+                         "{\"payload\":{\"$type\":\"future\"}}")))))
   (testing "tagged collections require their payload"
     (is (= :codec/malformed-value
            (error-type #(codec/decode
-                         "{\"codec-version\":1,\"payload\":{\"$type\":\"vector\"}}"))))
+                         "{\"payload\":{\"$type\":\"vector\"}}"))))
     (is (= :codec/malformed-value
            (error-type #(codec/decode
-                         "{\"codec-version\":1,\"payload\":{\"$type\":\"map\",\"entries\":[1]}}"))))))
+                         "{\"payload\":{\"$type\":\"map\",\"entries\":[1]}}"))))))
 
 (deftest numeric-codec-cases
   (testing "ratios are not silently converted to doubles on the JVM"

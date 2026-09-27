@@ -20,8 +20,7 @@
                       {:error/type :validation/invalid-identifier
                        :error/value value})))))
 
-(defn correlation-metadata?
+(defn correlation-id?
+  "True when value can identify one client operation."
   [value]
-  (and (map? value)
-       (every? #(canonical-uuid? (get value %))
-               [:command/id :correlation/id :causation/id])))
+  (canonical-uuid? value))

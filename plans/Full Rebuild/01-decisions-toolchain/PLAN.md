@@ -8,7 +8,7 @@ Establish the production monorepo skeleton, pinned toolchain, CI, foundational A
 
 ## Implementation status
 
-- Accepted decisions are recorded in [`docs/adr/`](../../docs/adr/).
+- Accepted decisions are recorded in [`docs/adr/`](../../../docs/adr/).
 - The `domain/`, `backend/`, and `frontend/` skeletons and composition roots exist.
 - Shared JVM/ClojureDart codec fixtures and the JVM tracer acceptance path are implemented.
 - Six-target Flutter hosts and CI jobs are generated; remote CI execution is still pending.

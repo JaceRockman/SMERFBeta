@@ -1,4 +1,4 @@
-# ADR 0004: Versioned tagged JSON wire codec
+# ADR 0004: Tagged JSON wire codec
 
 - Status: Accepted
 - Date: 2026-09-26
@@ -9,12 +9,17 @@ The tracer must preserve Clojure values across JVM and ClojureDart. Plain JSON l
 
 ## Decision
 
-Use UTF-8 JSON with an explicit, versioned tagged-value layer. Version 1 represents nil, booleans, strings, finite integers/doubles, keywords, vectors, lists, sets, and maps. Boundary UUIDs are canonical lowercase hyphenated strings rather than runtime UUID objects.
+Use UTF-8 JSON with an explicit tagged-value layer. The MVP represents nil,
+booleans, strings, finite integers/doubles, keywords, vectors, lists, sets, and
+maps. Boundary UUIDs are canonical lowercase hyphenated strings rather than
+runtime UUID objects.
 
-Map entries and unordered collections receive a deterministic ordering before encoding. JVM JSON encoding disables slash escaping so the canonical JSON bytes match Dart's encoder. Decoders reject unknown codec versions, unknown tags, malformed values, non-finite numbers, and non-canonical UUIDs in identifier fields.
+Map entries and unordered collections receive a deterministic ordering before encoding. JVM JSON encoding disables slash escaping so the canonical JSON bytes match Dart's encoder. Decoders reject unknown tags, malformed values, non-finite numbers, and non-canonical UUIDs in identifier fields.
 
 ## Consequences
 
 - JSON tooling remains native on both runtimes and easy to inspect.
-- The tag vocabulary is a protocol contract and requires a version change for incompatible additions.
+- The tag vocabulary is a protocol contract. The MVP deploys compatible client
+  and backend code together; incompatible tag changes are a Full Rebuild
+  concern.
 - Transit can be reconsidered only when a supported ClojureDart implementation exists and measured benefits justify migration.

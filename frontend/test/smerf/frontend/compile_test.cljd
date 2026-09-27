@@ -1,0 +1,6 @@
+(ns smerf.frontend.compile-test
+  (:require [smerf.frontend.intents.dispatcher :as dispatcher]
+            [smerf.frontend.transport :as transport]))
+
+(def dispatch-fn dispatcher/dispatch)
+(def codec-transport-fn transport/codec-transport)

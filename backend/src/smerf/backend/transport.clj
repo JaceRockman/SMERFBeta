@@ -1,10 +1,9 @@
 (ns smerf.backend.transport
-  (:require [smerf.backend.ingress.tracer :as tracer]
-            [smerf.domain.codec :as codec]))
+  (:require [smerf.domain.codec :as codec]))
 
 (defn request
-  [encoded-envelope]
+  [handler encoded-envelope]
   (-> encoded-envelope
       codec/decode
-      tracer/handle
+      handler
       codec/encode))

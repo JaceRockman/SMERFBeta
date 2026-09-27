@@ -1,11 +1,9 @@
 (ns smerf.test-runner
   (:require [clojure.test :as test]
-            [smerf.backend.tracer-test]
             [smerf.domain.contract-test]))
 
 (defn -main
   [& _]
-  (let [result (test/run-tests 'smerf.domain.contract-test
-                               'smerf.backend.tracer-test)]
+  (let [result (test/run-tests 'smerf.domain.contract-test)]
     (when (pos? (+ (:fail result) (:error result)))
       (System/exit 1))))

@@ -1,11 +1,8 @@
-(ns smerf.backend.system
-  (:require [smerf.backend.ingress.tracer :as tracer]
-            [smerf.backend.transport :as transport]))
+(ns smerf.backend.system)
 
 (defn system
   []
-  {:backend/handle-intent tracer/handle
-   :backend/request transport/request})
+  {:backend/status :not-started})
 
 (defn -main
   [& _]

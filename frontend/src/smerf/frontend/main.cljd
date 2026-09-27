@@ -15,4 +15,4 @@
     (m/Scaffold
      .appBar (m/AppBar .title (m/Text "SMERF"))
      .body (m/Center
-            .child (m/Text "Foundation tracer ready"))))))
+            .child (m/Text "Foundation ready"))))))

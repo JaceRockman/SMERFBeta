@@ -1,40 +1,48 @@
 (ns smerf.domain.responses
   (:require [smerf.domain.identifiers :as identifiers]))
 
-(def protocol-version 1)
-
 (defn structured-error
   ([type message]
    (structured-error type message nil))
   ([type message details]
-   (cond-> {:error/version protocol-version
-            :error/type type
+   (cond-> {:error/type type
             :error/message message}
      (some? details) (assoc :error/details details))))
 
 (defn accepted
-  [envelope value stages]
-  {:result/version protocol-version
-   :result/type :remote/accepted
-   :command/id (:command/id envelope)
+  [envelope value]
+  {:result/type :remote/accepted
    :correlation/id (:correlation/id envelope)
-   :causation/id (:causation/id envelope)
-   :result/value value
-   :trace/stages stages})
+   :result/value value})
 
 (defn rejected
-  [envelope error stages]
-  {:result/version protocol-version
-   :result/type :remote/rejected
-   :command/id (:command/id envelope)
+  [envelope error]
+  {:result/type :remote/rejected
    :correlation/id (:correlation/id envelope)
-   :causation/id (:causation/id envelope)
-   :result/error error
-   :trace/stages stages})
+   :result/error error})
+
+(defn roll-result
+  [action-id dice total outcome]
+  {:roll/action-id action-id
+   :roll/dice dice
+   :roll/total total
+   :roll/outcome outcome})
+
+(defn roll-result?
+  [result]
+  (and (map? result)
+       (identifiers/canonical-uuid? (:roll/action-id result))
+       (vector? (:roll/dice result))
+       (every? integer? (:roll/dice result))
+       (integer? (:roll/total result))
+       (keyword? (:roll/outcome result))))
 
 (defn remote-result?
   [result]
-  (and (= protocol-version (:result/version result))
+  (and (map? result)
        (contains? #{:remote/accepted :remote/rejected} (:result/type result))
-       (identifiers/correlation-metadata? result)
-       (vector? (:trace/stages result))))
+       (or (and (= :remote/accepted (:result/type result))
+                (contains? result :result/value))
+           (and (= :remote/rejected (:result/type result))
+                (map? (:result/error result))))
+       (identifiers/correlation-id? (:correlation/id result))))
