@@ -85,7 +85,7 @@
                    "/api/sync/delta"]]
         (let [sync-response (app {:request-method :get :uri uri})]
           (is (= 501 (:status sync-response)))
-          (is (= :sync/not-implemented
+          (is (= :sync/not-configured
                  (:error/type (codec/decode (:body sync-response)))))))
 
       (testing "invalid tagged JSON is a client error"

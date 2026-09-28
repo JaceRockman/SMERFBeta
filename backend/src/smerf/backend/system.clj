@@ -12,7 +12,7 @@
          intent-handler (intents-handler/handler backend)]
      {:datomic backend
       :intent-handler intent-handler
-      :http-handler (http/app intent-handler)})))
+      :http-handler (http/app backend intent-handler)})))
 
 (defn -main
   [& _]

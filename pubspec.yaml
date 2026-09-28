@@ -34,6 +34,10 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  dartascript:
+    git:
+      url: https://github.com/JaceRockman/dartascript.git
+      ref: 49d7566f388640239bf266fc128a0738298ffd16
 
 dev_dependencies:
   flutter_test:

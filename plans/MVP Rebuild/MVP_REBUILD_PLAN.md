@@ -151,7 +151,7 @@ state-management framework or a complete UI component taxonomy.
 - [x] [Slice 0 — Simplify the existing foundation](00-simplify-existing-foundation/PLAN.md)
 - [x] [Slice 1 — Minimal domain and sync contracts](01-minimal-domain-sync-contracts/PLAN.md)
 - [x] [Slice 2 — Seeded Datomic backend](02-seeded-datomic-backend/PLAN.md)
-- [ ] [Slice 3 — Snapshot and polling-delta synchronization](03-snapshot-delta-sync/PLAN.md) — next
+- [ ] [Slice 3 — Snapshot and polling-delta synchronization](03-snapshot-delta-sync/PLAN.md) — in progress
 - [ ] [Slice 4 — Campaign browsing frontend](04-campaign-browsing-frontend/PLAN.md)
 - [ ] [Slice 5 — Character builder](05-character-builder/PLAN.md)
 - [ ] [Slice 6 — Character play](06-character-play/PLAN.md)

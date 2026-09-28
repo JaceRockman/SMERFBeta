@@ -1,6 +1,18 @@
 (ns smerf.frontend.compile-test
-  (:require [smerf.frontend.intents.dispatcher :as dispatcher]
+  (:require [smerf.frontend.data.dartascript :as database]
+            [smerf.frontend.data.local-transact :as local]
+            [smerf.frontend.data.projection-query :as query]
+            [smerf.frontend.data.sync-applier :as applier]
+            [smerf.frontend.intents.dispatcher :as dispatcher]
+            [smerf.frontend.sync.client :as sync-client]
+            [smerf.frontend.sync.poller :as poller]
             [smerf.frontend.transport :as transport]))
 
 (def dispatch-fn dispatcher/dispatch)
 (def codec-transport-fn transport/codec-transport)
+(def database-fn database/database)
+(def apply-snapshot-fn applier/apply-snapshot!)
+(def local-select-fn local/select-campaign!)
+(def campaign-query-fn query/campaign-workspace)
+(def sync-client-fn sync-client/client)
+(def poller-fn poller/start!)

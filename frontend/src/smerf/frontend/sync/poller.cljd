@@ -1,0 +1,21 @@
+(ns smerf.frontend.sync.poller
+  (:require ["dart:async" :as async]
+            ["dart:core" :as core]
+            [smerf.frontend.sync.client :as client]))
+
+(defn poll-once!
+  [database sync-client]
+  (try
+    (client/poll! database sync-client)
+    (catch Object error
+      {:sync/type :sync/error
+       :sync/error error})))
+
+(defn start!
+  "Poll immediately, then continue while the application is active."
+  [database sync-client interval-ms]
+  (poll-once! database sync-client)
+  (async/Timer.periodic
+   (core/Duration :milliseconds interval-ms)
+   (fn [_]
+     (poll-once! database sync-client))))
